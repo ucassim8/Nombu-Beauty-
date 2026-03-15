@@ -24,7 +24,7 @@ jobs:
       - run: flutter build apk --release
 
       # Upload the APK as artifact
-      - uses: actions/upload-artifact@v3
-        with:
-          name: nombu-beauty-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+      - - uses: actions/upload-artifact@v4
+  with:
+    name: nombu-beauty-apk
+    path: build/app/outputs/flutter-apk/app-release.apk
