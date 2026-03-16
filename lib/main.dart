@@ -14,54 +14,7 @@ class NombuBeautyApp extends StatelessWidget {
         primarySwatch: Colors.pink,
         scaffoldBackgroundColor: Color(0xFFFDE6EB),
       ),
-      home: SplashScreen(),
-    );
-  }
-}
-
-// Splash Screen with Logo
-class SplashScreen extends StatefulWidget {
-  @override
-  _SplashScreenState createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomeScreen()),
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.pink[100],
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/logo.png', // <-- Place your logo image in assets folder
-              width: 150,
-              height: 150,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'NOMBU Beauty',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.pink[900],
-              ),
-            ),
-          ],
-        ),
-      ),
+      home: HomeScreen(),
     );
   }
 }
@@ -73,7 +26,7 @@ class BookingRequest {
   final TimeOfDay time;
   final bool afterHours;
   final File? photo;
-  String status;
+  String status; // Pending / Confirmed / Declined
 
   BookingRequest({
     required this.service,
@@ -85,10 +38,9 @@ class BookingRequest {
   });
 }
 
-// Global booking requests list
+// Global list to store requests
 List<BookingRequest> bookingRequests = [];
 
-// Home Screen
 class HomeScreen extends StatelessWidget {
   final List<String> categories = [
     'Hair Services',
@@ -120,7 +72,7 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
+                      builder: (context) =>
                           ServiceScreen(category: categories[index]),
                     ),
                   );
@@ -134,7 +86,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// Service Screen
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -250,10 +201,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
               hint: Text('Select a service'),
               value: selectedService,
               items: categoryServices
-                  .map((s) => DropdownMenuItem(
-                        value: s['name'],
-                        child: Text('${s['name']} - R${s['price']}'),
-                      ))
+                  .map<DropdownMenuItem<String>>(
+                    (s) => DropdownMenuItem<String>(
+                      value: s['name'] as String,
+                      child: Text('${s['name']} - R${s['price']}'),
+                    ),
+                  )
                   .toList(),
               onChanged: (val) {
                 setState(() {
@@ -311,7 +264,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   void _checkPassword() {
     if (_passwordController.text == '2478') {
-      setState(() => _authenticated = true);
+      setState(() {
+        _authenticated = true;
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Wrong password')),
@@ -360,11 +315,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       children: [
                         IconButton(
                           icon: Icon(Icons.check, color: Colors.green),
-                          onPressed: () => setState(() => req.status = 'Confirmed'),
+                          onPressed: () {
+                            setState(() {
+                              req.status = 'Confirmed';
+                            });
+                          },
                         ),
                         IconButton(
                           icon: Icon(Icons.close, color: Colors.red),
-                          onPressed: () => setState(() => req.status = 'Declined'),
+                          onPressed: () {
+                            setState(() {
+                              req.status = 'Declined';
+                            });
+                          },
                         ),
                       ],
                     ),
