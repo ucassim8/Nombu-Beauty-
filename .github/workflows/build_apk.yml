@@ -6,6 +6,62 @@ on:
       - main
 
 jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Ensure Android folder exists
+        run: |
+          if [ ! -d "android" ]; then
+            flutter create .
+          fi
+
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Ensure iOS folder exists
+        run: |
+          if [ ! -d "ios" ]; then
+            flutter create .
+          fi
+
+      - name: Build iOS IPA
+        run: flutter build ipa --release --no-codesign
+
+      - name: Upload IPA as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-ipa
+          path: build/ios/ipa/*.ipa
+
   build-web:
     runs-on: ubuntu-latest
     steps:
@@ -19,22 +75,20 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Flutter Web
+      - name: Ensure Web folder exists
+        run: |
+          if [ ! -d "web" ]; then
+            flutter create .
+          fi
+
+      - name: Build Web Release
         run: flutter build web --release
 
-      - name: Prepare docs folder for GitHub Pages
-        run: |
-          rm -rf docs
-          mkdir docs
-          cp -r build/web/* docs/
-
-      - name: Commit and push docs
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Upload Web as artifact
+        uses: actions/upload-artifact@v4
         with:
-          commit_message: "Deploy Flutter Web to GitHub Pages"
-          branch: main
-          file_pattern: docs/**
-
+          name: web-build
+          path: build/web/
   build-android:
     runs-on: ubuntu-latest
     steps:
