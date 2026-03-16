@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-android:
+  android-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -34,7 +34,7 @@ jobs:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-  build-ios:
+  ios-build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,7 +62,7 @@ jobs:
           name: app-release-ipa
           path: build/ios/ipa/*.ipa
 
-  build-web:
+  web-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -77,42 +77,20 @@ jobs:
 
       - name: Ensure Web folder exists
         run: |
-          if [ ! -d "web" ]; then
+          if [ ! -f "web/index.html" ]; then
             flutter create .
           fi
 
-      - name: Build Web Release
+      - name: Build Flutter Web
         run: flutter build web --release
 
-      - name: Upload Web as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build
-          path: build/web/
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Ensure Android folder exists
+      - name: Move web build to docs/
         run: |
-          if [ ! -d "android" ]; then
-            flutter create .
-          fi
+          rm -rf docs
+          mv build/web docs
 
-      - name: Build Release APK
-        run: flutter build apk --release
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v4
+      - name: Deploy docs to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v6
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
