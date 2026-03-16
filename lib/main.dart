@@ -231,7 +231,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   TimeOfDay? selectedTime;
   File? selectedImage;
   final ImagePicker _picker = ImagePicker();
-  final String whatsappNumber = '0672412217';
+  final String whatsappNumber = '+27672412217';
 
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
