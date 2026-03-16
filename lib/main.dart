@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
-import 'dart:async';
 
 void main() => runApp(NombuBeautyApp());
 
@@ -15,12 +14,13 @@ class NombuBeautyApp extends StatelessWidget {
         primarySwatch: Colors.pink,
         scaffoldBackgroundColor: Color(0xFFFDE6EB),
       ),
+      debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );
   }
 }
 
-// Splash screen (fade-in name only)
+// ================= Splash Screen =================
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -29,7 +29,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -37,14 +37,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+    _slideAnimation =
+        Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0)).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
 
     _controller.forward();
 
-    // Delay before navigating to HomeScreen
-    Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
+    Future.delayed(Duration(seconds: 3), () {
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => HomeScreen()),
       );
     });
@@ -59,16 +61,17 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFDE6EB),
+      backgroundColor: Color(0xFFD14778), // darker pink background
       body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
           child: Text(
             'NOMBU Beauty',
             style: TextStyle(
+              color: Colors.white,
               fontSize: 36,
               fontWeight: FontWeight.bold,
-              color: Colors.pink,
+              letterSpacing: 2,
             ),
           ),
         ),
@@ -77,14 +80,14 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// Model for booking request
+// ================= Booking Request Model =================
 class BookingRequest {
   final String service;
   final DateTime date;
   final TimeOfDay time;
   final bool afterHours;
   final File? photo;
-  String status; // Pending / Confirmed / Declined
+  String status;
 
   BookingRequest({
     required this.service,
@@ -96,9 +99,9 @@ class BookingRequest {
   });
 }
 
-// Global list to store requests
 List<BookingRequest> bookingRequests = [];
 
+// ================= Home Screen =================
 class HomeScreen extends StatelessWidget {
   final List<String> categories = [
     'Hair Services',
@@ -110,16 +113,32 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('NOMBU Beauty')),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            // Uncomment below if you add a logo later
+            // Image.asset('assets/Logonombu.jpg', height: 35),
+            // SizedBox(width: 8),
+            Text('NOMBU Beauty'),
+          ],
+        ),
+        backgroundColor: Color(0xFFD14778),
+      ),
       body: ListView.builder(
         itemCount: categories.length,
         itemBuilder: (context, index) {
           return Card(
-            margin: EdgeInsets.all(8),
+            elevation: 3,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: ListTile(
               title: Text(categories[index],
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              trailing: Icon(Icons.arrow_forward),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.pink[800])),
+              trailing: Icon(Icons.arrow_forward, color: Colors.pink[800]),
               onTap: () {
                 if (categories[index] == 'Admin Dashboard') {
                   Navigator.push(
@@ -130,7 +149,7 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
+                      builder: (_) =>
                           ServiceScreen(category: categories[index]),
                     ),
                   );
@@ -144,6 +163,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+// ================= Service Screen =================
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -184,7 +204,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   File? selectedImage;
 
   final ImagePicker _picker = ImagePicker();
-  final String whatsappNumber = '+27672412217'; // updated country code
+  final String whatsappNumber = '+27672412217'; // updated number
 
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -204,10 +224,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
         context: context,
         initialTime: TimeOfDay.now(),
       );
-      if (time != null) setState(() {
-        selectedDate = date;
-        selectedTime = time;
-      });
+      if (time != null)
+        setState(() {
+          selectedDate = date;
+          selectedTime = time;
+        });
     }
   }
 
@@ -230,8 +251,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
     int estimatedPrice = selectedPrice!;
     if (afterHours) estimatedPrice += 100;
 
-    String dateStr = '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
-    String timeStr = '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
+    String dateStr =
+        '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
+    String timeStr =
+        '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
     String message =
         'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\nService: $selectedService\nDate: $dateStr\nTime: $timeStr\n\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle photo.\n\nThank you.';
 
@@ -250,7 +273,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
     List<Map<String, dynamic>> categoryServices = services[widget.category]!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category)),
+      appBar: AppBar(
+        title: Text(widget.category),
+        backgroundColor: Color(0xFFD14778),
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(12),
         child: Column(
@@ -286,6 +312,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
             ),
             SizedBox(height: 12),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFD14778)),
               onPressed: pickDateTime,
               child: Text(selectedDate == null
                   ? 'Select Date & Time'
@@ -293,6 +321,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
             ),
             SizedBox(height: 12),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFD14778)),
               onPressed: pickImage,
               child: Text(selectedImage == null
                   ? 'Upload Reference Photo (Optional)'
@@ -300,6 +330,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent),
               onPressed: sendWhatsAppRequest,
               child: Text('Send Booking Request via WhatsApp'),
             ),
@@ -310,7 +342,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// Admin Dashboard
+// ================= Admin Dashboard =================
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -337,6 +369,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (!_authenticated) {
       return Scaffold(
         appBar: AppBar(title: Text('Admin Dashboard')),
+        backgroundColor: Color(0xFFD14778),
         body: Padding(
           padding: EdgeInsets.all(20),
           child: Column(
@@ -356,6 +389,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     return Scaffold(
       appBar: AppBar(title: Text('Admin Dashboard')),
+      backgroundColor: Color(0xFFFDE6EB),
       body: bookingRequests.isEmpty
           ? Center(child: Text('No booking requests yet'))
           : ListView.builder(
@@ -364,6 +398,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 BookingRequest req = bookingRequests[index];
                 return Card(
                   margin: EdgeInsets.all(8),
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
                     title: Text('${req.service} (${req.status})'),
                     subtitle: Text(
