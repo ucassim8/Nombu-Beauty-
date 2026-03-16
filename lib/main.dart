@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
+import 'dart:typed_data'; // For web image data
 
 void main() => runApp(NombuBeautyApp());
 
@@ -14,19 +14,54 @@ class NombuBeautyApp extends StatelessWidget {
         primarySwatch: Colors.pink,
         scaffoldBackgroundColor: Color(0xFFFDE6EB),
       ),
-      home: HomeScreen(),
+      home: SplashScreen(),
     );
   }
 }
 
-// Model for booking request
+// ------------------- SPLASH SCREEN -------------------
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomeScreen()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/Logonombu.jpg', width: 150),
+            SizedBox(height: 20),
+            CircularProgressIndicator(color: Colors.pink),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ------------------- GLOBAL BOOKING DATA -------------------
 class BookingRequest {
   final String service;
   final DateTime date;
   final TimeOfDay time;
   final bool afterHours;
-  final File? photo;
-  String status; // Pending / Confirmed / Declined
+  final Uint8List? photo; // Web-compatible
+  String status;
 
   BookingRequest({
     required this.service,
@@ -38,9 +73,9 @@ class BookingRequest {
   });
 }
 
-// Global list to store requests
 List<BookingRequest> bookingRequests = [];
 
+// ------------------- HOME SCREEN -------------------
 class HomeScreen extends StatelessWidget {
   final List<String> categories = [
     'Hair Services',
@@ -86,6 +121,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+// ------------------- SERVICE SCREEN -------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -123,14 +159,17 @@ class _ServiceScreenState extends State<ServiceScreen> {
   bool afterHours = false;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  File? selectedImage;
+  Uint8List? selectedImage;
 
   final ImagePicker _picker = ImagePicker();
   final String whatsappNumber = '0672412217';
 
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) setState(() => selectedImage = File(image.path));
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      setState(() => selectedImage = bytes);
+    }
   }
 
   Future<void> pickDateTime() async {
@@ -172,8 +211,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
     int estimatedPrice = selectedPrice!;
     if (afterHours) estimatedPrice += 100;
 
-    String dateStr = '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
-    String timeStr = '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
+    String dateStr =
+        '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
+    String timeStr =
+        '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
     String message =
         'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\nService: $selectedService\nDate: $dateStr\nTime: $timeStr\n\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle photo.\n\nThank you.';
 
@@ -197,6 +238,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
         padding: EdgeInsets.all(12),
         child: Column(
           children: [
+            Image.asset('assets/Logonombu.jpg', width: 150),
+            SizedBox(height: 12),
             DropdownButtonFormField<String>(
               hint: Text('Select a service'),
               value: selectedService,
@@ -252,7 +295,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// Admin Dashboard
+// ------------------- ADMIN DASHBOARD -------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -264,13 +307,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   void _checkPassword() {
     if (_passwordController.text == '2478') {
-      setState(() {
-        _authenticated = true;
-      });
+      setState(() => _authenticated = true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Wrong password')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Wrong password')));
     }
   }
 
@@ -337,7 +377,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           context: context,
                           builder: (_) => AlertDialog(
                             title: Text('Reference Photo'),
-                            content: Image.file(req.photo!),
+                            content: Image.memory(req.photo!),
                             actions: [
                               TextButton(
                                   onPressed: () => Navigator.pop(context),
