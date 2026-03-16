@@ -53,7 +53,7 @@ jobs:
             flutter create .
           fi
 
-      - name: Build iOS IPA
+      - name: Build iOS IPA (no codesign)
         run: flutter build ipa --release --no-codesign
 
       - name: Upload IPA as artifact
@@ -76,22 +76,13 @@ jobs:
         run: flutter pub get
 
       - name: Ensure Web folder exists
-        run: |
-          if [ ! -f "web/index.html" ]; then
-            flutter create .
-          fi
+        run: flutter create .
 
-      - name: Build Web Release
+      - name: Build Flutter Web
         run: flutter build web --release
 
-      - name: Move web build to docs
-        run: |
-          rm -rf docs
-          mkdir docs
-          cp -r build/web/* docs/
-
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v5
+        uses: peaceiris/actions-gh-pages@v6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+          publish_dir: ./build/web
