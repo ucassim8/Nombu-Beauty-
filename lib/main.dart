@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:typed_data'; // For web image data
+import 'dart:io';
+import 'dart:async';
 
 void main() => runApp(NombuBeautyApp());
 
@@ -13,69 +14,83 @@ class NombuBeautyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.pink,
         scaffoldBackgroundColor: Color(0xFFFDE6EB),
+        fontFamily: 'Poppins',
       ),
+      debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );
   }
 }
 
-// ------------------- SPLASH SCREEN -------------------
+// ------------------------- SPLASH SCREEN -------------------------
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 2), () {
+
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 2));
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
+    _controller.forward();
+
+    Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomeScreen()),
-      );
+          context, MaterialPageRoute(builder: (_) => HomeScreen()));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/Logonombu.jpg', width: 150),
-            SizedBox(height: 20),
-            CircularProgressIndicator(color: Colors.pink),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.pink.shade100, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: FadeTransition(
+            opacity: _animation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/logo.jpg', width: 120, height: 120),
+                SizedBox(height: 16),
+                Text(
+                  'NOMBU Beauty',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.pink.shade800,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Your beauty, your way 🌸',
+                  style: TextStyle(fontSize: 14, color: Colors.pink.shade400),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-// ------------------- GLOBAL BOOKING DATA -------------------
-class BookingRequest {
-  final String service;
-  final DateTime date;
-  final TimeOfDay time;
-  final bool afterHours;
-  final Uint8List? photo; // Web-compatible
-  String status;
-
-  BookingRequest({
-    required this.service,
-    required this.date,
-    required this.time,
-    required this.afterHours,
-    this.photo,
-    this.status = 'Pending',
-  });
-}
-
-List<BookingRequest> bookingRequests = [];
-
-// ------------------- HOME SCREEN -------------------
+// ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatelessWidget {
   final List<String> categories = [
     'Hair Services',
@@ -87,32 +102,65 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('NOMBU Beauty')),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Image.asset('assets/logo.jpg', width: 40, height: 40),
+            SizedBox(width: 8),
+            Text('NOMBU Beauty'),
+          ],
+        ),
+        elevation: 5,
+        backgroundColor: Colors.pink.shade400,
+      ),
       body: ListView.builder(
+        padding: EdgeInsets.all(12),
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          return Card(
-            margin: EdgeInsets.all(8),
-            child: ListTile(
-              title: Text(categories[index],
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              trailing: Icon(Icons.arrow_forward),
-              onTap: () {
-                if (categories[index] == 'Admin Dashboard') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => AdminDashboard()),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ServiceScreen(category: categories[index]),
-                    ),
-                  );
-                }
-              },
+          return GestureDetector(
+            onTap: () {
+              if (categories[index] == 'Admin Dashboard') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AdminDashboard()),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ServiceScreen(category: categories[index]),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 8),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.pink.shade100, Colors.pink.shade50],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.pink.shade200.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    categories[index],
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Icon(Icons.arrow_forward, color: Colors.pink.shade800),
+                ],
+              ),
             ),
           );
         },
@@ -121,7 +169,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ------------------- SERVICE SCREEN -------------------
+// ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -159,17 +207,14 @@ class _ServiceScreenState extends State<ServiceScreen> {
   bool afterHours = false;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  Uint8List? selectedImage;
+  File? selectedImage;
 
   final ImagePicker _picker = ImagePicker();
   final String whatsappNumber = '0672412217';
 
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      final bytes = await image.readAsBytes();
-      setState(() => selectedImage = bytes);
-    }
+    if (image != null) setState(() => selectedImage = File(image.path));
   }
 
   Future<void> pickDateTime() async {
@@ -200,32 +245,16 @@ class _ServiceScreenState extends State<ServiceScreen> {
       return;
     }
 
-    bookingRequests.add(BookingRequest(
-      service: selectedService!,
-      date: selectedDate!,
-      time: selectedTime!,
-      afterHours: afterHours,
-      photo: selectedImage,
-    ));
-
     int estimatedPrice = selectedPrice!;
     if (afterHours) estimatedPrice += 100;
 
-    String dateStr =
-        '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
-    String timeStr =
-        '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
+    String dateStr = '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
+    String timeStr = '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
     String message =
         'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\nService: $selectedService\nDate: $dateStr\nTime: $timeStr\n\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle photo.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open WhatsApp')),
-      );
-    }
+    if (await canLaunch(url)) await launch(url);
   }
 
   @override
@@ -233,23 +262,26 @@ class _ServiceScreenState extends State<ServiceScreen> {
     List<Map<String, dynamic>> categoryServices = services[widget.category]!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category)),
+      appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            Image.asset('assets/Logonombu.jpg', width: 150),
-            SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              hint: Text('Select a service'),
+              decoration: InputDecoration(
+                labelText: 'Select a service',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               value: selectedService,
               items: categoryServices
-                  .map<DropdownMenuItem<String>>(
-                    (s) => DropdownMenuItem<String>(
-                      value: s['name'] as String,
-                      child: Text('${s['name']} - R${s['price']}'),
-                    ),
-                  )
+                  .map((s) => DropdownMenuItem<String>(
+                        value: s['name'],
+                        child: Text('${s['name']} - R${s['price']}'),
+                      ))
                   .toList(),
               onChanged: (val) {
                 setState(() {
@@ -259,7 +291,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 });
               },
             ),
-            SizedBox(height: 12),
+            SizedBox(height: 16),
             Row(
               children: [
                 Checkbox(
@@ -269,24 +301,45 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 Text('After-hours (+R100)'),
               ],
             ),
-            SizedBox(height: 12),
+            SizedBox(height: 16),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink.shade300,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
               onPressed: pickDateTime,
               child: Text(selectedDate == null
                   ? 'Select Date & Time'
                   : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}'),
             ),
-            SizedBox(height: 12),
+            SizedBox(height: 16),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink.shade300,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
               onPressed: pickImage,
               child: Text(selectedImage == null
                   ? 'Upload Reference Photo (Optional)'
                   : 'Photo Selected'),
             ),
+            if (selectedImage != null)
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Image.file(selectedImage!, height: 120),
+              ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink.shade400,
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
               onPressed: sendWhatsAppRequest,
-              child: Text('Send Booking Request via WhatsApp'),
+              child: Text('Send Booking Request via WhatsApp', style: TextStyle(fontSize: 16)),
             ),
           ],
         ),
@@ -295,7 +348,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// ------------------- ADMIN DASHBOARD -------------------
+// ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -304,13 +357,17 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _passwordController = TextEditingController();
   bool _authenticated = false;
+  List<BookingRequest> bookingRequests = [];
 
   void _checkPassword() {
     if (_passwordController.text == '2478') {
-      setState(() => _authenticated = true);
+      setState(() {
+        _authenticated = true;
+      });
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Wrong password')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Wrong password')),
+      );
     }
   }
 
@@ -346,6 +403,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 BookingRequest req = bookingRequests[index];
                 return Card(
                   margin: EdgeInsets.all(8),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 5,
                   child: ListTile(
                     title: Text('${req.service} (${req.status})'),
                     subtitle: Text(
@@ -377,7 +437,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           context: context,
                           builder: (_) => AlertDialog(
                             title: Text('Reference Photo'),
-                            content: Image.memory(req.photo!),
+                            content: Image.file(req.photo!),
                             actions: [
                               TextButton(
                                   onPressed: () => Navigator.pop(context),
@@ -393,4 +453,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
     );
   }
+}
+
+// ------------------------- BOOKING MODEL -------------------------
+class BookingRequest {
+  final String service;
+  final DateTime date;
+  final TimeOfDay time;
+  final bool afterHours;
+  final File? photo;
+  String status; // Pending / Confirmed / Declined
+
+  BookingRequest({
+    required this.service,
+    required this.date,
+    required this.time,
+    required this.afterHours,
+    this.photo,
+    this.status = 'Pending',
+  });
 }
