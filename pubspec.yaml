@@ -20,7 +20,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # Fonts
+  assets:
+    - assets/Logonombu.jpg
+
   fonts:
     - family: PlayfairDisplay
       fonts:
@@ -28,7 +30,3 @@ flutter:
     - family: Montserrat
       fonts:
         - asset: assets/fonts/Montserrat-Regular.ttf
-
-  # Assets
-  assets:
-    - assets/Logonombu.jpg
