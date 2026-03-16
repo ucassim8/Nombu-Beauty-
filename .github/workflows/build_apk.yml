@@ -3,46 +3,25 @@ name: Build & Deploy Flutter Web
 on:
   push:
     branches:
-      - main  # Trigger deployment on push to main
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
-      - name: Build Web
-        run: flutter build web --release
+      - run: flutter build web --release
 
-      - name: Deploy to gh-pages
-        env:
-          GH_PAT: ${{ secrets.GITHUB_TOKEN }}  # Personal access token or GitHub Actions token
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Create orphan gh-pages branch
-          git checkout --orphan gh-pages
-          git reset --hard
-          
-          # Copy Flutter build to root
-          cp -r build/web/* .
-          
-          # Prevent Jekyll from processing files
-          touch .nojekyll
-          
-          git add .
-          git commit -m "Deploy Flutter Web"
-          
-          # Force push to gh-pages branch
-          git push -f https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} gh-pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
