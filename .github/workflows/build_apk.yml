@@ -1,4 +1,4 @@
-name: Build NOMBU Beauty APK
+name: Build Flutter APK
 
 on:
   push:
@@ -11,32 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1️⃣ Checkout your code
-    - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    # 2️⃣ Install Flutter
-    - uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.24.0' # Use your project’s Flutter version
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v3
+        with:
+          flutter-version: '3.24.0'
 
-    # 3️⃣ Set up Android SDK
-    - uses: android-actions/setup-android@v2
-      with:
-        api-level: 35          # Matches compileSdkVersion
-        target: android-35
-        build-tools: 35.0.0
+      - name: Install dependencies
+        run: flutter pub get
 
-    # 4️⃣ Get Flutter dependencies
-    - name: Get Flutter dependencies
-      run: flutter pub get
+      - name: Recreate Android folder if missing
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Android folder missing. Creating..."
+            flutter create .
+          fi
 
-    # 5️⃣ Build release APK
-    - name: Build APK
-      run: flutter build apk --release
+      - name: Build release APK
+        run: flutter build apk --release
 
-    # 6️⃣ Upload APK artifact
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: nombu-beauty-apk
-        path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nombu-Beauty-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
