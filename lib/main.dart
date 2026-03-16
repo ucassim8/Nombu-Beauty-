@@ -90,8 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ------------------------- HOME SCREEN -------------------------
-class // ------------------------- HOME SCREEN -------------------------
+// ------------------------- HOME SCREEN (Squares with Icons) -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -108,21 +107,25 @@ class HomeScreen extends StatelessWidget {
           children: [
             Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
             SizedBox(width: 8),
-            Text('NOMBU Beauty'),
+            Text(
+              'NOMBU Beauty',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white),
+            ),
           ],
         ),
-        elevation: 5,
         backgroundColor: Colors.pink.shade400,
+        elevation: 5,
       ),
       body: Padding(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // two cards per row
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1, // square cards
+            crossAxisCount: 2, // two squares per row
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1, // square
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -137,7 +140,8 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ServiceScreen(category: category['name']),
+                      builder: (_) =>
+                          ServiceScreen(category: category['name']),
                     ),
                   );
                 }
@@ -146,8 +150,10 @@ class HomeScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Colors.pink.shade100, Colors.pink.shade50],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.pink.shade200.withOpacity(0.4),
@@ -159,13 +165,16 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
+                    Icon(category['icon'], size: 50, color: Colors.pink.shade800),
                     SizedBox(height: 12),
                     Text(
                       category['name'],
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.pink.shade800),
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.pink.shade700,
+                      ),
                     ),
                   ],
                 ),
@@ -175,8 +184,6 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-}
   }
 }
 
