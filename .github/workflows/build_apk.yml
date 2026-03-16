@@ -36,7 +36,7 @@ jobs:
 
     # 6️⃣ Upload APK artifact
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nombu-beauty-apk
         path: build/app/outputs/flutter-apk/app-release.apk
