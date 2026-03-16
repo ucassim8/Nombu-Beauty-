@@ -53,11 +53,34 @@ jobs:
             flutter create .
           fi
 
-      - name: Build iOS App
-        run: flutter build ios --release --no-codesign
+      - name: Build iOS IPA (unsigned)
+        run: flutter build ipa --release --no-codesign
 
       - name: Upload IPA as artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release-ipa
-          path: build/ios/iphoneos
+          path: build/ios/ipa/*.ipa
+
+  build-web:
+    runs-on: ubuntu-latest
+    needs: [build-android, build-ios] # optional: run after mobile builds
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        run: flutter build web --release
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
