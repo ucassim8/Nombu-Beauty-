@@ -1,4 +1,4 @@
-name: Build Flutter App (Android, iOS, Web)
+name: Build and Deploy Flutter Web
 
 on:
   push:
@@ -6,97 +6,35 @@ on:
       - main
 
 jobs:
-  # --------------------
-  # Build Android APK
-  # --------------------
-  build-android:
+  build-and-deploy-web:
     runs-on: ubuntu-latest
     steps:
+      # 1️⃣ Checkout the repo
       - uses: actions/checkout@v4
 
+      # 2️⃣ Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Ensure Android folder exists
-        run: |
-          if [ ! -d "android" ]; then
-            flutter create .
-          fi
-
-      - name: Build Release APK
-        run: flutter build apk --release
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-  # --------------------
-  # Build iOS IPA
-  # --------------------
-  build-ios:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Ensure iOS folder exists
-        run: |
-          if [ ! -d "ios" ]; then
-            flutter create .
-          fi
-
-      - name: Build iOS IPA (no codesign)
-        run: flutter build ipa --release --no-codesign
-
-      - name: Upload IPA as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-ipa
-          path: build/ios/ipa/*.ipa
-
-  # --------------------
-  # Build Flutter Web & Deploy to GitHub Pages
-  # --------------------
-  build-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Ensure web folder exists
-        run: |
-          if [ ! -d "web" ]; then
-            flutter create .
-          fi
-
-      - name: Build Web Release
+      # 4️⃣ Build the web release
+      - name: Build Flutter Web
         run: flutter build web --release
 
-      - name: Deploy to GitHub Pages
-        uses: actions/upload-pages-artifact@v1
+      # 5️⃣ Upload build to GitHub Pages
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
 
-      - name: Publish GitHub Pages
+  deploy:
+    needs: build-and-deploy-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
