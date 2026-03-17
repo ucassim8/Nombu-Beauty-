@@ -420,19 +420,111 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 backgroundColor: Colors.pink.shade400,
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              onPressed: sendWhatsAppRequest,
-              child: Text(
-                'Send Booking Request via WhatsApp',
-                style: TextStyle(fontSize: 16),
+@override
+Widget build(BuildContext context) {
+  List<Map<String, dynamic>> categoryServices = services[widget.category]!;
+
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.category),
+      backgroundColor: Colors.pink.shade400,
+    ),
+    body: SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        children: [
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: 'Select a service',
+              filled: true,
+              fillColor: Colors.pink.shade50,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-          ],
-        ),
+            value: selectedService,
+            items: categoryServices
+                .map((s) => DropdownMenuItem<String>(
+                      value: s['name'],
+                      child: Text('${s['name']} - R${s['price']}'),
+                    ))
+                .toList(),
+            onChanged: (val) {
+              setState(() {
+                selectedService = val;
+                selectedPrice = categoryServices
+                    .firstWhere((s) => s['name'] == val)['price'];
+              });
+            },
+          ),
+          SizedBox(height: 16),
+
+          // After-hours checkbox only for Hair Services & Makeup
+          if (requiresFullBooking)
+            Row(
+              children: [
+                Checkbox(
+                  value: afterHours,
+                  onChanged: (val) => setState(() => afterHours = val!),
+                ),
+                Text('After-hours (+R100)'),
+              ],
+            ),
+
+          SizedBox(height: 16),
+
+          // Date & Time / Drop-off picker
+          if (requiresFullBooking || isHairLaundry)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink.shade300,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: pickDateTime,
+              child: Text(
+                selectedDate == null
+                    ? (isHairLaundry
+                        ? 'Select Drop-off Date & Time'
+                        : 'Select Date & Time')
+                    : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+              ),
+            ),
+
+          SizedBox(height: 16),
+
+          // Notice to send photo via WhatsApp
+          if (requiresFullBooking)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Text(
+                'Please send your reference photo via WhatsApp after submitting this request.',
+                style: TextStyle(
+                  color: Colors.red.shade700,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+          SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pink.shade400,
+              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: sendWhatsAppRequest,
+            child: Text(
+              'Send Booking Request via WhatsApp',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }
   
 
