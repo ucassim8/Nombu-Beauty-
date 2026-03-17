@@ -480,27 +480,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ],
                     ),
                     onTap: () {
-                      if (req.photo != null) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: Text('Reference Photo'),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('Close'))
-                            ],
-                          ),
-                        );
-                      }
+                      
                     },
-                  ),
-                );
-              },
-            ),
-    );
-  }
-}
+          
 
 // ------------------------- BOOKING MODEL -------------------------
 class BookingRequest {
