@@ -434,8 +434,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     );
   }
 }
-  }
-}
+  
 
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
