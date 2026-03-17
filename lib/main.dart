@@ -301,7 +301,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     'I will send my reference photo below.\n\nThank you.';
 
 // Encode the message
-String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeComponent(message)}';
+String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
 // Launch WhatsApp
   if (await canLaunch(url)) {
     await launch(url);
