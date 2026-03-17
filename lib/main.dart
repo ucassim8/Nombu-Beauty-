@@ -305,7 +305,7 @@ String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
   if (await canLaunch(url)) {
     await launch(url);
   }
-  
+}  
   
   @override
   Widget build(BuildContext context) {
