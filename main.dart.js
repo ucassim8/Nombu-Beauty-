@@ -81784,7 +81784,7 @@ l=p.x
 k=l.a
 l=B.d.kM(B.e.k(l.b),2,"0")
 j=p.a.c==="Hair Laundry"?"Drop-off ":""
-m+=j+("Date: "+(""+A.cm(o)+"/"+A.bh(o)+"/"+A.b4(o))+"\nTime: "+(""+k+":"+l)+"\n")}i="https://wa.me/+27672412217?text="+A.Eb(B.h1,m+("\nEstimated Price: R"+n+"\nFinal price to be confirmed by stylist.\n\nPlease send your reference photo via WhatsApp.\n\nThank you."),B.af,!1)
+m+=j+("Date: "+(""+A.cm(o)+"/"+A.bh(o)+"/"+A.b4(o))+"\nTime: "+(""+k+":"+l)+"\n")}i="https://wa.me/+27672412217?text="+A.Eb(B.h1,m+("\nEstimated Price: R"+n+"\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you."),B.af,!1)
 s=5
 return A.Y(A.apL(i),$async$qe)
 case 5:s=b?3:4
