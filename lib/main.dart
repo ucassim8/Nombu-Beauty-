@@ -190,10 +190,7 @@ class HomeScreen extends StatelessWidget {
 
 // ------------------------- SERVICE SCREEN -------------------------
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
-import 'dart:async';
 
 class ServiceScreen extends StatefulWidget {
   final String category;
@@ -232,22 +229,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
   bool afterHours = false;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  File? selectedImage;
 
-  final ImagePicker _picker = ImagePicker();
   final String whatsappNumber = '+27672412217';
 
   bool get requiresFullBooking =>
       (widget.category == 'Hair Services' || widget.category == 'Makeup');
   bool get isHairLaundry => widget.category == 'Hair Laundry';
-
-  // Pick reference photo
-  Future<void> pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() => selectedImage = File(image.path));
-    }
-  }
 
   // Pick date & time
   Future<void> pickDateTime() async {
@@ -284,12 +271,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
       return;
     }
 
-    if (requiresFullBooking && selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please upload a reference photo')));
-      return;
-    }
-
     if (requiresFullBooking && selectedTime != null) {
       if (selectedTime!.hour < 8 || selectedTime!.hour > 18) {
         if (!afterHours) {
@@ -318,7 +299,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
 
     message +=
-        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nThank you.';
+        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
+        'Please send your reference photo via WhatsApp.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
     if (await canLaunch(url)) await launch(url);
@@ -337,7 +319,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            // Service dropdown
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Select a service',
@@ -362,10 +343,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 });
               },
             ),
-
             SizedBox(height: 16),
 
-            // After-hours checkbox
             if (requiresFullBooking)
               Row(
                 children: [
@@ -376,9 +355,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 ],
               ),
 
-            SizedBox(height: 16),
-
-            // Date & Time picker
             if (requiresFullBooking || isHairLaundry)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -396,31 +372,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 ),
               ),
 
-            SizedBox(height: 16),
-
-            // Reference photo button
-            if (requiresFullBooking)
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink.shade300,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: pickImage,
-                child: Text(
-                  selectedImage == null ? 'Upload Reference Photo' : 'Photo Selected',
-                ),
-              ),
-
-            if (selectedImage != null)
-              Padding(
-                padding: EdgeInsets.all(12),
-                child: Image.file(selectedImage!, height: 120),
-              ),
-
             SizedBox(height: 20),
 
-            // Send WhatsApp button
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink.shade400,
@@ -440,9 +393,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     );
   }
 }
-                
 
-    
 
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
