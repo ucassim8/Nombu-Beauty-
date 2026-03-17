@@ -256,67 +256,13 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 
   void sendWhatsAppRequest() async {
-    if (selectedService == null || selectedDate == null || selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please complete all fields')),
-      );
-      return;
-    }
+  // your WhatsApp booking logic here
+}
 
-    int estimatedPrice = selectedPrice!;
-    if (afterHours) estimatedPrice += 100;
 
-    String dateStr = '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
-    String timeStr = '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
-    String message =
-        'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\nService: $selectedService\nDate: $dateStr\nTime: $timeStr\n\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle photo.\n\nThank you.';
+// ------------------------- SERVICE SCREEN -------------------------
+class ServiceScreen extends StatefulWidget {
 
-    String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-    if (await canLaunch(url)) await launch(url);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<Map<String, dynamic>> categoryServices = services[widget.category]!;
-
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: 'Select a service',
-                filled: true,
-                fillColor: Colors.pink.shade50,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              value: selectedService,
-              items: categoryServices
-                  .map((s) => DropdownMenuItem<String>(
-                        value: s['name'],
-                        child: Text('${s['name']} - R${s['price']}'),
-                      ))
-                  .toList(),
-              onChanged: (val) {
-                setState(() {
-                  selectedService = val;
-                  selectedPrice = categoryServices
-                      .firstWhere((s) => s['name'] == val)['price'];
-                });
-              },
-            ),
-            SizedBox(height: 16),
-            Row(
-              children: [
-                Checkbox(
-                  value: afterHours,
-                  onChanged: (val) => setState(() => afterHours = val!),
-                ),
-                Text('After-hours (+R100)'),
 
 // ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
