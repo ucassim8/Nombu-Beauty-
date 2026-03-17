@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
 import 'dart:async';
 
 void main() => runApp(NombuBeautyApp());
@@ -486,7 +485,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           context: context,
                           builder: (_) => AlertDialog(
                             title: Text('Reference Photo'),
-                            content: Image.file(req.photo!),
                             actions: [
                               TextButton(
                                   onPressed: () => Navigator.pop(context),
@@ -510,7 +508,6 @@ class BookingRequest {
   final DateTime date;
   final TimeOfDay time;
   final bool afterHours;
-  final File? photo;
   String status; // Pending / Confirmed / Declined
 
   BookingRequest({
@@ -518,7 +515,6 @@ class BookingRequest {
     required this.date,
     required this.time,
     required this.afterHours,
-    this.photo,
     this.status = 'Pending',
   });
 }
