@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
 import 'dart:async';
 
 void main() => runApp(NombuBeautyApp());
@@ -90,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ------------------------- HOME SCREEN (Squares with Icons) -------------------------
+// ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -109,8 +107,7 @@ class HomeScreen extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               'NOMBU Beauty',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
@@ -225,21 +222,20 @@ class _ServiceScreenState extends State<ServiceScreen> {
   bool afterHours = false;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-
-  // --- Location selection ---
-  String? selectedProvince;
+  String? selectedRegion;
   String? selectedLocation;
-
-  final Map<String, List<String>> provinceLocations = {
-    'Pretoria': ['Montana', 'Hammanskraal'],
-    'Limpopo': ['Polokwane'],
-  };
+  String? paymentMethod;
 
   final String whatsappNumber = '+27672412217';
 
   bool get requiresFullBooking =>
       (widget.category == 'Hair Services' || widget.category == 'Makeup');
   bool get isHairLaundry => widget.category == 'Hair Laundry';
+
+  final Map<String, List<String>> locations = {
+    'Pretoria': ['Hammanskraal', 'Montana'],
+    'Limpopo': ['Polokwane'],
+  };
 
   // Pick date & time
   Future<void> pickDateTime() async {
@@ -271,14 +267,20 @@ class _ServiceScreenState extends State<ServiceScreen> {
   // Send WhatsApp booking
   void sendWhatsAppRequest() async {
     if (selectedService == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Please select a service')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select a service')));
       return;
     }
 
-    if (selectedProvince == null || selectedLocation == null) {
+    if (selectedRegion == null || selectedLocation == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Please select a location')));
+      return;
+    }
+
+    if (paymentMethod == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please select payment method')));
       return;
     }
 
@@ -296,23 +298,26 @@ class _ServiceScreenState extends State<ServiceScreen> {
     int estimatedPrice = selectedPrice ?? 0;
     if (afterHours) estimatedPrice += 100;
 
-    String message =
-        'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
-        'Service: $selectedService\nCategory: ${widget.category}\n'
-        'Location: $selectedLocation\n';
-
+    String dateStr = '';
+    String timeStr = '';
     if (requiresFullBooking || isHairLaundry) {
-      String dateStr =
-          '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
-      String timeStr =
+      dateStr = '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
+      timeStr =
           '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
+    }
+
+    String message = 'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
+        'Service: $selectedService\n'
+        'Category: ${widget.category}\n'
+        'Region: $selectedRegion\n'
+        'Location: $selectedLocation\n'
+        'Payment method: $paymentMethod\n';
+    if (requiresFullBooking || isHairLaundry) {
       message += (isHairLaundry ? 'Drop-off ' : '') +
           'Date: $dateStr\nTime: $timeStr\n';
     }
-
-    message +=
-        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
-        'I will send my reference photo below.\n\nThank you.';
+    message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
+        'I will send my reference photo afterwards.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
     if (await canLaunch(url)) await launch(url);
@@ -323,67 +328,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
     List<Map<String, dynamic>> categoryServices = services[widget.category]!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.category),
-        backgroundColor: Colors.pink.shade400,
-      ),
+      appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            // Province Dropdown
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: 'Select Province',
-                filled: true,
-                fillColor: Colors.pink.shade50,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              value: selectedProvince,
-              items: provinceLocations.keys
-                  .map((prov) => DropdownMenuItem<String>(
-                        value: prov,
-                        child: Text(prov),
-                      ))
-                  .toList(),
-              onChanged: (val) {
-                setState(() {
-                  selectedProvince = val;
-                  selectedLocation = null;
-                });
-              },
-            ),
-            SizedBox(height: 16),
-
-            // Location Dropdown
-            if (selectedProvince != null)
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Select Location',
-                  filled: true,
-                  fillColor: Colors.pink.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                value: selectedLocation,
-                items: provinceLocations[selectedProvince]!
-                    .map((loc) => DropdownMenuItem<String>(
-                          value: loc,
-                          child: Text(loc),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  setState(() {
-                    selectedLocation = val;
-                  });
-                },
-              ),
-            SizedBox(height: 16),
-
-            // Service Dropdown
+            // Service dropdown
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Select a service',
@@ -410,6 +360,75 @@ class _ServiceScreenState extends State<ServiceScreen> {
             ),
             SizedBox(height: 16),
 
+            // Region dropdown
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Select region',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              value: selectedRegion,
+              items: locations.keys
+                  .map((r) => DropdownMenuItem<String>(value: r, child: Text(r)))
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  selectedRegion = val;
+                  selectedLocation = null;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+
+            // Location dropdown
+            if (selectedRegion != null)
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Select exact location',
+                  filled: true,
+                  fillColor: Colors.pink.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                value: selectedLocation,
+                items: locations[selectedRegion!]!
+                    .map((l) => DropdownMenuItem<String>(value: l, child: Text(l)))
+                    .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    selectedLocation = val;
+                  });
+                },
+              ),
+            SizedBox(height: 16),
+
+            // Payment method
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Payment method',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              value: paymentMethod,
+              items: ['Cash', 'Card', 'E-wallet']
+                  .map((p) => DropdownMenuItem<String>(value: p, child: Text(p)))
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  paymentMethod = val;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+
+            // After-hours
             if (requiresFullBooking)
               Row(
                 children: [
@@ -420,6 +439,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 ],
               ),
 
+            // Date & time
             if (requiresFullBooking || isHairLaundry)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -468,7 +488,8 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _passwordController = TextEditingController();
   bool _authenticated = false;
-  List<BookingRequest> bookingRequests = [];
+
+  List<BookingRequest> bookingRequests = []; // in-memory list
 
   void _checkPassword() {
     if (_passwordController.text == '2478') {
@@ -476,10 +497,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _authenticated = true;
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Wrong password')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Wrong password')));
     }
+  }
+
+  // ------------------- WhatsApp messages -------------------
+  void sendWhatsAppMessage(String number, String message) async {
+    String url = 'https://wa.me/$number?text=${Uri.encodeFull(message)}';
+    if (await canLaunch(url)) await launch(url);
   }
 
   @override
@@ -518,69 +544,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       borderRadius: BorderRadius.circular(12)),
                   elevation: 5,
                   child: ListTile(
-                    title: Text('${req.service} (${req.status})'),
+                    title: Text('${req.name} - ${req.service} (${req.status})'),
                     subtitle: Text(
-                        '${req.date.day}/${req.date.month}/${req.date.year} ${req.time.hour}:${req.time.minute.toString().padLeft(2, '0')}\nAfter-hours: ${req.afterHours ? "Yes" : "No"}'),
+                        '${req.date.day}/${req.date.month}/${req.date.year} ${req.time.hour}:${req.time.minute.toString().padLeft(2, '0')}\nRegion: ${req.region}, Location: ${req.location}\nPayment: ${req.paymentMethod}\nAfter-hours: ${req.afterHours ? "Yes" : "No"}'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.check, color: Colors.green),
-                          onPressed: () {
-                            setState(() {
-                              req.status = 'Confirmed';
-                            });
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.close, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              req.status = 'Declined';
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      if (req.photo != null) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: Text('Reference Photo'),
-                            content: Image.file(req.photo!),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('Close'))
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
-    );
-  }
-}
-
-// ------------------------- BOOKING MODEL -------------------------
-class BookingRequest {
-  final String service;
-  final DateTime date;
-  final TimeOfDay time;
-  final bool afterHours;
-  final File? photo;
-  String status; // Pending / Confirmed / Declined
-
-  BookingRequest({
-    required this.service,
-    required this.date,
-    required this.time,
-    required this.afterHours,
-    this.photo,
-    this.status = 'Pending',
-  });
-}
+                            icon: Icon(Icons.check, color: Colors.green),
+                            onPressed: () {
+                              setState(() {
+                                req.status = 'Confirmed';
+                              });
+                              String msg =
+                                  'Hello ${req.name} 🌸\nYour booking for ${req.service} on ${req.date.day}/${req.date.month}/${req.date.year} at ${req.time.hour}:${req.time.minute.toString().padLeft(2, '0')} is CONFIRMED ✅.\nPayment method: ${req.paymentMethod}\nThank you for choosing NOMBU Beauty!';
+                              sendWhatsAppMessage(req.phone, msg);
+                            }),
