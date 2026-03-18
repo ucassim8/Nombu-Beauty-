@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 import 'dart:async';
 
 void main() => runApp(NombuBeautyApp());
 
+// ------------------------- APP -------------------------
 class NombuBeautyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => HomeScreen()));
+        context,
+        MaterialPageRoute(builder: (_) => HomeScreen()),
+      );
     });
   }
 
@@ -64,8 +68,7 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Replace with your logo path
-                FlutterLogo(size: 120),
+                Image.asset('assets/logo.jpg', width: 120, height: 120),
                 SizedBox(height: 16),
                 Text(
                   'NOMBU Beauty',
@@ -102,28 +105,46 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('NOMBU Beauty'),
+        title: Row(
+          children: [
+            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
+            SizedBox(width: 8),
+            Text(
+              'NOMBU Beauty',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
         backgroundColor: Colors.pink.shade400,
+        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16),
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1,
+          ),
           itemBuilder: (context, index) {
             final category = categories[index];
             return GestureDetector(
               onTap: () {
                 if (category['name'] == 'Admin Dashboard') {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => AdminDashboard()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AdminDashboard()),
+                  );
                 } else {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) =>
-                              ServiceScreen(category: category['name'])));
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ServiceScreen(category: category['name']),
+                    ),
+                  );
                 }
               },
               child: Container(
@@ -205,6 +226,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   bool afterHours = false;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+
   String? selectedProvince;
   String? selectedLocation;
 
@@ -214,34 +236,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
   };
 
   final String whatsappNumber = '+27672412217';
-  final List<DateTime> blockedDates = [];
-
-  String? userName;
-  String? userPhone;
 
   bool get requiresFullBooking =>
       (widget.category == 'Hair Services' || widget.category == 'Makeup');
   bool get isHairLaundry => widget.category == 'Hair Laundry';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userName = prefs.getString('name') ?? '';
-      userPhone = prefs.getString('phone') ?? '';
-    });
-  }
-
-  Future<void> _saveUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('name', userName ?? '');
-    prefs.setString('phone', userPhone ?? '');
-  }
 
   Future<void> pickDateTime() async {
     DateTime now = DateTime.now();
@@ -250,8 +248,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
       initialDate: now,
       firstDate: now,
       lastDate: DateTime(now.year + 1),
-      selectableDayPredicate: (day) =>
-          !blockedDates.any((d) => d.year == day.year && d.month == day.month && d.day == day.day),
     );
 
     if (date != null) {
@@ -263,7 +259,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
         );
         if (time == null) return;
       }
-
       setState(() {
         selectedDate = date;
         selectedTime = time ?? TimeOfDay(hour: 0, minute: 0);
@@ -271,13 +266,13 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
-  void sendWhatsAppRequest({String extraMsg = ''}) async {
+  void sendWhatsAppRequest() async {
     if (selectedService == null ||
         selectedProvince == null ||
-        selectedLocation == null ||
-        (requiresFullBooking && selectedDate == null)) {
+        selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please fill in all required fields')));
+        SnackBar(content: Text('Please fill all required fields')),
+      );
       return;
     }
 
@@ -285,7 +280,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     if (afterHours) estimatedPrice += 100;
 
     String message =
-        'Hello NOMBU Beauty 🌸\n\nBooking Request from $userName\nPhone: $userPhone\n\n'
+        'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
         'Service: $selectedService\nCategory: ${widget.category}\n'
         'Location: $selectedLocation\n';
 
@@ -298,8 +293,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
           'Date: $dateStr\nTime: $timeStr\n';
     }
 
-    message += '\nEstimated Price: R$estimatedPrice\n';
-    if (extraMsg.isNotEmpty) message += '\n$extraMsg\n';
+    message +=
+        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
+        'I will send my reference photo below.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
     if (await canLaunch(url)) await launch(url);
@@ -318,51 +314,23 @@ class _ServiceScreenState extends State<ServiceScreen> {
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Name',
-                filled: true,
-                fillColor: Colors.pink.shade50,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              onChanged: (val) => userName = val,
-              controller: TextEditingController(text: userName),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Phone',
-                filled: true,
-                fillColor: Colors.pink.shade50,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              onChanged: (val) => userPhone = val,
-              controller: TextEditingController(text: userPhone),
-            ),
-            SizedBox(height: 16),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Select Province',
                 filled: true,
                 fillColor: Colors.pink.shade50,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               value: selectedProvince,
               items: provinceLocations.keys
-                  .map((prov) => DropdownMenuItem<String>(
-                        value: prov,
-                        child: Text(prov),
-                      ))
+                  .map((prov) => DropdownMenuItem(value: prov, child: Text(prov)))
                   .toList(),
-              onChanged: (val) {
-                setState(() {
-                  selectedProvince = val;
-                  selectedLocation = null;
-                });
-              },
+              onChanged: (val) => setState(() {
+                selectedProvince = val;
+                selectedLocation = null;
+              }),
             ),
             SizedBox(height: 16),
             if (selectedProvince != null)
@@ -372,14 +340,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   filled: true,
                   fillColor: Colors.pink.shade50,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 value: selectedLocation,
                 items: provinceLocations[selectedProvince]!
-                    .map((loc) => DropdownMenuItem<String>(
-                          value: loc,
-                          child: Text(loc),
-                        ))
+                    .map((loc) => DropdownMenuItem(value: loc, child: Text(loc)))
                     .toList(),
                 onChanged: (val) => setState(() => selectedLocation = val),
               ),
@@ -389,15 +355,14 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 labelText: 'Select a service',
                 filled: true,
                 fillColor: Colors.pink.shade50,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               value: selectedService,
               items: categoryServices
-                  .map((s) => DropdownMenuItem<String>(
-                        value: s['name'],
-                        child: Text('${s['name']} - R${s['price']}'),
-                      ))
+                  .map((s) => DropdownMenuItem(
+                      value: s['name'], child: Text('${s['name']} - R${s['price']}')))
                   .toList(),
               onChanged: (val) {
                 setState(() {
@@ -412,27 +377,34 @@ class _ServiceScreenState extends State<ServiceScreen> {
               Row(
                 children: [
                   Checkbox(
-                      value: afterHours,
-                      onChanged: (val) => setState(() => afterHours = val!)),
+                    value: afterHours,
+                    onChanged: (val) => setState(() => afterHours = val!),
+                  ),
                   Text('After-hours (+R100)'),
                 ],
               ),
             if (requiresFullBooking || isHairLaundry)
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink.shade300,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
                 onPressed: pickDateTime,
                 child: Text(selectedDate == null
-                    ? (isHairLaundry
-                        ? 'Select Drop-off Date & Time'
-                        : 'Select Date & Time')
+                    ? (isHairLaundry ? 'Select Drop-off Date & Time' : 'Select Date & Time')
                     : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}'),
               ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                _saveUserData();
-                sendWhatsAppRequest();
-              },
-              child: Text('Send Booking Request via WhatsApp'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink.shade400,
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: sendWhatsAppRequest,
+              child: Text('Send Booking Request via WhatsApp', style: TextStyle(fontSize: 16)),
             ),
           ],
         ),
@@ -454,22 +426,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   void _checkPassword() {
     if (_passwordController.text == '2478') {
-      setState(() {
-        _authenticated = true;
-        // Preload some fake bookings for demonstration
-        bookingRequests = [
-          BookingRequest(
-              service: 'Basic instal',
-              date: DateTime.now(),
-              time: TimeOfDay.now(),
-              afterHours: false,
-              name: 'Umair',
-              phone: '0712345678'),
-        ];
-      });
+      setState(() => _authenticated = true);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Wrong password')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Wrong password')));
     }
   }
 
@@ -505,37 +464,41 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 BookingRequest req = bookingRequests[index];
                 return Card(
                   margin: EdgeInsets.all(8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 5,
                   child: ListTile(
                     title: Text('${req.service} (${req.status})'),
                     subtitle: Text(
-                        '${req.date.day}/${req.date.month}/${req.date.year} ${req.time.hour}:${req.time.minute.toString().padLeft(2, '0')}\nAfter-hours: ${req.afterHours ? "Yes" : "No"}\nUser: ${req.name}\nPhone: ${req.phone}'),
+                        '${req.date.day}/${req.date.month}/${req.date.year} ${req.time.hour}:${req.time.minute.toString().padLeft(2, '0')}\nAfter-hours: ${req.afterHours ? "Yes" : "No"}'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
                           icon: Icon(Icons.check, color: Colors.green),
-                          onPressed: () async {
-                            setState(() => req.status = 'Confirmed');
-                            String msg =
-                                'Your booking for ${req.service} is CONFIRMED 🌸';
-                            String url =
-                                'https://wa.me/+27672412217?text=${Uri.encodeFull(msg)}';
-                            if (await canLaunch(url)) await launch(url);
-                          },
+                          onPressed: () => setState(() => req.status = 'Confirmed'),
                         ),
                         IconButton(
                           icon: Icon(Icons.close, color: Colors.red),
-                          onPressed: () async {
-                            setState(() => req.status = 'Declined');
-                            String msg =
-                                'Your booking for ${req.service} has been DECLINED ❌';
-                            String url =
-                                'https://wa.me/+27672412217?text=${Uri.encodeFull(msg)}';
-                            if (await canLaunch(url)) await launch(url);
-                          },
+                          onPressed: () => setState(() => req.status = 'Declined'),
                         ),
                       ],
                     ),
+                    onTap: () {
+                      if (req.photo != null) {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text('Reference Photo'),
+                            content: Image.file(req.photo!),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Close')),
+                            ],
+                          ),
+                        );
+                      }
+                    },
                   ),
                 );
               },
@@ -550,8 +513,7 @@ class BookingRequest {
   final DateTime date;
   final TimeOfDay time;
   final bool afterHours;
-  final String name;
-  final String phone;
+  final File? photo;
   String status;
 
   BookingRequest({
@@ -559,8 +521,7 @@ class BookingRequest {
     required this.date,
     required this.time,
     required this.afterHours,
-    required this.name,
-    required this.phone,
+    this.photo,
     this.status = 'Pending',
   });
 }
