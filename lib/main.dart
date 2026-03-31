@@ -500,6 +500,8 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
     SnackBar(content: Text('WhatsApp opened successfully!')),
   );
 },
+     child: Text('Send Booking via WhatsApp'),
+),         
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
