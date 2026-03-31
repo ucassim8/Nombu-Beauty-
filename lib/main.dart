@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart'; // for kIsWeb
 // Only import dart:js for Web
 // ignore: uri_does_not_exist
 import 'dart:js' as js;
+import '../whatsapp_helper.dart';
 
 // ------------------------- MAIN -------------------------
 void main() async {
@@ -394,22 +395,13 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
 
   message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nThank you.';
 
-  final Uri whatsappUri = Uri.parse('https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}');
+  // 3️⃣ Open WhatsApp using helper
+  await sendWhatsAppRequest(phoneNumber!, message);
 
-  import 'dart:html' as html;
-
-if (kIsWeb) {
-  html.window.open(whatsappUri.toString(), '_blank');
-  return;
-}
-
-  // Mobile
-  if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Could not open WhatsApp.')),
-    );
-  }
-}
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('WhatsApp opened successfully!')),
+  );
+},
 
   @override
   Widget build(BuildContext context) {
