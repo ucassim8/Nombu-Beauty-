@@ -26110,7 +26110,7 @@ _.b=b
 _.c=c
 _.d=d
 _.e=e},
-a_M:function a_M(a,b,c,d,e,f,g,h,i){var _=this
+a_M:function a_M(a,b,c,d,e,f,g,h,i,j){var _=this
 _.a=a
 _.b=b
 _.c=c
@@ -26119,7 +26119,8 @@ _.e=e
 _.f=f
 _.r=g
 _.w=h
-_.x=i},
+_.x=i
+_.y=j},
 YL:function YL(){},
 dj(a,b,c){var s,r=$.eb()
 A.hX(a)
@@ -86661,72 +86662,71 @@ if(m==null){s=1
 break}case 7:p.a2(new A.apO(l,p,o))
 case 5:case 1:return A.M(q,r)}})
 return A.N($async$uJ,r)},
-qB(){var s=0,r=A.O(t.H),q,p=2,o,n=this,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2
-var $async$qB=A.P(function(a3,a4){if(a3===1){o=a4
-s=p}while(true)switch(s){case 0:a1=n.e
-if(a1==null||n.Q==null||n.as==null||n.y==null||n.z==null){a1=n.c.a4(t.Pu)
-a1.toString
-a1.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Please complete all fields",null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
+qB(){var s=0,r=A.O(t.H),q,p=2,o,n=this,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4
+var $async$qB=A.P(function(a5,a6){if(a5===1){o=a6
+s=p}while(true)switch(s){case 0:a3=n.e
+if(a3==null||n.Q==null||n.as==null||n.y==null||n.z==null){a3=n.c.a4(t.Pu)
+a3.toString
+a3.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Please complete all fields",null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
 s=1
-break}l=n.a.c
-if((l==="Hair Services"||l==="Makeup"||l==="Hair Laundry")&&n.w==null){a1=n.c.a4(t.Pu)
-a1.toString
-a1.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Please select date/time",null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
+break}k=n.a.c
+if((k==="Hair Services"||k==="Makeup"||k==="Hair Laundry")&&n.w==null){a3=n.c.a4(t.Pu)
+a3.toString
+a3.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Please select date/time",null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
 s=1
-break}a1.toString
-k=n.w
-if(k==null)k=new A.bX(Date.now(),0,!1)
-j=n.x
-if(j==null)j=new A.bd(0,0)
-i=n.r
-h=n.Q
-h.toString
-g=n.as
+break}a3.toString
+j=n.w
+if(j==null)j=new A.bX(Date.now(),0,!1)
+i=n.x
+if(i==null)i=new A.bd(0,0)
+h=n.r
+g=n.Q
 g.toString
-f=n.z
+f=n.as
 f.toString
-e=n.f
-m=new A.a_M(a1,l,k,j,i,h,g,f,e==null?0:e)
+e=n.z
+e.toString
+d=n.f
+m=new A.a_M(a3,k,j,i,h,g,f,e,d==null?0:d,"Pending")
 p=4
+a3=$.cQ
+c=(a3==null?$.cQ=$.h6():a3).h8("[DEFAULT]")
+A.dj(c,$.eX(),!0)
+a3=A.KI(new A.dX(c))
+a3=A.T1(a3,a3.gh_().kL("bookings"))
+k=m.a
+j=m.b
+i=m.c.apr()
+h=m.d
+g=B.d.k0(B.e.k(m.d.b),2,"0")
+f=m.e
+e=m.f
+d=m.r
+b=m.w
+a=m.x
+a0=m.y
+a1=$.aFo().Jo()
 s=7
+return A.S(a3.G(0,A.ap(["service",k,"category",j,"date",i,"time",""+h.a+":"+g,"afterHours",f,"clientName",e,"phoneNumber",d,"location",b,"price",a,"status",a0,"timestamp",new A.p1(a1,a1)],t.N,t.z)),$async$qB)
+case 7:s=8
 return A.S(n.B9(m),$async$qB)
-case 7:p=2
+case 8:a1=n.c.a4(t.Pu)
+a1.toString
+a1.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Booking saved and WhatsApp opened!",null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
+p=2
 s=6
 break
 case 4:p=3
-a2=o
-a1=n.c.a4(t.Pu)
-a1.toString
-a1.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Failed to open WhatsApp",null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
-s=1
-break
+a4=o
+l=A.aq(a4)
+a3=n.c.a4(t.Pu)
+a3.toString
+a3.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Error saving booking: "+A.k(l),null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
 s=6
 break
 case 3:s=2
 break
-case 6:a1=$.cQ
-c=(a1==null?$.cQ=$.h6():a1).h8("[DEFAULT]")
-A.dj(c,$.eX(),!0)
-a1=A.KI(new A.dX(c))
-a1=A.T1(a1,a1.gh_().kL("bookings"))
-l=m.a
-k=m.b
-j=m.c.apr()
-i=m.d
-h=B.d.k0(B.e.k(m.d.b),2,"0")
-g=m.e
-f=m.f
-e=m.r
-b=m.w
-a=m.x
-m.toString
-a0=$.aFo().Jo()
-s=8
-return A.S(a1.G(0,A.ap(["service",l,"category",k,"date",j,"time",""+i.a+":"+h,"afterHours",g,"clientName",f,"phoneNumber",e,"location",b,"price",a,"status","Pending","timestamp",new A.p1(a0,a0)],t.N,t.z)),$async$qB)
-case 8:a0=n.c.a4(t.Pu)
-a0.toString
-a0.f.o5(A.uK(null,null,null,null,null,B.H,null,A.b4("Booking saved and WhatsApp request sent!",null,null,null,null,null,null,null),null,B.dt,null,null,null,null,null,null,null,null,null))
-case 1:return A.M(q,r)
+case 6:case 1:return A.M(q,r)
 case 2:return A.L(o,r)}})
 return A.N($async$qB,r)},
 B9(a){return this.XQ(a)},
