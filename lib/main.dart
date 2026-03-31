@@ -328,7 +328,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
       location: selectedLocation!,
       price: selectedPrice ?? 0,
     );
-
+    sendWhatsAppRequest(booking);
+    
     await FirebaseFirestore.instance.collection('bookings').add({
       'service': booking.service,
       'category': booking.category,
@@ -341,10 +342,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'price': booking.price,
       'status': booking.status,
       'timestamp': FieldValue.serverTimestamp(),
-    });
+  });
 
-    sendWhatsAppRequest(booking);
-  }
 
   void sendWhatsAppRequest(BookingRequest booking) async {
     int estimatedPrice = booking.price;
