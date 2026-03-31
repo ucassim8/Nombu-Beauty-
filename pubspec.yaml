@@ -9,8 +9,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Existing dependencies
   image_picker: ^1.0.7
   url_launcher: ^6.2.5
+
+  # Firebase dependencies for Web (Core + Firestore)
+  firebase_core: ^2.27.0
+  cloud_firestore: ^5.9.0
+  firebase_auth: ^5.9.0  # Optional if you want to manage admin authentication
 
 dev_dependencies:
   flutter_test:
