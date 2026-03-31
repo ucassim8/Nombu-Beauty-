@@ -389,28 +389,6 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
 }
 
 
-  void sendWhatsAppRequest(BookingRequest booking) async {
-    int estimatedPrice = booking.price;
-    if (booking.afterHours) estimatedPrice += 100;
-
-    String message =
-        'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
-        'Name: ${booking.clientName}\nService: ${booking.service}\nCategory: ${booking.category}\nLocation: ${booking.location}\n';
-
-    if (requiresFullBooking || isHairLaundry) {
-      String dateStr = '${booking.date.day}/${booking.date.month}/${booking.date.year}';
-      String timeStr = '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}';
-      message += (isHairLaundry ? 'Drop-off ' : '') + 'Date: $dateStr\nTime: $timeStr\n';
-    }
-
-    message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you.';
-
-    String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-    if (await canLaunch(url)) await launch(url);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Booking request sent via WhatsApp')));
-  }
-
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> categoryServices = services[widget.category]!;
