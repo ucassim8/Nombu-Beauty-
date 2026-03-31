@@ -490,23 +490,26 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink.shade400,
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () async {
-  await saveBookingToFirebase();
+                await saveBookingToFirebase();
 
-  // Optional: show a SnackBar confirming action (though saveBookingToFirebase already shows one)
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('WhatsApp opened successfully!')),
-  );
-},
-     child: Text('Send Booking via WhatsApp'),
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('WhatsApp opened successfully!')),
+                );
+              },
+              child: Text('Send Booking via WhatsApp'),
             ),
           ],
         ),
       ),
     );
-    } 
+  }
+}   // <-- ONLY ONE closing for _ServiceScreenState
+            
+    
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
@@ -632,3 +635,4 @@ class BookingRequest {
     this.status = 'Pending',
   });
 }
+ 
