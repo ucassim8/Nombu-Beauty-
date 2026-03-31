@@ -575,15 +575,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       Text('Location: ${booking['location']}'),
                       Text('Date/Time: ${booking['date']} ${booking['time']}'),
                       Text('Price: R${booking['price']}'),
-                      Text('After Hours: ${booking['afterHours'] ? 'Yes' : 'No'}'),
-                      Text('Status: ${booking['status']}'),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.payment, color: Colors.green),
-                    onPressed: () async {
-                      // WhatsApp payment request
-                      String phone = booking['phoneNumber'];
+
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
