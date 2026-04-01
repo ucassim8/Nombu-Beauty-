@@ -9,9 +9,12 @@ import 'firebase_options.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 
+// ------------------------- MAIN -------------------------
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(NombuBeautyApp());
 }
 
@@ -36,7 +39,10 @@ class BookingPoliciesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Booking Policies'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(
+        title: const Text('Booking Policies'),
+        backgroundColor: Colors.pink.shade400,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -44,7 +50,8 @@ class BookingPoliciesScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Text(
-                  '''All appointments must be booked in advance through website/call or in person.
+                  '''
+All appointments must be booked in advance through website/call or in person.
 * A non-refundable deposit of R100 is required to secure your appointment.
 * No Walk-ins will be accepted.
 
@@ -60,15 +67,20 @@ Refund & Satisfaction Policy
 * No refunds on services. 
 
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
-@NOMBU BEAUTY''',
+@NOMBU BEAUTY
+                  ''',
                   style: TextStyle(fontSize: 14, color: Colors.pink.shade700),
                 ),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SplashScreen())),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
+              onPressed: () => Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (_) => SplashScreen())),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink.shade400,
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
             )
           ],
@@ -100,13 +112,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   @override
-  void dispose() { _controller.dispose(); super.dispose(); }
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+        ),
         child: Center(
           child: FadeTransition(
             opacity: _animation,
@@ -138,7 +155,10 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(
+        title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.pink.shade400,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
@@ -148,8 +168,11 @@ class HomeScreen extends StatelessWidget {
             final category = categories[index];
             return InkWell(
               onTap: () {
-                if (category['name'] == 'Admin Dashboard') Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
-                else Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                if (category['name'] == 'Admin Dashboard') {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                }
               },
               child: Container(
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 5)]),
@@ -190,18 +213,40 @@ class _ServiceScreenState extends State<ServiceScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields!')));
       return;
     }
-    String message = 'Hello NOMBU Beauty 🌸\nName: $clientName\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nPrice: R$selectedPrice';
+
+    // --- FORCED AFTER HOURS LOGIC ---
+    int finalPrice = selectedPrice ?? 0;
+    String afterHoursNote = "";
+    int currentHour = DateTime.now().hour;
+
+    if (currentHour >= 18 || currentHour < 6) {
+      finalPrice += 50;
+      afterHoursNote = "\n⚠️ After-Hours Fee: R50 Included";
+    }
+
+    String message = 'Hello NOMBU Beauty 🌸\n\n'
+        'Booking Request:\n'
+        'Name: $clientName\n'
+        'Phone: $phoneNumber\n'
+        'Service: $selectedService\n'
+        'Location: $selectedLocation, $selectedProvince\n'
+        'Total Price: R$finalPrice' 
+        '$afterHoursNote';
+
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
-    if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
-    else launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+    if (kIsWeb) {
+      js.context.callMethod('open', [webUrl, '_blank']);
+    } else {
+      launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+    }
 
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'service': selectedService,
       'phoneNumber': phoneNumber,
       'location': '$selectedLocation, $selectedProvince',
-      'price': selectedPrice,
+      'price': finalPrice,
       'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
@@ -254,6 +299,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
+  void sendPaymentRequest(String clientPhone, String clientName) {
+    String msg = "Hi $clientName, your NOMBU Beauty booking is APPROVED! 🌸\n\n"
+        "To secure your slot, please pay the R100 deposit to:\n"
+        "Bank: [Your Bank Name]\n"
+        "Account: [Your Account Number]\n"
+        "Reference: $clientName\n\n"
+        "Please send Proof of Payment. Thank you!";
+    
+    final String url = "https://api.whatsapp.com/send?phone=$clientPhone&text=${Uri.encodeComponent(msg)}";
+    if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
+    else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_auth) {
@@ -279,7 +337,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
+                IconButton(
+                  icon: const Icon(Icons.check, color: Colors.green), 
+                  onPressed: () {
+                    doc.reference.update({'status': 'Approved'});
+                    sendPaymentRequest(doc['phoneNumber'], doc['clientName']); 
+                  }
+                ),
                 IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => doc.reference.update({'status': 'Declined'})),
               ],
             ),
