@@ -87356,43 +87356,42 @@ case 2:o=c
 if(o!=null)q.a3(new A.apJ(q,o))
 return A.N(null,r)}})
 return A.O($async$xj,r)},
-aq6(){var s,r,q,p,o,n,m,l,k,j,i,h,g,f=this
-if(f.f==null||f.x==null||f.y==null||f.r==null||f.w==null||f.Q==null||f.as==null){s=f.c.a6(t.Pu)
+aq6(){var s,r,q,p,o,n,m,l,k,j,i,h,g=this
+if(g.f==null||g.x==null||g.y==null||g.r==null||g.w==null||g.Q==null||g.as==null){s=g.c.a6(t.Pu)
 s.toString
 s.f.Ym(B.PX)
-return}s=f.Q
+return}s=g.Q
 s.toString
 r=""+A.cC(s)+"/"+A.bx(s)+"/"+A.bj(s)
-s=f.as
+s=g.as
 s.toString
-q=f.c
+q=g.c
 q.toString
 p=A.bA(q,B.B,t.y)
 p.toString
 A.af(q,B.bp,t.w).toString
 o=p.H3(s,!1)
-s=f.x
-p=f.y
-q=f.f
-n=f.w
-m=f.at?"After Hours: Yes (R100 fee applied)\n":""
-m=A.wA(B.o2,"Hello NOMBU Beauty \ud83c\udf38\n\nBooking Request:\nName: "+A.k(s)+"\nPhone: "+A.k(p)+"\nService: "+A.k(q)+"\nLocation: "+A.k(n)+"\nDate: "+r+" at "+o+"\n"+m+"Estimated Price: R"+f.gGV()+"\n\nI will send my reference photo below. Thank you.",B.ae,!1)
+s=g.x
+p=g.y
+q=g.f
+n=g.w
+m=g.at?"After Hours: Yes (R100 fee applied)\n":""
+m=A.wA(B.o2,"Hello NOMBU Beauty \ud83c\udf38\n\nBooking Request:\nName: "+A.k(s)+"\nPhone: "+A.k(p)+"\nService: "+A.k(q)+"\nLocation: "+A.k(n)+"\nDate: "+r+" at "+o+"\n"+m+"Estimated Price: R"+g.gGV()+"\n\nI will send my reference photo below. Thank you.",B.ae,!1)
 $.ay0().y8("open",["https://api.whatsapp.com/send?phone=27672412217&text="+m,"_blank"])
 m=$.dy
 l=(m==null?$.dy=$.jz():m).iZ("[DEFAULT]")
 A.dJ(l,$.hL(),!0)
 s=A.azV(new A.eE(l))
 s=A.aDf(s,s.gi2().ph("bookings"))
-q=f.x
-p=f.y
-n=f.f
-m=f.a.c
-k=f.w
-j=f.r
-i=f.at
-h=f.gGV()
-g=$.aFU().Jw()
-s.G(0,A.aq(["clientName",q,"phoneNumber",p,"service",n,"category",m,"location",A.k(k)+", "+A.k(j),"date",r,"time",o,"afterHours",i,"price",h,"status","Pending","timestamp",new A.p0(g,g)],t.N,t.z))},
+q=g.x
+p=g.y
+n=g.f
+m=g.w
+k=g.r
+j=g.at
+i=g.gGV()
+h=$.aFU().Jw()
+s.G(0,A.aq(["clientName",q,"phoneNumber",p,"service",n,"location",A.k(m)+", "+A.k(k),"date",r,"time",o,"afterHours",j,"price",i,"status","Pending","timestamp",new A.p0(h,h)],t.N,t.z))},
 J(a){var s,r,q=this,p=null,o=A.Iv(B.bE,p,p,A.bM(q.a.c,p,p,p,p,p,p,p)),n=A.nF(!0,B.bc,!1,p,!0,B.N,p,A.rj(),p,p,p,p,p,p,2,A.tx(p,new A.dA(4,A.iI(15),B.cB),p,p,p,p,p,p,!0,p,p,p,p,p,p,B.j,!0,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,"Your Name",p,p,p,p,p,p,p,p,p,p,p,p,p),B.P,!0,p,!0,p,!1,p,B.bf,p,p,p,p,p,p,p,1,p,p,!1,"\u2022",p,new A.apO(q),p,p,p,!1,p,!1,p,!0,p,B.bI,p,p,B.ba,B.b_,p,p,p,p,p,p,p,B.a4,p,B.c9,p,p,p,p),m=A.nF(!0,B.bc,!1,p,!0,B.N,p,A.rj(),p,p,p,p,p,p,2,A.tx(p,new A.dA(4,A.iI(15),B.cB),p,p,p,p,p,p,!0,p,p,p,p,p,p,B.j,!0,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,"WhatsApp Number",p,p,p,p,p,p,p,p,p,p,p,p,p),B.P,!0,p,!0,p,!1,p,B.bf,p,p,p,B.QJ,p,p,p,1,p,p,!1,"\u2022",p,new A.apP(q),p,p,p,!1,p,!1,p,!0,p,B.bI,p,p,B.ba,B.b_,p,p,p,p,p,p,p,B.a4,p,B.c9,p,p,p,p),l=A.tx(p,new A.dA(4,A.iI(15),B.cB),p,p,p,p,p,p,!0,p,p,p,p,p,p,B.j,!0,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,"Select Province",p,p,p,p,p,p,p,p,p,p,p,p,p),k=q.e,j=A.j(k).i("b6<1>")
 j=A.n5(new A.b6(k,j),new A.apQ(),j.i("l.E"),t.b7)
 s=t.N
