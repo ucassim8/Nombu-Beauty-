@@ -279,7 +279,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
     String message = 'Hello NOMBU Beauty 🌸\n\n'
         'I\'d like to request a booking:\n'
-        'Name: $clientName\n'
+        'Name: $clientName\n\n'
         'Phone: $clientPhone\n'
         'Service: $selectedService\n'
         'Location: $selectedLocation\n'
