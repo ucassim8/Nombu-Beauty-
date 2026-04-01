@@ -278,7 +278,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String formattedTime = selectedTime!.format(context);
 
     String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'Id like to request a booking:\n'
+        'I\'d like to request a booking:\n'
         'Name: $clientName\n'
         'Phone: $clientPhone\n'
         'Service: $selectedService\n'
@@ -286,7 +286,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
         'Date: $formattedDate at $formattedTime\n'
         '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
         'Estimated Price: R$finalPrice\n\n'
-        'Final price to be confirmed by stylist'
+        'Final price to be confirmed by stylist.\n\n'
         
         'I will send my reference photo below. Thank you.';
 
