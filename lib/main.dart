@@ -278,7 +278,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String formattedTime = selectedTime!.format(context);
 
     String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'I\'d like to request a booking:\n\n'
+        'I\'d like to request a booking:\n\n\n'
         'Name: $clientName\n'
         'Phone: $clientPhone\n'
         'Service: $selectedService\n'
