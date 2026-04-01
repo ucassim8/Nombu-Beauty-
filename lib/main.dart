@@ -1,5 +1,4 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -320,7 +319,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
-  // --- UPDATED SAVE FUNCTION ---
   Future<void> saveBookingToFirebase() async {
     if (selectedService == null ||
         clientName == null ||
@@ -352,13 +350,23 @@ class _ServiceScreenState extends State<ServiceScreen> {
       price: selectedPrice ?? 0,
     );
 
-    // Save to Firestore
+    // Send WhatsApp first
+    try {
+      await sendWhatsAppRequest(booking);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to open WhatsApp')),
+      );
+      return;
+    }
+
+    // Then save to Firebase
     await FirebaseFirestore.instance.collection('bookings').add({
       'service': booking.service,
       'category': booking.category,
-      'date': booking.date.toIso8601String(),
+      'date': "${booking.date.day}/${booking.date.month}/${booking.date.year}",
       'time':
-          '${booking.time.hour.toString().padLeft(2, '0')}:${booking.time.minute.toString().padLeft(2, '0')}',
+          '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}',
       'afterHours': booking.afterHours,
       'clientName': booking.clientName,
       'phoneNumber': booking.phoneNumber,
@@ -369,8 +377,40 @@ class _ServiceScreenState extends State<ServiceScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Booking saved successfully!')),
+      const SnackBar(content: Text('Booking saved and WhatsApp request sent!')),
     );
+  }
+
+  Future<void> sendWhatsAppRequest(BookingRequest booking) async {
+    int estimatedPrice = booking.price;
+    if (booking.afterHours) estimatedPrice += 100;
+
+    String message = 'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
+        'Name: ${booking.clientName}\nService: ${booking.service}\nCategory: ${booking.category}\nLocation: ${booking.location}\n';
+
+    if (requiresFullBooking || isHairLaundry) {
+      String dateStr =
+          '${booking.date.day}/${booking.date.month}/${booking.date.year}';
+      String timeStr =
+          '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}';
+      message += (booking.category == 'Hair Laundry' ? 'Drop-off ' : '') +
+          'Date: $dateStr\nTime: $timeStr\n';
+    }
+
+    message +=
+        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you.';
+
+    final Uri whatsappUri =
+        Uri.parse('https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}');
+
+    if (kIsWeb) {
+      js.context.callMethod('open', [whatsappUri.toString()]);
+      return;
+    }
+
+    if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch WhatsApp';
+    }
   }
 
   @override
@@ -506,7 +546,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
               onPressed: () async {
                 await saveBookingToFirebase();
               },
-              child: const Text('Book Now', style: TextStyle(color: Colors.white)),
+              child: const Text('Send Booking via WhatsApp', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -586,12 +626,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 child: ListTile(
+                  onTap: () => editBooking(context, booking),
                   title: Text('${booking['clientName']} - ${booking['service']}'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Category: ${booking['category']}'),
                       Text('Location: ${booking['location']}'),
+                      Text('Date: ${booking['date']}'),
                       Text('Time: ${booking['time']}'),
                       Text('Price: R${booking['price']}'),
                       Text(
@@ -607,6 +649,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.orange),
+                        onPressed: () => editBooking(context, booking),
+                      ),
                       IconButton(
                         icon: const Icon(Icons.payment, color: Colors.green),
                         onPressed: () => requestPayment(booking),
@@ -626,18 +672,74 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  // --- UPDATED REQUEST PAYMENT FUNCTION ---
+  Future<void> editBooking(BuildContext context, DocumentSnapshot booking) async {
+    TextEditingController dateController =
+        TextEditingController(text: booking['date']);
+    TextEditingController timeController =
+        TextEditingController(text: booking['time']);
+    TextEditingController priceController =
+        TextEditingController(text: booking['price'].toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Edit Booking"),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: dateController,
+                decoration: const InputDecoration(labelText: "Date"),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: timeController,
+                decoration: const InputDecoration(labelText: "Time"),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: priceController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Price"),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          ElevatedButton(
+            child: const Text("Save"),
+            onPressed: () async {
+              await FirebaseFirestore.instance
+                  .collection('bookings')
+                  .doc(booking.id)
+                  .update({
+                'date': dateController.text,
+                'time': timeController.text,
+                'price': int.parse(priceController.text),
+              });
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> requestPayment(DocumentSnapshot booking) async {
-    // Update Firestore status
     await FirebaseFirestore.instance
         .collection('bookings')
         .doc(booking.id)
-        .update({'status': 'Approved'});
+        .update({
+      'status': 'Approved',
+    });
 
     String phone = booking['phoneNumber'];
-
     String message = 'Hello ${booking['clientName']} 🌸\n\n'
-        'Your booking has been approved!\n\n'
+        'Your booking has been confirmed!\n\n'
         'Service: ${booking['service']}\n'
         'Date: ${booking['date']}\n'
         'Time: ${booking['time']}\n'
@@ -650,18 +752,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
         'Savings\n\n'
         'Thank you 💗';
 
-    final Uri whatsappUri =
-        Uri.parse('https://wa.me/$phone?text=${Uri.encodeFull(message)}');
+    final Uri url = Uri.parse('https://wa.me/$phone?text=${Uri.encodeFull(message)}');
 
     if (kIsWeb) {
-      js.context.callMethod('open', [whatsappUri.toString()]);
+      js.context.callMethod('open', [url.toString()]);
       return;
     }
 
-    if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open WhatsApp')),
-      );
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch WhatsApp';
     }
   }
 
