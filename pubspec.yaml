@@ -1,6 +1,7 @@
 name: nombu_beauty
-description: NOMBU Beauty Booking App
+description: "A new Flutter project for NOMBU Beauty services."
 publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
@@ -10,18 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # UI and Media
+  # The specific versions you sent
   image_picker: ^1.0.7
-  
-  # Communication (WhatsApp & Phone Calls)
-  url_launcher: ^6.3.1
-
-  # Formatting (Crucial for Daily Earnings & Booking Dates)
-  intl: ^0.19.0
-
-  # Firebase Backend
-  firebase_core: ^3.0.0
-  cloud_firestore: ^5.0.0
+  url_launcher: ^6.2.5
+  firebase_core: ^2.20.0
+  cloud_firestore: ^4.17.5
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
@@ -31,5 +26,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  # Your specific logo file name
   assets:
     - assets/Logonombu.jpg
