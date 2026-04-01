@@ -1,4 +1,4 @@
-import 'dart:async';
+Import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,9 +9,12 @@ import 'firebase_options.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 
+// ------------------------- MAIN -------------------------
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(NombuBeautyApp());
 }
 
@@ -36,7 +39,10 @@ class BookingPoliciesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Booking Policies'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(
+        title: const Text('Booking Policies'),
+        backgroundColor: Colors.pink.shade400,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -44,7 +50,8 @@ class BookingPoliciesScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Text(
-                  '''All appointments must be booked in advance through website/call or in person.
+                  '''
+All appointments must be booked in advance through website/call or in person.
 * A non-refundable deposit of R100 is required to secure your appointment.
 * No Walk-ins will be accepted.
 
@@ -60,15 +67,20 @@ Refund & Satisfaction Policy
 * No refunds on services. 
 
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
-@NOMBU BEAUTY''',
+@NOMBU BEAUTY
+                  ''',
                   style: TextStyle(fontSize: 14, color: Colors.pink.shade700),
                 ),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SplashScreen())),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
+              onPressed: () => Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (_) => SplashScreen())),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink.shade400,
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
             )
           ],
@@ -100,13 +112,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   @override
-  void dispose() { _controller.dispose(); super.dispose(); }
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+        ),
         child: Center(
           child: FadeTransition(
             opacity: _animation,
@@ -116,7 +133,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 Image.asset('assets/logo.jpg', width: 120, height: 120),
                 const SizedBox(height: 16),
                 Text('NOMBU Beauty', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
-                const Text('Where Beauty Meets Perfection', style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.pink)),
               ],
             ),
           ),
@@ -138,7 +154,10 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(
+        title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.pink.shade400,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
@@ -148,8 +167,11 @@ class HomeScreen extends StatelessWidget {
             final category = categories[index];
             return InkWell(
               onTap: () {
-                if (category['name'] == 'Admin Dashboard') Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
-                else Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                if (category['name'] == 'Admin Dashboard') {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                }
               },
               child: Container(
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 5)]),
@@ -184,18 +206,34 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
   String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
   int? selectedPrice;
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  final String stylistWhatsapp = '27672412217'; 
 
   void triggerWhatsApp() {
     if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields!')));
       return;
     }
-    String message = 'Hello NOMBU Beauty 🌸\nName: $clientName\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nPrice: R$selectedPrice';
-    final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
-    
-    if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
-    else launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
 
+    String message = 'Hello NOMBU Beauty 🌸\n\n'
+        'Booking Request:\n'
+        'Name: $clientName\n'
+        'Service: $selectedService\n'
+        'Location: $selectedLocation, $selectedProvince\n'
+        'Price: R${selectedPrice ?? 0}';
+
+    // THE FIX: Use api.whatsapp.com and direct JavaScript open
+    final String webUrl = "https://api.whatsapp.com/send?phone=$stylistWhatsapp&text=${Uri.encodeComponent(message)}";
+    
+    if (kIsWeb) {
+      js.context.callMethod('open', [webUrl, '_blank']);
+    } else {
+      launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+    }
+
+    // Save to Firebase quietly in background
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'service': selectedService,
@@ -215,13 +253,17 @@ class _ServiceScreenState extends State<ServiceScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(children: [
           TextField(decoration: const InputDecoration(labelText: 'Your Name'), onChanged: (val) => clientName = val),
+          const SizedBox(height: 10),
           TextField(decoration: const InputDecoration(labelText: 'WhatsApp Number'), onChanged: (val) => phoneNumber = val),
+          const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             decoration: const InputDecoration(labelText: 'Province'),
             items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
             onChanged: (val) => setState(() => selectedProvince = val),
           ),
+          const SizedBox(height: 10),
           TextField(decoration: const InputDecoration(labelText: 'City/Suburb'), onChanged: (val) => selectedLocation = val),
+          const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             decoration: const InputDecoration(labelText: 'Service'),
             items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
@@ -268,7 +310,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('Admin'), backgroundColor: Colors.pink.shade400),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
@@ -276,16 +318,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
           return ListView(children: snapshot.data!.docs.map((doc) => ListTile(
             title: Text(doc['clientName']),
             subtitle: Text("${doc['service']} - ${doc['status']}"),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
-                IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => doc.reference.update({'status': 'Declined'})),
-              ],
-            ),
+            trailing: IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
           )).toList());
         },
       ),
     );
   }
 }
+Is this code not the closest to my original ?
