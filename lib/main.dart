@@ -260,7 +260,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     if (picked != null) {
       setState(() {
         selectedTime = picked;
-        // Enforce After Hours: Before 8 AM or from 6 PM (18:00) onwards
+        // Strict Enforcement: Before 8 AM or after 6 PM (18:00)
         isAfterHours = (picked.hour < 8 || picked.hour >= 18);
       });
     }
@@ -278,18 +278,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String formattedTime = selectedTime!.format(context);
 
     String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'I\'d like to request a booking.\n\n'
+        'Booking Request:\n'
         'Name: $clientName\n'
         'Phone: $clientPhone\n'
         'Service: $selectedService\n'
         'Location: $selectedLocation\n'
-        'Date: $formattedDate\n'
-        'Time: $formattedTime\n'
+        'Date: $formattedDate at $formattedTime\n'
         '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
-        '\nEstimated Price: R$finalPrice\n'
-        'Final price to be confirmed by stylist.\n\n'
-        'I will send my reference photo below.\n\n'
-        'Thank you.';
+        'Estimated Price: R$finalPrice\n\n'
+        'I will send my reference photo below. Thank you.';
 
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
@@ -300,7 +297,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'clientName': clientName,
       'phoneNumber': clientPhone,
       'service': selectedService,
-      'category': widget.category,
       'location': '$selectedLocation, $selectedProvince',
       'date': formattedDate,
       'time': formattedTime,
@@ -320,6 +316,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
         child: Column(children: [
           TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), onChanged: (val) => clientName = val),
           const SizedBox(height: 10),
+          // FIX: CORRECTLY ASSIGNING CLIENTPHONE
           TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), keyboardType: TextInputType.phone, onChanged: (val) => clientPhone = val),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
@@ -352,7 +349,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
             subtitle: Text(isAfterHours ? "Applied based on time selection." : "Slots before 8AM or after 6PM"),
             value: isAfterHours,
             activeColor: Colors.pink,
-            onChanged: null, // Logic is enforced by Time Picker
+            onChanged: null, 
           ),
           const SizedBox(height: 15),
           Row(children: [
@@ -417,6 +414,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
                   "Please send proof of payment. We can't wait to see you! 💗";
 
+              // FIX: OPENING WHATSAPP FOR ADMIN
               String phone = data['phoneNumber'] ?? "";
               final String url = "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(msg)}";
               
