@@ -1,250 +1,76 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart'; 
+import 'package:intl/intl.dart'; // Added for Date/Time formatting
+import 'firebase_options.dart'; 
+import 'dart:js' as js;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Ensure Firebase is initialized here
-  runApp(const NombuBeautyApp());
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(NombuBeautyApp());
 }
 
 class NombuBeautyApp extends StatelessWidget {
-  const NombuBeautyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      title: 'NOMBU Beauty',
       theme: ThemeData(
-        primarySwatch: Colors.pink,
-        scaffoldBackgroundColor: const Color(0xFFFFF5F8),
+        primaryColor: Colors.pink,
+        scaffoldBackgroundColor: const Color(0xFFFDE6EB),
+        fontFamily: 'Poppins',
       ),
-      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      home: BookingPoliciesScreen(),
     );
   }
 }
 
-// ------------------------- HOME SCREEN -------------------------
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  final List<Map<String, dynamic>> categories = const [
-    {'name': 'Hair Services', 'icon': Icons.content_cut, 'price': 'R200'},
-    {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service, 'price': 'R150'},
-    {'name': 'Makeup', 'icon': Icons.brush, 'price': 'R300'},
-    {'name': 'Admin Dashboard', 'icon': Icons.admin_panel_settings, 'price': ''},
-  ];
-
-  void _showFullPriceList(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        expand: false,
-        builder: (_, controller) => Container(
-          padding: const EdgeInsets.all(20),
-          child: ListView(
-            controller: controller,
-            children: [
-              Center(child: Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)))),
-              const SizedBox(height: 20),
-              const Text("NOMBU Beauty Menu", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
-              const Divider(),
-              _priceItem("Hair Services", ["Basic Install: R200", "Sew-in: R300", "Closure: R250"]),
-              _priceItem("Laundry", ["Wig Wash: R150", "Plucking: R80"]),
-              _priceItem("Makeup", ["Natural: R300", "Soft Glam: R400"]),
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text("* R100 non-refundable deposit required\n* After-hours (18:00+) fee: R100", 
-                  style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _priceItem(String title, List<String> details) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.pink)),
-          ...details.map((d) => Text(d, style: const TextStyle(fontSize: 16))).toList(),
-        ],
-      ),
-    );
-  }
-
+// ------------------------- BOOKING POLICIES -------------------------
+class BookingPoliciesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("NOMBU BEAUTY"), centerTitle: true, backgroundColor: Colors.pink[400]),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton.icon(
-              onPressed: () => _showFullPriceList(context),
-              icon: const Icon(Icons.list_alt),
-              label: const Text("VIEW FULL PRICE LIST"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink[300], minimumSize: const Size(double.infinity, 50)),
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16),
-              itemCount: categories.length,
-              itemBuilder: (context, i) {
-                return InkWell(
-                  onTap: () {
-                    if (categories[i]['name'] == 'Admin Dashboard') {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboard()));
-                    } else {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => BookingScreen(category: categories[i])));
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.pink.withOpacity(0.1), blurRadius: 10)]),
-                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Icon(categories[i]['icon'], size: 40, color: Colors.pink),
-                      const SizedBox(height: 10),
-                      Text(categories[i]['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ]),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ------------------------- BOOKING SCREEN (WITH EDIT & CALCULATOR) -------------------------
-class BookingScreen extends StatefulWidget {
-  final Map<String, dynamic> category;
-  const BookingScreen({super.key, required this.category});
-
-  @override
-  State<BookingScreen> createState() => _BookingScreenState();
-}
-
-class _BookingScreenState extends State<BookingScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
-  TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
-  bool _afterHours = false;
-  bool _agreedToTerms = false;
-
-  double _calculateTotal() {
-    double base = double.tryParse(widget.category['price'].replaceAll('R', '')) ?? 0.0;
-    return _afterHours ? base + 100 : base;
-  }
-
-  void _reviewBooking() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Review Booking"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Client: ${_nameController.text}"),
-            Text("Service: ${widget.category['name']}"),
-            Text("Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}"),
-            Text("Time: ${_selectedTime.format(context)}"),
-            Text("Total: R${_calculateTotal()}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Edit")),
-          ElevatedButton(onPressed: _confirmAndSend, child: const Text("Confirm & WhatsApp")),
-        ],
-      ),
-    );
-  }
-
-  void _confirmAndSend() async {
-    String msg = "New Booking: ${widget.category['name']}\nName: ${_nameController.text}\nDate: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}\nTime: ${_selectedTime.format(context)}\nTotal: R${_calculateTotal()}";
-    var url = "https://wa.me/27123456789?text=${Uri.encodeComponent(msg)}"; // Replace with your number
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-      FirebaseFirestore.instance.collection('bookings').add({
-        'clientName': _nameController.text,
-        'phone': _phoneController.text,
-        'service': widget.category['name'],
-        'date': DateFormat('yyyy-MM-dd').format(_selectedDate),
-        'time': _selectedTime.format(context),
-        'status': 'Pending',
-        'price': 'R${_calculateTotal()}',
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Book ${widget.category['name']}")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      appBar: AppBar(title: const Text('Booking Policies'), backgroundColor: Colors.pink.shade400),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(controller: _nameController, decoration: const InputDecoration(labelText: "Full Name")),
-            TextField(controller: _phoneController, decoration: const InputDecoration(labelText: "Phone Number"), keyboardType: TextInputType.phone),
-            const SizedBox(height: 20),
-            ListTile(
-              title: Text("Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}"),
-              trailing: const Icon(Icons.calendar_month),
-              onTap: () async {
-                DateTime? picked = await showDatePicker(context: context, initialDate: _selectedDate, firstDate: DateTime.now(), lastDate: DateTime(2027));
-                if (picked != null) setState(() => _selectedDate = picked);
-              },
-            ),
-            ListTile(
-              title: Text("Time: ${_selectedTime.format(context)}"),
-              trailing: const Icon(Icons.access_time),
-              onTap: () async {
-                TimeOfDay? picked = await showTimePicker(context: context, initialTime: _selectedTime);
-                if (picked != null) {
-                  setState(() {
-                    _selectedTime = picked;
-                    _afterHours = picked.hour >= 18;
-                  });
-                }
-              },
-            ),
-            CheckboxListTile(
-              title: const Text("I agree to the R100 deposit & policies"),
-              value: _agreedToTerms,
-              onChanged: (v) => setState(() => _agreedToTerms = v!),
-            ),
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(color: Colors.pink[50], borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("TOTAL DUE:", style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text("R${_calculateTotal()}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.pink)),
-                ],
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(
+                  '''
+All appointments must be booked in advance through website/call or in person.
+* A non-refundable deposit of R100 is required to secure your appointment.
+* No Walk-ins will be accepted.
+
+Cancellation & Rescheduling
+* We require 24 hours notice for cancellation or rescheduling.
+* Cancellations made within 24 hours will result in a forfeited deposit.
+
+Late Policy
+* Clients arriving more than an hour late may need to reschedule and the deposit will be forfeited.
+* If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.
+
+Refund & Satisfaction Policy
+* No refunds on services. 
+
+By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
+@NOMBU BEAUTY
+                  ''',
+                  style: TextStyle(fontSize: 14, color: Colors.pink.shade700),
+                ),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _agreedToTerms ? _reviewBooking : null,
-              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-              child: const Text("REVIEW BOOKING"),
+              onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SplashScreen())),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
+              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
             )
           ],
         ),
@@ -253,33 +79,231 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD (SEARCH + EARNINGS + CALL) -------------------------
-class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+// ------------------------- SPLASH SCREEN (Original Design) -------------------------
+class SplashScreen extends StatefulWidget {
   @override
-  State<AdminDashboard> createState() => _AdminDashboardState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
-  String _searchQuery = "";
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
-  void _callClient(String phone) async {
-    final Uri url = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(url)) await launchUrl(url);
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+    });
   }
+
+  @override
+  void dispose() { _controller.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+        child: Center(
+          child: FadeTransition(
+            opacity: _animation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/logo.jpg', width: 120, height: 120),
+                const SizedBox(height: 16),
+                Text('NOMBU Beauty', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
+                const SizedBox(height: 10),
+                const Text("Where Beauty Meets Perfection", style: TextStyle(fontStyle: FontStyle.italic, color: Colors.pink)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ------------------------- HOME SCREEN -------------------------
+class HomeScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> categories = [
+    {'name': 'Hair Services', 'icon': Icons.content_cut},
+    {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
+    {'name': 'Makeup', 'icon': Icons.brush},
+    {'name': 'Admin Dashboard', 'icon': Icons.admin_panel_settings},
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Admin Panel"),
+        leading: Padding(padding: const EdgeInsets.all(8.0), child: Image.asset('assets/logo.jpg')),
+        title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.pink.shade400,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          itemCount: categories.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16),
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return InkWell(
+              onTap: () {
+                if (category['name'] == 'Admin Dashboard') {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 5)]),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Icon(category['icon'], size: 40, color: Colors.pink),
+                  const SizedBox(height: 8),
+                  Text(category['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                ]),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ------------------------- SERVICE SCREEN (Updated with Calculator) -------------------------
+class ServiceScreen extends StatefulWidget {
+  final String category;
+  ServiceScreen({required this.category});
+  @override
+  _ServiceScreenState createState() => _ServiceScreenState();
+}
+
+class _ServiceScreenState extends State<ServiceScreen> {
+  final Map<String, List<Map<String, dynamic>>> services = {
+    'Hair Services': [{'name': 'Basic instal', 'price': 200}, {'name': 'Instal + styling', 'price': 280}, {'name': 'Sew-in instal', 'price': 300}],
+    'Hair Laundry': [{'name': 'Wig wash', 'price': 150}, {'name': 'Plugging', 'price': 80}],
+    'Makeup': [{'name': 'Natural look', 'price': 300}, {'name': 'Soft glam', 'price': 400}],
+  };
+
+  String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
+  int basePrice = 0;
+  TimeOfDay selectedTime = const TimeOfDay(hour: 10, minute: 0);
+
+  int calculateTotal() {
+    return selectedTime.hour >= 18 ? basePrice + 100 : basePrice;
+  }
+
+  void showReviewPopup() {
+    if (selectedService == null || clientName == null || phoneNumber == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill required fields!')));
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Details"),
+        content: Text("Service: $selectedService\nTime: ${selectedTime.format(context)}\nTotal: R${calculateTotal()}"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Edit")),
+          ElevatedButton(onPressed: triggerWhatsApp, child: const Text("Send")),
+        ],
+      ),
+    );
+  }
+
+  void triggerWhatsApp() {
+    Navigator.pop(context);
+    String message = 'Hello NOMBU Beauty 🌸\nName: $clientName\nService: $selectedService\nTime: ${selectedTime.format(context)}\nTotal: R${calculateTotal()}';
+    final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
+    
+    if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
+    else launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+
+    FirebaseFirestore.instance.collection('bookings').add({
+      'clientName': clientName,
+      'service': selectedService,
+      'phoneNumber': phoneNumber,
+      'price': 'R${calculateTotal()}',
+      'time': selectedTime.format(context),
+      'status': 'Pending',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(children: [
+          TextField(decoration: const InputDecoration(labelText: 'Your Name'), onChanged: (val) => clientName = val),
+          TextField(decoration: const InputDecoration(labelText: 'WhatsApp Number'), onChanged: (val) => phoneNumber = val),
+          ListTile(
+            title: Text("Time: ${selectedTime.format(context)}"),
+            trailing: const Icon(Icons.access_time),
+            onTap: () async {
+              TimeOfDay? picked = await showTimePicker(context: context, initialTime: selectedTime);
+              if (picked != null) setState(() => selectedTime = picked);
+            },
+          ),
+          DropdownButtonFormField<String>(
+            items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
+            onChanged: (val) {
+              setState(() {
+                selectedService = val;
+                basePrice = services[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
+              });
+            },
+          ),
+          const SizedBox(height: 20),
+          Text("Total: R${calculateTotal()}", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.pink)),
+          const SizedBox(height: 20),
+          ElevatedButton(onPressed: showReviewPopup, child: const Text('Review & Send')),
+        ]),
+      ),
+    );
+  }
+}
+
+// ------------------------- ADMIN DASHBOARD (Updated with Search & Earnings) -------------------------
+class AdminDashboard extends StatefulWidget {
+  @override
+  _AdminDashboardState createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  bool _auth = false;
+  String searchQuery = "";
+  final TextEditingController _pass = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_auth) {
+      return Scaffold(
+        body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+          TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
+          ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
+        ])),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        backgroundColor: Colors.pink.shade400,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              decoration: InputDecoration(hintText: "Search name...", fillColor: Colors.white, filled: true, prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
-              onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
+              decoration: InputDecoration(hintText: "Search Name...", fillColor: Colors.white, filled: true, borderRadius: BorderRadius.circular(10)),
+              onChanged: (val) => setState(() => searchQuery = val.toLowerCase()),
             ),
           ),
         ),
@@ -289,50 +313,30 @@ class _AdminDashboardState extends State<AdminDashboard> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           
-          var docs = snapshot.data!.docs.where((d) => d['clientName'].toString().toLowerCase().contains(_searchQuery)).toList();
+          var docs = snapshot.data!.docs.where((d) => d['clientName'].toString().toLowerCase().contains(searchQuery)).toList();
           double totalPaid = 0;
           for (var d in docs) {
-            if (d['status'] == 'Paid') totalPaid += double.tryParse(d['price'].toString().replaceAll('R', '')) ?? 0;
+            if (d['status'] == 'Approved') totalPaid += double.tryParse(d['price'].toString().replaceAll('R', '')) ?? 0;
           }
 
           return Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                color: Colors.pink[700],
-                child: Text("TOTAL PAID TODAY: R$totalPaid", style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-              ),
+              Container(padding: const EdgeInsets.all(15), color: Colors.pink.shade700, width: double.infinity, child: Text("Approved Earnings: R$totalPaid", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
               Expanded(
-                child: ListView.builder(
-                  itemCount: docs.length,
-                  itemBuilder: (context, i) {
-                    var data = docs[i].data() as Map<String, dynamic>;
-                    Color statusColor = data['status'] == 'Paid' ? Colors.green : (data['status'] == 'Pending' ? Colors.blue : Colors.orange);
-                    
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(backgroundColor: statusColor, radius: 5),
-                        title: Text(data['clientName']),
-                        subtitle: Text("${data['service']} | ${data['date']} @ ${data['time']}"),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(icon: const Icon(Icons.phone, color: Colors.green), onPressed: () => _callClient(data['phone'])),
-                            PopupMenuButton(
-                              onSelected: (val) => docs[i].reference.update({'status': val}),
-                              itemBuilder: (_) => [
-                                const PopupMenuItem(value: 'Pending', child: Text("Set Pending")),
-                                const PopupMenuItem(value: 'Approved', child: Text("Set Approved")),
-                                const PopupMenuItem(value: 'Paid', child: Text("Set Paid")),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                child: ListView(children: docs.map((doc) => ListTile(
+                  title: Text(doc['clientName']),
+                  subtitle: Text("${doc['service']} - ${doc['price']}"),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(icon: const Icon(Icons.edit, color: Colors.blue), onPressed: () {
+                         // Quick status toggle or full edit dialog can go here
+                         doc.reference.update({'status': 'Approved'});
+                      }),
+                      IconButton(icon: const Icon(Icons.phone, color: Colors.green), onPressed: () => launchUrl(Uri.parse("tel:${doc['phoneNumber']}"))),
+                    ],
+                  ),
+                )).toList()),
               ),
             ],
           );
