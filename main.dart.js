@@ -87273,7 +87273,7 @@ J(a){var s=null
 return new A.zT(new A.IT(s),"NOMBU Beauty",A.v4(s,s,"Poppins",B.dE,B.Eb,s),!1,s)}}
 A.IT.prototype={
 J(a){var s=null
-return A.Bp(A.Iv(B.bD,!0,s,B.V6),new A.be(B.n7,A.cV(A.b([A.d8(A.afA(A.bM("All appointments must be booked in advance through website/call or in person.\n* A non-refundable deposit of R100 is required to secure your appointment.\n* No Walk-ins will be accepted.\n\nCancellation & Rescheduling\n* We require 24 hours notice for cancellation or rescheduling.\n* Cancellations made within 24 hours will result in a forfeited deposit.\n\nLate Policy\n* Clients arriving more than an hour late may need to reschedule and the deposit will be forfeited.\n* If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.\n* After hours (before 8 AM or after 6 PM) incur a R100 fee.\n\nRefund & Satisfaction Policy\n* No refunds on services. \n\nBy booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!\ud83d\udc97\n@NOMBU BEAUTY\n                  ",s,s,s,A.hB(s,s,B.mv,s,s,s,s,s,s,s,s,14,s,s,s,s,1.6,!0,s,s,s,s,s,s,s,s),s,s,s),s,s,B.as),1),B.fc,A.a3y(B.V4,new A.a01(a),A.av7(s,s,B.bD,s,s,s,s,s,s,s,s,s,B.FE,s,new A.cE(A.iH(12),B.l),s,s,s,s)),B.fc],t.p),B.N,B.z,B.P),s))}}
+return A.Bp(A.Iv(B.bD,!0,s,B.V5),new A.be(B.n7,A.cV(A.b([A.d8(A.afA(A.bM("All appointments must be booked in advance through website/call or in person.\n* A non-refundable deposit of R100 is required to secure your appointment.\n* No Walk-ins will be accepted.\n\nCancellation & Rescheduling\n* We require 24 hours notice for cancellation or rescheduling.\n* Cancellations made within 24 hours will result in a forfeited deposit.\n\nLate Policy\n* Clients arriving more than an hour late may need to reschedule and the deposit will be forfeited.\n* If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.\n* After hours (before 8 AM or after 6 PM) incur a R100 fee.\n\nRefund & Satisfaction Policy\n* No refunds on services. \n\nBy booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!\ud83d\udc97\n@NOMBU BEAUTY\n                  ",s,s,s,A.hB(s,s,B.mv,s,s,s,s,s,s,s,s,14,s,s,s,s,1.6,!0,s,s,s,s,s,s,s,s),s,s,s),s,s,B.as),1),B.fc,A.a3y(B.V2,new A.a01(a),A.av7(s,s,B.bD,s,s,s,s,s,s,s,s,s,B.FE,s,new A.cE(A.iH(12),B.l),s,s,s,s)),B.fc],t.p),B.N,B.z,B.P),s))}}
 A.a01.prototype={
 $0(){return A.aBc(this.a,A.LS(new A.a00(),null,t.z))},
 $S:0}
@@ -87308,7 +87308,7 @@ return new A.tm(A.b([A.aq(["name","Hair Services","icon",B.Gk],s,r),A.aq(["name"
 $S:542}
 A.tm.prototype={
 J(a){var s=null
-return A.Bp(A.Iv(B.bD,s,5,A.e2(A.b([A.aAh("assets/Logonombu.jpg",40,40),B.zh,B.V1],t.p),B.N,B.z,B.P,s)),new A.be(B.n7,A.aAc(s,B.U,B.Cv,new A.a6f(this),4,s),s))}}
+return A.Bp(A.Iv(B.bD,s,5,A.e2(A.b([A.aAh("assets/Logonombu.jpg",40,40),B.zh,B.V_],t.p),B.N,B.z,B.P,s)),new A.be(B.n7,A.aAc(s,B.U,B.Cv,new A.a6f(this),4,s),s))}}
 A.a6f.prototype={
 $2(a,b){var s=null,r=this.a.c[b],q=A.b([B.iX,B.mz],t.t_),p=A.iH(20),o=A.b([new A.bh(0,B.K,A.K(102,244,143,177),B.k0,8)],t.V)
 return A.jT(s,A.f2(s,A.cV(A.b([A.zb(r.h(0,"icon"),B.iU,s,45),B.zi,A.bM(r.h(0,"name"),s,s,s,A.hB(s,s,B.mt,s,s,s,s,s,s,s,s,s,s,s,B.bH,s,s,!0,s,s,s,s,s,s,s,s),B.dX,s,s)],t.p),B.N,B.ho,B.P),B.u,s,new A.d6(s,s,s,p,o,new A.pu(B.dj,B.AE,B.fg,q,s,s),B.au),s,s,s,s,s,s,s),B.U,!1,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,new A.a6e(r,a),s,s,s,s,s,s)},
@@ -87371,8 +87371,8 @@ s=f.x
 p=f.y
 q=f.f
 n=f.w
-m=f.at?"\u26a0\ufe0f After Hours Slot: Yes (R100 fee applied)\n":""
-m=A.wz(B.o2,"Hello NOMBU Beauty \ud83c\udf38\n\nBooking Request:\nName: "+A.k(s)+"\nPhone: "+A.k(p)+"\nService: "+A.k(q)+"\nLocation: "+A.k(n)+"\nDate: "+r+" at "+o+"\n"+m+"Estimated Price: R"+f.gGV()+"\n\nI will send my reference photo below. Thank you.",B.ae,!1)
+m=f.at?"After Hours: Yes (R100 fee applied)\n":""
+m=A.wz(B.o2,"Hello NOMBU Beauty \ud83c\udf38\n\nI'd like to request a booking.\n\nName: "+A.k(s)+"\nPhone: "+A.k(p)+"\nService: "+A.k(q)+"\nLocation: "+A.k(n)+"\nDate: "+r+"\nTime: "+o+"\n"+m+"\nEstimated Price: R"+f.gGV()+"\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you.",B.ae,!1)
 $.ay0().y8("open",["https://api.whatsapp.com/send?phone=27672412217&text="+m,"_blank"])
 m=$.dy
 l=(m==null?$.dy=$.jy():m).iZ("[DEFAULT]")
@@ -87408,7 +87408,7 @@ l=A.a_(m).i("aa<1,fx<q>>")
 j.push(A.av5(n,A.a0(new A.aa(m,new A.apU(),l),!0,l.i("aA.E")),new A.apV(q),p,s))
 j.push(B.fb)
 n=q.at
-j.push(new A.P_(n,p,B.dE,B.V3,A.bM(n?"Automatically applied for your selected time.":"Slots before 8AM or after 6PM",p,p,p,p,p,p,p),p))
+j.push(new A.P_(n,p,B.dE,B.V1,A.bM(n?"Applied based on time selection.":"Slots before 8AM or after 6PM",p,p,p,p,p,p,p),p))
 j.push(B.fb)
 n=q.Q
 n=A.d8(A.aBi(B.Gy,A.bM(n==null?"Date":""+A.cC(n)+"/"+A.bx(n),p,p,p,p,p,p,p),new A.apW(q,a)),1)
@@ -87429,8 +87429,7 @@ A.apJ.prototype={
 $0(){var s=this.a,r=this.b
 s.as=r
 r=r.a
-if(r<8||r>=18)s.at=!0
-else s.at=!1},
+s.at=r<8||r>=18},
 $S:0}
 A.apO.prototype={
 $1(a){return this.a.x=a},
@@ -87503,7 +87502,7 @@ o.toString
 A.axD(n,n,!0,n,new A.ai3(new A.jo(s,r),new A.jo(new A.cd(q,B.c7,B.az),r),new A.jo(p,r),a,m),o,n,!0,t.z)},
 J(a){var s,r,q,p,o,n=this,m=null
 if(!n.d)return A.Bp(A.Iv(B.bD,m,m,B.UZ),A.hP(new A.be(B.FD,A.cV(A.b([B.GA,B.fc,A.v_(!0,B.bs,!1,m,!0,B.O,m,A.HW(),n.e,m,m,m,m,m,2,B.GN,B.U,!0,m,!0,m,!1,m,B.bz,m,m,m,m,m,m,m,1,m,m,!0,"\u2022",m,m,m,m,m,!1,m,!1,m,!0,m,B.cl,m,m,B.bo,B.bc,m,m,m,m,m,m,m,B.aa,m,B.d5,m,m,m,m),B.fc,A.a3y(B.V8,new A.ai8(n),A.av7(m,m,B.bD,m,m,m,m,m,m,m,m,m,m,m,m,m,m,m,m))],t.p),B.N,B.z,B.aN),m),m,m))
-s=A.Iv(B.bD,m,m,B.V7)
+s=A.Iv(B.bD,m,m,B.V6)
 r=$.dy
 q=(r==null?$.dy=$.jy():r).iZ("[DEFAULT]")
 A.dJ(q,$.hK(),!0)
@@ -87515,28 +87514,28 @@ p.push([new A.l_(o),!0])
 return A.Bp(s,new A.Cc(new A.ai9(n),A.aPm(r.a,r.gi2().VB(p)).Ys(),m,t.Lq))}}
 A.ai3.prototype={
 $1(a){var s=this,r=null,q=s.a,p=s.b,o=s.c,n=t.p
-return new A.rn(B.V0,A.cV(A.b([A.v_(!0,B.bs,!1,r,!0,B.O,r,A.HW(),q,r,r,r,r,r,2,B.GR,B.U,!0,r,!0,r,!1,r,B.bz,r,r,r,r,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,!1,r,!0,r,B.cl,r,r,B.bo,B.bc,r,r,r,r,r,r,r,B.aa,r,B.d5,r,r,r,r),A.v_(!0,B.bs,!1,r,!0,B.O,r,A.HW(),p,r,r,r,r,r,2,B.GP,B.U,!0,r,!0,r,!1,r,B.bz,r,r,r,B.zH,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,!1,r,!0,r,B.cl,r,r,B.bo,B.bc,r,r,r,r,r,r,r,B.aa,r,B.d5,r,r,r,r),A.v_(!0,B.bs,!1,r,!0,B.O,r,A.HW(),o,r,r,r,r,r,2,B.GQ,B.U,!0,r,!0,r,!1,r,B.bz,r,r,r,r,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,!1,r,!0,r,B.cl,r,r,B.bo,B.bc,r,r,r,r,r,r,r,B.aa,r,B.d5,r,r,r,r)],n),B.N,B.z,B.aN),A.b([A.uW(B.V5,new A.ai1(a),r),A.a3y(B.V_,new A.ai2(s.d,q,p,o,s.e,a),r)],n),r)},
+return new A.rn(B.V4,A.cV(A.b([A.v_(!0,B.bs,!1,r,!0,B.O,r,A.HW(),q,r,r,r,r,r,2,B.GR,B.U,!0,r,!0,r,!1,r,B.bz,r,r,r,r,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,!1,r,!0,r,B.cl,r,r,B.bo,B.bc,r,r,r,r,r,r,r,B.aa,r,B.d5,r,r,r,r),A.v_(!0,B.bs,!1,r,!0,B.O,r,A.HW(),p,r,r,r,r,r,2,B.GP,B.U,!0,r,!0,r,!1,r,B.bz,r,r,r,B.zH,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,!1,r,!0,r,B.cl,r,r,B.bo,B.bc,r,r,r,r,r,r,r,B.aa,r,B.d5,r,r,r,r),A.v_(!0,B.bs,!1,r,!0,B.O,r,A.HW(),o,r,r,r,r,r,2,B.GQ,B.U,!0,r,!0,r,!1,r,B.bz,r,r,r,r,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,!1,r,!0,r,B.cl,r,r,B.bo,B.bc,r,r,r,r,r,r,r,B.aa,r,B.d5,r,r,r,r)],n),B.N,B.z,B.aN),A.b([A.uW(B.V3,new A.ai1(a),r),A.a3y(B.V7,new A.ai2(s.d,q,p,o,s.e,a),r)],n),r)},
 $S:549}
 A.ai1.prototype={
 $0(){A.fa(this.a,!1).mi(null)
 return null},
 $S:0}
 A.ai2.prototype={
-$0(){var s,r,q=this,p=q.a.gW7(),o=q.b,n=q.c,m=q.d,l=A.aPc(A.aq(["service",o.a.a,"price",A.hJ(n.a.a,null),"location",m.a.a,"status","Approved"],t.K,t.X))
-l.toString
-p.a.bD(0,l)
-l=q.e
-p=A.k(l.h(0,"clientName"))
-o=o.a.a
-m=m.a.a
-s=A.k(l.h(0,"date"))
-r=A.k(l.h(0,"time"))
+$0(){var s,r,q,p=this,o=p.a.gW7(),n=p.b,m=p.c,l=p.d,k=A.aPc(A.aq(["service",n.a.a,"price",A.hJ(m.a.a,null),"location",l.a.a,"status","Approved"],t.K,t.X))
+k.toString
+o.a.bD(0,k)
+k=p.e
+o=A.k(k.h(0,"clientName"))
 n=n.a.a
-l=l.h(0,"phoneNumber")
-l=A.k(l==null?"":l)
-n=A.wz(B.o2,"Hello "+p+" \ud83c\udf38,\n\nYour booking for "+o+" at NOMBU Beauty has been Approved!\n\nBooking Details:\n\ud83d\udccd Location: "+m+"\n\ud83d\udcc5 Date: "+s+" at "+r+"\n\ud83d\udcb0 Total Price: R"+n+"\n\nTo secure your slot, please pay a non-refundable deposit of R100.\n\nBanking Details:\nBank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\nPlease send proof of payment. We can't wait to see you! \ud83d\udc97",B.ae,!1)
-$.ay0().y8("open",["https://api.whatsapp.com/send?phone="+l+"&text="+n,"_blank"])
-A.fa(q.f,!1).mi(null)},
+l=l.a.a
+s=A.k(k.h(0,"date"))
+r=A.k(k.h(0,"time"))
+m=m.a.a
+q=k.h(0,"phoneNumber")
+if(q==null)q=""
+o=A.wz(B.o2,"Hello "+o+" \ud83c\udf38,\n\nYour booking for "+n+" at NOMBU Beauty has been Approved!\n\nBooking Details:\n\ud83d\udccd Location: "+l+"\n\ud83d\udcc5 Date: "+s+" at "+r+"\n\ud83d\udcb0 Total Price: R"+m+"\n\nTo secure your slot, please pay a non-refundable deposit of R100.\n\nBanking Details:\nBank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\nPlease send proof of payment. We can't wait to see you! \ud83d\udc97",B.ae,!1)
+$.ay0().y8("open",["https://api.whatsapp.com/send?phone="+q+"&text="+o,"_blank"])
+A.fa(p.f,!1).mi(null)},
 $S:0}
 A.ai8.prototype={
 $0(){var s=this.a
@@ -93175,9 +93174,9 @@ B.PT=new A.kb(3,"hide")
 B.YJ=new A.kb(4,"remove")
 B.zn=new A.kb(5,"timeout")
 B.PU=new A.uO(null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.V2=new A.eQ("Please complete all fields!",null,null,null,null,null,null,null,null,null)
+B.V0=new A.eQ("Please complete all fields!",null,null,null,null,null,null,null,null,null)
 B.Fb=new A.b_(4e6)
-B.PV=new A.qu(B.V2,null,null,null,null,null,null,null,null,null,null,null,null,B.Fb,null,null,null,B.O,null)
+B.PV=new A.qu(B.V0,null,null,null,null,null,null,null,null,null,null,null,null,B.Fb,null,null,null,B.O,null)
 B.zo=new A.C2(0,"permissive")
 B.PW=new A.C2(1,"normal")
 B.PX=new A.C2(2,"forced")
@@ -93538,17 +93537,17 @@ B.Tt=new A.n(!0,B.o,null,"Roboto",B.X,null,null,null,null,null,null,null,null,nu
 B.TD=new A.n(!0,B.o,null,"Roboto",B.X,null,null,null,null,null,null,null,null,null,null,null,null,B.h,null,null,null,"blackHelsinki labelSmall",null,null,null,null)
 B.UY=new A.dC(B.Uq,B.Rw,B.Sx,B.Ts,B.TF,B.QU,B.S6,B.QY,B.Tc,B.TS,B.SH,B.TU,B.U4,B.Tt,B.TD)
 B.UZ=new A.eQ("Admin Login",null,null,null,null,null,null,null,null,null)
-B.V_=new A.eQ("Confirm & Send WhatsApp",null,null,null,null,null,null,null,null,null)
-B.V0=new A.eQ("Edit & Approve Booking",null,null,null,null,null,null,null,null,null)
 B.RW=new A.n(!0,B.j,null,null,null,null,null,B.bH,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.V1=new A.eQ("NOMBU Beauty",null,B.RW,null,null,null,null,null,null,null)
+B.V_=new A.eQ("NOMBU Beauty",null,B.RW,null,null,null,null,null,null,null)
 B.Rh=new A.n(!0,B.dE,null,null,null,null,null,B.bH,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.V3=new A.eQ("After Hours (R100 Fee)",null,B.Rh,null,null,null,null,null,null,null)
+B.V1=new A.eQ("After Hours (R100 Fee)",null,B.Rh,null,null,null,null,null,null,null)
 B.Ra=new A.n(!0,B.j,null,null,null,null,16,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.V4=new A.eQ("Accept & Continue",null,B.Ra,null,null,null,null,null,null,null)
-B.V5=new A.eQ("Cancel",null,null,null,null,null,null,null,null,null)
-B.V6=new A.eQ("Booking Policies",null,null,null,null,null,null,null,null,null)
-B.V7=new A.eQ("Bookings Manager",null,null,null,null,null,null,null,null,null)
+B.V2=new A.eQ("Accept & Continue",null,B.Ra,null,null,null,null,null,null,null)
+B.V3=new A.eQ("Cancel",null,null,null,null,null,null,null,null,null)
+B.V4=new A.eQ("Edit & Approve",null,null,null,null,null,null,null,null,null)
+B.V5=new A.eQ("Booking Policies",null,null,null,null,null,null,null,null,null)
+B.V6=new A.eQ("Bookings Manager",null,null,null,null,null,null,null,null,null)
+B.V7=new A.eQ("Approve & WhatsApp",null,null,null,null,null,null,null,null,null)
 B.Rb=new A.n(!0,B.j,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.V8=new A.eQ("Login",null,B.Rb,null,null,null,null,null,null,null)
 B.YK=new A.ahc(0,"system")
