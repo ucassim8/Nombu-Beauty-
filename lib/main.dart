@@ -39,6 +39,7 @@ class BookingPoliciesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Booking Policies'),
         backgroundColor: Colors.pink.shade400,
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -66,7 +67,7 @@ Refund & Satisfaction Policy
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
 @NOMBU BEAUTY
                   ''',
-                  style: TextStyle(fontSize: 14, color: Colors.pink.shade700, height: 1.5),
+                  style: TextStyle(fontSize: 14, color: Colors.pink.shade700, height: 1.6),
                 ),
               ),
             ),
@@ -78,8 +79,9 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
                   backgroundColor: Colors.pink.shade400,
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
-            )
+              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -124,11 +126,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/logo.jpg', width: 120, height: 120),
-                const SizedBox(height: 16),
-                Text('NOMBU Beauty', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
+                Image.asset('assets/logo.jpg', width: 130, height: 130),
+                const SizedBox(height: 20),
+                Text('NOMBU Beauty', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
                 const SizedBox(height: 8),
-                Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 14, color: Colors.pink.shade400)),
+                Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 15, color: Colors.pink.shade400, fontStyle: FontStyle.italic)),
               ],
             ),
           ),
@@ -153,19 +155,24 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            Image.asset('assets/Logonombu.jpg', width: 35, height: 35),
-            const SizedBox(width: 10),
+            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
+            const SizedBox(width: 12),
             const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
         backgroundColor: Colors.pink.shade400,
-        elevation: 5,
+        elevation: 4,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: GridView.builder(
           itemCount: categories.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, 
+            mainAxisSpacing: 20, 
+            crossAxisSpacing: 20,
+            childAspectRatio: 0.9,
+          ),
           itemBuilder: (context, index) {
             final category = categories[index];
             return GestureDetector(
@@ -178,16 +185,28 @@ class HomeScreen extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.pink.shade50], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
+                  gradient: LinearGradient(
+                    colors: [Colors.pink.shade100, Colors.pink.shade50], 
+                    begin: Alignment.topLeft, 
+                    end: Alignment.bottomRight
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.pink.shade200.withOpacity(0.3), 
+                      blurRadius: 10, 
+                      offset: const Offset(0, 5)
+                    )
+                  ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 45, color: Colors.pink.shade800),
-                    const SizedBox(height: 10),
-                    Text(category['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
+                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
+                    const SizedBox(height: 12),
+                    Text(category['name'], 
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900, fontSize: 15)),
                   ],
                 ),
               ),
@@ -240,15 +259,24 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
   void triggerWhatsApp() {
     if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all selections!')));
       return;
     }
 
-    String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\nName: $clientName\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nPrice: R${selectedPrice ?? 0}';
+    String message = 'Hello NOMBU Beauty 🌸\n\n'
+        'Booking Request:\n'
+        'Name: $clientName\n'
+        'Service: $selectedService\n'
+        'Location: $selectedLocation, $selectedProvince\n'
+        'Price: R${selectedPrice ?? 0}';
+
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
-    if (kIsWeb) { js.context.callMethod('open', [webUrl, '_blank']); } 
-    else { launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication); }
+    if (kIsWeb) {
+      js.context.callMethod('open', [webUrl, '_blank']);
+    } else {
+      launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+    }
 
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
@@ -266,14 +294,20 @@ class _ServiceScreenState extends State<ServiceScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(children: [
-          TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), onChanged: (val) => clientName = val),
+          TextField(
+            decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            onChanged: (val) => clientName = val
+          ),
           const SizedBox(height: 15),
-          TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), onChanged: (val) => phoneNumber = val),
+          TextField(
+            decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            onChanged: (val) => phoneNumber = val
+          ),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            decoration: InputDecoration(labelText: 'Select Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
             value: selectedProvince,
             items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
             onChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
@@ -281,14 +315,14 @@ class _ServiceScreenState extends State<ServiceScreen> {
           const SizedBox(height: 15),
           if (selectedProvince != null)
             DropdownButtonFormField<String>(
-              decoration: InputDecoration(labelText: 'Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+              decoration: InputDecoration(labelText: 'Select Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
               value: selectedLocation,
               items: provinceLocations[selectedProvince]!.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
               onChanged: (val) => setState(() => selectedLocation = val),
             ),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Select Service', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            decoration: InputDecoration(labelText: 'Select Service', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
             items: servicesList[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
             onChanged: (val) {
               setState(() {
@@ -297,11 +331,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
               });
             },
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 35),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pink.shade400, 
+              minimumSize: const Size(double.infinity, 60), 
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
+            ),
             onPressed: triggerWhatsApp,
-            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           )
         ]),
       ),
@@ -323,28 +361,41 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     if (!_auth) {
       return Scaffold(
+        appBar: AppBar(title: const Text('Admin Login'), backgroundColor: Colors.pink.shade400),
         body: Center(child: Padding(
-          padding: const EdgeInsets.all(25.0),
+          padding: const EdgeInsets.all(30.0),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
-            const SizedBox(height: 15),
-            ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
+            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Enter Admin Password', border: OutlineInputBorder())),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(150, 50)),
+              onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, 
+              child: const Text('Login', style: TextStyle(color: Colors.white))
+            )
           ]),
         )),
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('Admin Dashboard'), backgroundColor: Colors.pink.shade400),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           return ListView(children: snapshot.data!.docs.map((doc) => Card(
-            margin: EdgeInsets.all(8),
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            elevation: 3,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: ListTile(
-              title: Text(doc['clientName'], style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text("${doc['service']} - ${doc['status']}\n${doc['location']}"),
-              trailing: IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
+              title: Text(doc['clientName'], style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text("${doc['service']} - ${doc['status']}\nAt: ${doc['location']}"),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
+                  IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => doc.reference.update({'status': 'Declined'})),
+                ],
+              ),
             ),
           )).toList());
         },
