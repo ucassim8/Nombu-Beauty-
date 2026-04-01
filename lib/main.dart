@@ -116,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/logo.jpg', width: 140, height: 140),
+                Image.asset('assets/Logonombu.jpg', width: 140, height: 140),
                 const SizedBox(height: 16),
                 Text('NOMBU Beauty', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
                 const Text('Where Beauty Meets Perfection 🌸', 
@@ -130,7 +130,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
-// ------------------------- HOME SCREEN -------------------------
+// ------------------------- HOME SCREEN (3D DESIGN) -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -147,14 +147,11 @@ class HomeScreen extends StatelessWidget {
           children: [
             Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
             const SizedBox(width: 12),
-            const Text(
-              'NOMBU Beauty', 
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)
-            ),
+            const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
         backgroundColor: Colors.pink.shade400,
-        elevation: 5,
+        elevation: 10,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -162,9 +159,9 @@ class HomeScreen extends StatelessWidget {
           itemCount: categories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            mainAxisSpacing: 20,
-            crossAxisSpacing: 20,
-            childAspectRatio: 0.9,
+            mainAxisSpacing: 25,
+            crossAxisSpacing: 25,
+            childAspectRatio: 0.85,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -178,32 +175,36 @@ class HomeScreen extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.pink.shade100, Colors.pink.shade50], 
-                    begin: Alignment.topLeft, 
-                    end: Alignment.bottomRight
-                  ),
-                  borderRadius: BorderRadius.circular(24),
+                  color: const Color(0xFFFDE6EB), 
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.pink.shade200.withOpacity(0.4), 
-                      blurRadius: 10, 
-                      offset: const Offset(0, 5)
+                      color: Colors.pink.shade900.withOpacity(0.2), 
+                      blurRadius: 15, 
+                      spreadRadius: 2,
+                      offset: const Offset(6, 10) 
+                    ),
+                    const BoxShadow(
+                      color: Colors.white,
+                      blurRadius: 15,
+                      spreadRadius: -2,
+                      offset: Offset(-6, -10)
                     )
                   ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
-                    const SizedBox(height: 12),
+                    Icon(category['icon'], size: 55, color: Colors.pink.shade700),
+                    const SizedBox(height: 15),
                     Text(
                       category['name'], 
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.bold, 
                         color: Colors.pink.shade900,
-                        fontSize: 15
+                        fontSize: 16
                       )
                     ),
                   ],
@@ -217,7 +218,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ------------------------- SERVICE SCREEN -------------------------
+// ------------------------- SERVICE SCREEN (FULL LIST + CASCADING CITY) -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -226,7 +227,7 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-  // FULL ORIGINAL SERVICE LIST (Lashes & Tinting included)
+  // FULL ORIGINAL SERVICE LIST VERIFIED
   final Map<String, List<Map<String, dynamic>>> services = {
     'Hair Services': [
       {'name': 'Basic instal', 'price': 200},
@@ -250,6 +251,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
     ],
   };
 
+  // CASCADING LOCATION DATA
+  final Map<String, List<String>> locationsByProvince = {
+    'Pretoria': ['Pretoria', 'Hammanskraal'],
+    'Limpopo': ['Polokwane'],
+  };
+
   String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
   int? selectedPrice;
 
@@ -260,16 +267,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
 
     int finalPrice = selectedPrice ?? 0;
-    String afterHoursNote = "";
     int currentHour = DateTime.now().hour;
+    // After-hours fee: R100
+    if (currentHour >= 18 || currentHour < 8) finalPrice += 100;
 
-    // After-hours fee: R100 for before 8am or after 6pm
-    if (currentHour >= 18 || currentHour < 8) {
-      finalPrice += 100;
-      afterHoursNote = "\n⚠️ After-Hours Fee: R100 Included";
-    }
-
-    String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\nName: $clientName\nPhone: $phoneNumber\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nTotal Price: R$finalPrice$afterHoursNote';
+    String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\nName: $clientName\nPhone: $phoneNumber\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nTotal Price: R$finalPrice';
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
     if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
@@ -295,19 +297,30 @@ class _ServiceScreenState extends State<ServiceScreen> {
         child: Column(children: [
           TextField(decoration: InputDecoration(labelText: 'Your Name', labelStyle: TextStyle(color: Colors.pink.shade300)), onChanged: (val) => clientName = val),
           TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', labelStyle: TextStyle(color: Colors.pink.shade300)), onChanged: (val) => phoneNumber = val),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
+
+          // PROVINCE DROP DOWN
           DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Province', labelStyle: TextStyle(color: Colors.pink.shade300)),
-            items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-            onChanged: (val) => setState(() => selectedProvince = val),
+            decoration: InputDecoration(labelText: 'Select Province', labelStyle: TextStyle(color: Colors.pink.shade300)),
+            items: locationsByProvince.keys.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+            onChanged: (val) {
+              setState(() {
+                selectedProvince = val;
+                selectedLocation = null; 
+              });
+            },
           ),
           const SizedBox(height: 10),
-          // FIXED: SUBURB DROPDOWN RESTORED
-          DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'City/Suburb', labelStyle: TextStyle(color: Colors.pink.shade300)),
-            items: ['Pretoria', 'Hammanskraal', 'Polokwane'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-            onChanged: (val) => setState(() => selectedLocation = val),
-          ),
+
+          // CASCADING CITY DROP DOWN
+          if (selectedProvince != null)
+            DropdownButtonFormField<String>(
+              value: selectedLocation,
+              decoration: InputDecoration(labelText: 'Select City/Suburb', labelStyle: TextStyle(color: Colors.pink.shade300)),
+              items: locationsByProvince[selectedProvince]!.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+              onChanged: (val) => setState(() => selectedLocation = val),
+            ),
+          
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'Service', labelStyle: TextStyle(color: Colors.pink.shade300)),
@@ -319,9 +332,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
               });
             },
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 40),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
             onPressed: triggerWhatsApp,
             child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           )
@@ -341,7 +354,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
-  // ORIGINAL MESSAGE WITH EFT DETAILS RESTORED
   void sendPaymentRequest(String clientPhone, String clientName) {
     String msg = "Hello $clientName 🌸\n\nYour booking has been confirmed!\n\nDeposit: R100\n\nPlease make payment via EFT:\nCapitec\nMrs K Siwela\n1867785194\nSavings\n\nThank you 💗";
     final String url = "https://api.whatsapp.com/send?phone=$clientPhone&text=${Uri.encodeComponent(msg)}";
