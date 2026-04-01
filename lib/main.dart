@@ -142,31 +142,72 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
+            const SizedBox(width: 12),
+            const Text(
+              'NOMBU Beauty', 
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)
+            ),
+          ],
+        ),
+        backgroundColor: Colors.pink.shade400,
+        elevation: 5,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: GridView.builder(
           itemCount: categories.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 20,
+            crossAxisSpacing: 20,
+            childAspectRatio: 0.9,
+          ),
           itemBuilder: (context, index) {
             final category = categories[index];
-            return InkWell(
+            return GestureDetector(
               onTap: () {
-                if (category['name'] == 'Admin Dashboard') Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
-                else Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                if (category['name'] == 'Admin Dashboard') {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                }
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFDE6EB), // RESTORED ORIGINAL PINK BOX COLOR
-                  borderRadius: BorderRadius.circular(20), 
-                  border: Border.all(color: Colors.pink.shade100, width: 2), 
-                  boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
+                  gradient: LinearGradient(
+                    colors: [Colors.pink.shade100, Colors.pink.shade50], 
+                    begin: Alignment.topLeft, 
+                    end: Alignment.bottomRight
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.pink.shade200.withOpacity(0.4), 
+                      blurRadius: 10, 
+                      offset: const Offset(0, 5)
+                    )
+                  ],
                 ),
-                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(category['icon'], size: 42, color: Colors.pink.shade400),
-                  const SizedBox(height: 10),
-                  Text(category['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
-                ]),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
+                    const SizedBox(height: 12),
+                    Text(
+                      category['name'], 
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold, 
+                        color: Colors.pink.shade900,
+                        fontSize: 15
+                      )
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -185,7 +226,7 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-  // FULL ORIGINAL SERVICE LIST RESTORED
+  // FULL ORIGINAL SERVICE LIST (Lashes & Tinting included)
   final Map<String, List<Map<String, dynamic>>> services = {
     'Hair Services': [
       {'name': 'Basic instal', 'price': 200},
@@ -254,17 +295,20 @@ class _ServiceScreenState extends State<ServiceScreen> {
         child: Column(children: [
           TextField(decoration: InputDecoration(labelText: 'Your Name', labelStyle: TextStyle(color: Colors.pink.shade300)), onChanged: (val) => clientName = val),
           TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', labelStyle: TextStyle(color: Colors.pink.shade300)), onChanged: (val) => phoneNumber = val),
+          const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'Province', labelStyle: TextStyle(color: Colors.pink.shade300)),
             items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
             onChanged: (val) => setState(() => selectedProvince = val),
           ),
-          // RESTORED 3 SPECIFIC LOCATIONS IN DROPDOWN
+          const SizedBox(height: 10),
+          // FIXED: SUBURB DROPDOWN RESTORED
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'City/Suburb', labelStyle: TextStyle(color: Colors.pink.shade300)),
             items: ['Pretoria', 'Hammanskraal', 'Polokwane'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
             onChanged: (val) => setState(() => selectedLocation = val),
           ),
+          const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'Service', labelStyle: TextStyle(color: Colors.pink.shade300)),
             items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
@@ -297,6 +341,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
+  // ORIGINAL MESSAGE WITH EFT DETAILS RESTORED
   void sendPaymentRequest(String clientPhone, String clientName) {
     String msg = "Hello $clientName 🌸\n\nYour booking has been confirmed!\n\nDeposit: R100\n\nPlease make payment via EFT:\nCapitec\nMrs K Siwela\n1867785194\nSavings\n\nThank you 💗";
     final String url = "https://api.whatsapp.com/send?phone=$clientPhone&text=${Uri.encodeComponent(msg)}";
