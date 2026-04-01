@@ -36,7 +36,11 @@ class BookingPoliciesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Booking Policies'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(
+        title: const Text('Booking Policies'), 
+        backgroundColor: Colors.pink.shade400,
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -44,7 +48,8 @@ class BookingPoliciesScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Text(
-                  '''All appointments must be booked in advance through website/call or in person.
+                  '''
+All appointments must be booked in advance through website/call or in person.
 * A non-refundable deposit of R100 is required to secure your appointment.
 * No Walk-ins will be accepted.
 
@@ -55,13 +60,14 @@ Cancellation & Rescheduling
 Late Policy
 * Clients arriving more than an hour late may need to reschedule and the deposit will be forfeited.
 * If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.
+* After hours (before 8 AM or after 6 PM) incur a R100 fee.
 
 Refund & Satisfaction Policy
 * No refunds on services. 
 
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
 @NOMBU BEAUTY''',
-                  style: TextStyle(fontSize: 14, color: Colors.pink.shade700),
+                  style: TextStyle(fontSize: 14, color: Colors.pink.shade700, height: 1.6),
                 ),
               ),
             ),
@@ -70,10 +76,11 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
               onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SplashScreen())),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pink.shade400, 
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
-            )
+              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -116,11 +123,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/Logonombu.jpg', width: 140, height: 140),
-                const SizedBox(height: 16),
+                Image.asset('assets/Logonombu.jpg', width: 130, height: 130),
+                const SizedBox(height: 20),
                 Text('NOMBU Beauty', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
-                const Text('Where Beauty Meets Perfection 🌸', 
-                    style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic, color: Colors.pink)),
+                const Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 15, color: Colors.pink.shade400, fontStyle: FontStyle.italic)),
               ],
             ),
           ),
@@ -154,14 +160,11 @@ class HomeScreen extends StatelessWidget {
         elevation: 10,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 25,
-            crossAxisSpacing: 25,
-            childAspectRatio: 0.85,
+            crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 20, childAspectRatio: 0.85,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -176,37 +179,19 @@ class HomeScreen extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFFDE6EB), 
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.pink.shade900.withOpacity(0.2), 
-                      blurRadius: 15, 
-                      spreadRadius: 2,
-                      offset: const Offset(6, 10) 
-                    ),
-                    const BoxShadow(
-                      color: Colors.white,
-                      blurRadius: 15,
-                      spreadRadius: -2,
-                      offset: Offset(-6, -10)
-                    )
+                    BoxShadow(color: Colors.pink.shade900.withOpacity(0.2), blurRadius: 12, offset: const Offset(6, 8)),
+                    const BoxShadow(color: Colors.white, blurRadius: 10, offset: Offset(-5, -5))
                   ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 55, color: Colors.pink.shade700),
-                    const SizedBox(height: 15),
-                    Text(
-                      category['name'], 
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold, 
-                        color: Colors.pink.shade900,
-                        fontSize: 16
-                      )
-                    ),
+                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
+                    const SizedBox(height: 12),
+                    Text(category['name'], textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900, fontSize: 15)),
                   ],
                 ),
               ),
@@ -218,7 +203,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ------------------------- SERVICE SCREEN (FULL LIST + CASCADING CITY) -------------------------
+// ------------------------- SERVICE SCREEN (CASCADING + DATE/TIME) -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -227,51 +212,70 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-  // FULL ORIGINAL SERVICE LIST VERIFIED
-  final Map<String, List<Map<String, dynamic>>> services = {
+  final Map<String, List<Map<String, dynamic>>> servicesList = {
     'Hair Services': [
       {'name': 'Basic instal', 'price': 200},
-      {'name': 'instal + styling', 'price': 280},
-      {'name': 'sewin instal', 'price': 300},
-      {'name': 'instal + curling', 'price': 400},
-      {'name': 'frontal ponytail', 'price': 350},
+      {'name': 'Instal + styling', 'price': 280},
+      {'name': 'Sew-in instal', 'price': 300},
+      {'name': 'Instal + curling', 'price': 400},
+      {'name': 'Frontal ponytail', 'price': 350},
     ],
     'Hair Laundry': [
       {'name': 'Wig wash', 'price': 150},
-      {'name': 'plugging', 'price': 80},
-      {'name': 'wig customisation (tint)', 'price': 180},
-      {'name': 'bleaching + plugging', 'price': 220},
+      {'name': 'Plugging', 'price': 80},
+      {'name': 'Wig customisation (tint)', 'price': 180},
+      {'name': 'Bleaching + plugging', 'price': 220},
     ],
     'Makeup': [
       {'name': 'Natural look', 'price': 300},
-      {'name': 'soft glam', 'price': 400},
-      {'name': 'soft glam (lashes)', 'price': 450},
-      {'name': 'full glam', 'price': 500},
-      {'name': 'full glam (lashes)', 'price': 550},
+      {'name': 'Soft glam', 'price': 400},
+      {'name': 'Soft glam (lashes)', 'price': 450},
+      {'name': 'Full glam (lashes)', 'price': 550},
     ],
   };
 
-  // CASCADING LOCATION DATA
-  final Map<String, List<String>> locationsByProvince = {
-    'Pretoria': ['Pretoria', 'Hammanskraal'],
+  final Map<String, List<String>> provinceLocations = {
+    'Pretoria': ['Montana', 'Hammanskraal'],
     'Limpopo': ['Polokwane'],
   };
 
-  String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
-  int? selectedPrice;
+  String? selectedService, selectedProvince, selectedLocation, clientName;
+  int? basePrice;
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+  bool isAfterHours = false;
+
+  int get finalPrice => (basePrice ?? 0) + (isAfterHours ? 100 : 0);
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2027),
+    );
+    if (picked != null) setState(() => selectedDate = picked);
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (picked != null) setState(() => selectedTime = picked);
+  }
 
   void triggerWhatsApp() {
-    if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields!')));
+    if (selectedService == null || clientName == null || selectedProvince == null || 
+        selectedLocation == null || selectedDate == null || selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
       return;
     }
 
-    int finalPrice = selectedPrice ?? 0;
-    int currentHour = DateTime.now().hour;
-    // After-hours fee: R100
-    if (currentHour >= 18 || currentHour < 8) finalPrice += 100;
+    String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
+    String formattedTime = selectedTime!.format(context);
 
-    String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\nName: $clientName\nPhone: $phoneNumber\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nTotal Price: R$finalPrice';
+    String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\n'
+        'Name: $clientName\nService: $selectedService\n'
+        'Location: $selectedLocation, $selectedProvince\n'
+        'Date: $formattedDate\nTime: $formattedTime\n'
+        '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
+        'Estimated Price: R$finalPrice\n\nThank you.';
+
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
     if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
@@ -280,8 +284,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'service': selectedService,
-      'phoneNumber': phoneNumber,
+      'category': widget.category,
       'location': '$selectedLocation, $selectedProvince',
+      'date': formattedDate,
+      'time': formattedTime,
+      'afterHours': isAfterHours,
       'price': finalPrice,
       'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
@@ -293,50 +300,50 @@ class _ServiceScreenState extends State<ServiceScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(children: [
-          TextField(decoration: InputDecoration(labelText: 'Your Name', labelStyle: TextStyle(color: Colors.pink.shade300)), onChanged: (val) => clientName = val),
-          TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', labelStyle: TextStyle(color: Colors.pink.shade300)), onChanged: (val) => phoneNumber = val),
+          TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), onChanged: (val) => clientName = val),
           const SizedBox(height: 15),
-
-          // PROVINCE DROP DOWN
           DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Select Province', labelStyle: TextStyle(color: Colors.pink.shade300)),
-            items: locationsByProvince.keys.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-            onChanged: (val) {
-              setState(() {
-                selectedProvince = val;
-                selectedLocation = null; 
-              });
-            },
+            decoration: InputDecoration(labelText: 'Select Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+            onChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
           ),
-          const SizedBox(height: 10),
-
-          // CASCADING CITY DROP DOWN
+          const SizedBox(height: 15),
           if (selectedProvince != null)
             DropdownButtonFormField<String>(
+              decoration: InputDecoration(labelText: 'Select Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
               value: selectedLocation,
-              decoration: InputDecoration(labelText: 'Select City/Suburb', labelStyle: TextStyle(color: Colors.pink.shade300)),
-              items: locationsByProvince[selectedProvince]!.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+              items: provinceLocations[selectedProvince]!.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
               onChanged: (val) => setState(() => selectedLocation = val),
             ),
-          
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Service', labelStyle: TextStyle(color: Colors.pink.shade300)),
-            items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
+            decoration: InputDecoration(labelText: 'Select Service', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            items: servicesList[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
             onChanged: (val) {
               setState(() {
                 selectedService = val;
-                selectedPrice = services[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
+                basePrice = servicesList[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
               });
             },
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 15),
+          SwitchListTile(
+            title: const Text("After Hours (R100 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
+            value: isAfterHours, activeColor: Colors.pink, onChanged: (val) => setState(() => isAfterHours = val),
+          ),
+          const SizedBox(height: 15),
+          Row(children: [
+            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.calendar_today, color: Colors.pink), label: Text(selectedDate == null ? "Date" : "${selectedDate!.day}/${selectedDate!.month}"), onPressed: () => _selectDate(context))),
+            const SizedBox(width: 10),
+            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.access_time, color: Colors.pink), label: Text(selectedTime == null ? "Time" : selectedTime!.format(context)), onPressed: () => _selectTime(context))),
+          ]),
+          const SizedBox(height: 35),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
             onPressed: triggerWhatsApp,
-            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           )
         ]),
       ),
@@ -355,7 +362,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _pass = TextEditingController();
 
   void sendPaymentRequest(String clientPhone, String clientName) {
-    String msg = "Hello $clientName 🌸\n\nYour booking has been confirmed!\n\nDeposit: R100\n\nPlease make payment via EFT:\nCapitec\nMrs K Siwela\n1867785194\nSavings\n\nThank you 💗";
+    String msg = "Hello $clientName 🌸\n\nBooking confirmed!\nDeposit: R100\nEFT Details:\nCapitec | Mrs K Siwela\n1867785194 | Savings";
     final String url = "https://api.whatsapp.com/send?phone=$clientPhone&text=${Uri.encodeComponent(msg)}";
     if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
     else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -365,12 +372,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     if (!_auth) {
       return Scaffold(
+        appBar: AppBar(title: const Text('Admin Login'), backgroundColor: Colors.pink.shade400),
         body: Center(child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(30.0),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.lock_person, size: 60, color: Colors.pink),
-            const SizedBox(height: 10),
-            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
+            const Icon(Icons.lock_outline, size: 60, color: Colors.pink),
+            const SizedBox(height: 20),
+            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
             const SizedBox(height: 20),
             ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
           ]),
@@ -378,28 +386,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('Bookings Manager'), backgroundColor: Colors.pink.shade400),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          return ListView(children: snapshot.data!.docs.map((doc) => Card(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: ListTile(
-              title: Text(doc['clientName'], style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text("${doc['service']} - ${doc['status']}"),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () {
+          return ListView(children: snapshot.data!.docs.map((doc) {
+            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), elevation: 4,
+              child: ListTile(
+                title: Text(data['clientName'] ?? 'No Name', style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text("${data['service']}\n${data['date']} at ${data['time']}\nStatus: ${data['status']}"),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  IconButton(icon: const Icon(Icons.check_circle, color: Colors.green), onPressed: () {
                     doc.reference.update({'status': 'Approved'});
-                    sendPaymentRequest(doc['phoneNumber'], doc['clientName']);
+                    // Note: phoneNumber field needs to exist in your Firestore for this button
+                    if (data['phoneNumber'] != null) sendPaymentRequest(data['phoneNumber'], data['clientName']);
                   }),
-                  IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => doc.reference.update({'status': 'Declined'})),
-                ],
+                  IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => doc.reference.delete()),
+                ]),
               ),
-            ),
-          )).toList());
+            );
+          }).toList());
         },
       ),
     );
