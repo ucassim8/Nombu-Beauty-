@@ -157,7 +157,7 @@ class HomeScreen extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white, 
+                  color: const Color(0xFFFDE6EB), // PINK BOXES
                   borderRadius: BorderRadius.circular(20), 
                   border: Border.all(color: Colors.pink.shade100, width: 2), 
                   boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
@@ -186,9 +186,26 @@ class ServiceScreen extends StatefulWidget {
 
 class _ServiceScreenState extends State<ServiceScreen> {
   final Map<String, List<Map<String, dynamic>>> services = {
-    'Hair Services': [{'name': 'Basic instal', 'price': 200}, {'name': 'Instal + styling', 'price': 280}, {'name': 'Sew-in instal', 'price': 300}],
-    'Hair Laundry': [{'name': 'Wig wash', 'price': 150}, {'name': 'Plugging', 'price': 80}],
-    'Makeup': [{'name': 'Natural look', 'price': 300}, {'name': 'Soft glam', 'price': 400}],
+    'Hair Services': [
+      {'name': 'Basic instal', 'price': 200},
+      {'name': 'Instal + styling', 'price': 280},
+      {'name': 'Sew-in instal', 'price': 300},
+      {'name': 'Closure wig sew-in', 'price': 300},
+      {'name': 'Frontal wig sew-in', 'price': 350},
+      {'name': 'Wig restoration', 'price': 150}
+    ],
+    'Hair Laundry': [
+      {'name': 'Wig wash', 'price': 150},
+      {'name': 'Plugging', 'price': 80},
+      {'name': 'Deep conditioning', 'price': 50},
+      {'name': 'Wig treatment', 'price': 100}
+    ],
+    'Makeup': [
+      {'name': 'Natural look', 'price': 300},
+      {'name': 'Soft glam', 'price': 400},
+      {'name': 'Full glam', 'price': 500},
+      {'name': 'Bridal makeup', 'price': 800}
+    ],
   };
 
   String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
@@ -240,7 +257,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
             items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
             onChanged: (val) => setState(() => selectedProvince = val),
           ),
-          TextField(decoration: InputDecoration(labelText: 'City/Suburb', labelStyle: TextStyle(color: Colors.pink.shade300)), onChanged: (val) => selectedLocation = val),
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(labelText: 'City/Suburb', labelStyle: TextStyle(color: Colors.pink.shade300)),
+            items: ['Pretoria', 'Hammanskraal', 'Polokwane'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+            onChanged: (val) => setState(() => selectedLocation = val),
+          ),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'Service', labelStyle: TextStyle(color: Colors.pink.shade300)),
             items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
@@ -273,8 +294,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
+  // ORIGINAL MESSAGE RESTORED
   void sendPaymentRequest(String clientPhone, String clientName) {
-    String msg = "Hi $clientName, your NOMBU Beauty booking is APPROVED! 🌸\n\nTo secure your slot, please pay the R100 deposit to:\nBank: [Your Bank]\nAcc: [Your Account]\nRef: $clientName\n\nPlease send POP. Thank you!";
+    String msg = "Hello $clientName 🌸\n\nYour booking has been confirmed!\n\nDeposit: R100\n\nPlease make payment via EFT:\nCapitec\nMrs K Siwela\n1867785194\nSavings\n\nThank you 💗";
     final String url = "https://api.whatsapp.com/send?phone=$clientPhone&text=${Uri.encodeComponent(msg)}";
     if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
     else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
