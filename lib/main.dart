@@ -9,12 +9,9 @@ import 'firebase_options.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 
-// ------------------------- MAIN -------------------------
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(NombuBeautyApp());
 }
 
@@ -24,7 +21,7 @@ class NombuBeautyApp extends StatelessWidget {
     return MaterialApp(
       title: 'NOMBU Beauty',
       theme: ThemeData(
-        primaryColor: Colors.pink,
+        primarySwatch: Colors.pink,
         scaffoldBackgroundColor: const Color(0xFFFDE6EB),
         fontFamily: 'Poppins',
       ),
@@ -42,7 +39,6 @@ class BookingPoliciesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Booking Policies'),
         backgroundColor: Colors.pink.shade400,
-        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -65,7 +61,7 @@ Late Policy
 * If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.
 
 Refund & Satisfaction Policy
-* No refunds on services. 
+* No refunds on services.
 
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
 @NOMBU BEAUTY
@@ -82,9 +78,8 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
                   backgroundColor: Colors.pink.shade400,
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white, fontSize: 16)),
-            ),
-            const SizedBox(height: 20),
+              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
+            )
           ],
         ),
       ),
@@ -114,21 +109,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  void dispose() { _controller.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Colors.pink.shade100, Colors.white], 
-              begin: Alignment.topCenter, 
-              end: Alignment.bottomCenter
-          ),
+          gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
         ),
         child: Center(
           child: FadeTransition(
@@ -136,13 +124,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/logo.jpg', width: 150, height: 150),
+                Image.asset('assets/logo.jpg', width: 120, height: 120),
                 const SizedBox(height: 16),
-                Text('NOMBU Beauty', 
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
+                Text('NOMBU Beauty', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
                 const SizedBox(height: 8),
-                Text('Your beauty, your way 🌸',
-                    style: TextStyle(fontSize: 16, color: Colors.pink.shade400, fontStyle: FontStyle.italic)),
+                Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 14, color: Colors.pink.shade400)),
               ],
             ),
           ),
@@ -165,23 +151,24 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Row(
+          children: [
+            Image.asset('assets/Logonombu.jpg', width: 35, height: 35),
+            const SizedBox(width: 10),
+            const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+          ],
+        ),
         backgroundColor: Colors.pink.shade400,
-        elevation: 0,
+        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, 
-              mainAxisSpacing: 16, 
-              crossAxisSpacing: 16,
-              childAspectRatio: 1.0
-          ),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16),
           itemBuilder: (context, index) {
             final category = categories[index];
-            return InkWell(
+            return GestureDetector(
               onTap: () {
                 if (category['name'] == 'Admin Dashboard') {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
@@ -191,17 +178,18 @@ class HomeScreen extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white, 
-                  borderRadius: BorderRadius.circular(20), 
-                  boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 10, offset: const Offset(0, 4))]
+                  gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.pink.shade50], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, 
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 50, color: Colors.pink.shade400),
-                    const SizedBox(height: 12),
-                    Text(category['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ]),
+                    Icon(category['icon'], size: 45, color: Colors.pink.shade800),
+                    const SizedBox(height: 10),
+                    Text(category['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
+                  ],
+                ),
               ),
             );
           },
@@ -220,49 +208,48 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-  final Map<String, List<Map<String, dynamic>>> services = {
+  final Map<String, List<Map<String, dynamic>>> servicesList = {
     'Hair Services': [
-      {'name': 'Basic instal', 'price': 200}, 
-      {'name': 'Instal + styling', 'price': 280}, 
-      {'name': 'Sew-in instal', 'price': 300}
+      {'name': 'Basic instal', 'price': 200},
+      {'name': 'Instal + styling', 'price': 280},
+      {'name': 'Sew-in instal', 'price': 300},
+      {'name': 'Instal + curling', 'price': 400},
+      {'name': 'Frontal ponytail', 'price': 350},
     ],
     'Hair Laundry': [
-      {'name': 'Wig wash', 'price': 150}, 
-      {'name': 'Plugging', 'price': 80}
+      {'name': 'Wig wash', 'price': 150},
+      {'name': 'Plugging', 'price': 80},
+      {'name': 'Wig customisation (tint)', 'price': 180},
+      {'name': 'Bleaching + plugging', 'price': 220},
     ],
     'Makeup': [
-      {'name': 'Natural look', 'price': 300}, 
-      {'name': 'Soft glam', 'price': 400}
+      {'name': 'Natural look', 'price': 300},
+      {'name': 'Soft glam', 'price': 400},
+      {'name': 'Soft glam (lashes)', 'price': 450},
+      {'name': 'Full glam', 'price': 500},
     ],
+  };
+
+  final Map<String, List<String>> provinceLocations = {
+    'Pretoria': ['Montana', 'Hammanskraal'],
+    'Limpopo': ['Polokwane'],
   };
 
   String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
   int? selectedPrice;
 
-  final String stylistWhatsapp = '27672412217'; 
-
-  void triggerWhatsApp() async {
+  void triggerWhatsApp() {
     if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields!')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
       return;
     }
 
-    String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'Booking Request:\n'
-        'Name: $clientName\n'
-        'Service: $selectedService\n'
-        'Location: $selectedLocation, $selectedProvince\n'
-        'Price: R${selectedPrice ?? 0}';
-
-    final String webUrl = "https://api.whatsapp.com/send?phone=$stylistWhatsapp&text=${Uri.encodeComponent(message)}";
+    String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\nName: $clientName\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nPrice: R${selectedPrice ?? 0}';
+    final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
-    if (kIsWeb) {
-      js.context.callMethod('open', [webUrl, '_blank']);
-    } else {
-      await launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
-    }
+    if (kIsWeb) { js.context.callMethod('open', [webUrl, '_blank']); } 
+    else { launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication); }
 
-    // Save to Firebase quietly in background
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'service': selectedService,
@@ -272,8 +259,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
-    
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request sent!')));
   }
 
   @override
@@ -283,37 +268,40 @@ class _ServiceScreenState extends State<ServiceScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(children: [
-          TextField(decoration: const InputDecoration(labelText: 'Your Name', border: OutlineInputBorder()), onChanged: (val) => clientName = val),
+          TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), onChanged: (val) => clientName = val),
           const SizedBox(height: 15),
-          TextField(decoration: const InputDecoration(labelText: 'WhatsApp Number', border: OutlineInputBorder()), onChanged: (val) => phoneNumber = val),
+          TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), onChanged: (val) => phoneNumber = val),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'Province', border: OutlineInputBorder()),
-            items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-            onChanged: (val) => setState(() => selectedProvince = val),
+            decoration: InputDecoration(labelText: 'Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            value: selectedProvince,
+            items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+            onChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
           ),
           const SizedBox(height: 15),
-          TextField(decoration: const InputDecoration(labelText: 'City/Suburb', border: OutlineInputBorder()), onChanged: (val) => selectedLocation = val),
+          if (selectedProvince != null)
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(labelText: 'Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+              value: selectedLocation,
+              items: provinceLocations[selectedProvince]!.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
+              onChanged: (val) => setState(() => selectedLocation = val),
+            ),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'Select Service', border: OutlineInputBorder()),
-            items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
+            decoration: InputDecoration(labelText: 'Select Service', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            items: servicesList[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
             onChanged: (val) {
               setState(() {
                 selectedService = val;
-                selectedPrice = services[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
+                selectedPrice = servicesList[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
               });
             },
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pink.shade400, 
-              minimumSize: const Size(double.infinity, 60),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             onPressed: triggerWhatsApp,
-            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           )
         ]),
       ),
@@ -335,41 +323,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     if (!_auth) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Admin Login'), backgroundColor: Colors.pink.shade400),
         body: Center(child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(25.0),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Admin Password', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(200, 50)),
-              onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Incorrect Password')));
-              }}, 
-              child: const Text('Login', style: TextStyle(color: Colors.white))
-            )
+            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
+            const SizedBox(height: 15),
+            ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
           ]),
         )),
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Bookings Dashboard'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('Admin'), backgroundColor: Colors.pink.shade400),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          if (snapshot.data!.docs.isEmpty) return const Center(child: Text('No bookings found.'));
-          
           return ListView(children: snapshot.data!.docs.map((doc) => Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: EdgeInsets.all(8),
             child: ListTile(
-              title: Text(doc['clientName'], style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text("${doc['service']} - ${doc['location']}\nStatus: ${doc['status']}"),
-              isThreeLine: true,
-              trailing: IconButton(
-                icon: const Icon(Icons.check_circle, color: Colors.green), 
-                onPressed: () => doc.reference.update({'status': 'Approved'})
-              ),
+              title: Text(doc['clientName'], style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text("${doc['service']} - ${doc['status']}\n${doc['location']}"),
+              trailing: IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
             ),
           )).toList());
         },
