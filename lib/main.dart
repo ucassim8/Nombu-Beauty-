@@ -278,7 +278,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String formattedTime = selectedTime!.format(context);
 
     String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'Booking Request:\n'
+        'Id like to request a booking:\n'
         'Name: $clientName\n'
         'Phone: $clientPhone\n'
         'Service: $selectedService\n'
@@ -286,6 +286,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
         'Date: $formattedDate at $formattedTime\n'
         '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
         'Estimated Price: R$finalPrice\n\n'
+        'Final price to be confirmed by stylist'
+        
         'I will send my reference photo below. Thank you.';
 
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
