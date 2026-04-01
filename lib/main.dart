@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
-import 'firebase_options.dart';
+import 'package:flutter/foundation.dart'; 
+import 'firebase_options.dart'; 
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
@@ -80,10 +80,8 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pink.shade400,
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12))),
-              child: const Text('Accept & Continue',
-                  style: TextStyle(color: Colors.white)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
             )
           ],
         ),
@@ -98,21 +96,18 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
     });
   }
 
@@ -127,10 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Colors.pink.shade100, Colors.white],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter),
+          gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
         ),
         child: Center(
           child: FadeTransition(
@@ -140,11 +132,7 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 Image.asset('assets/logo.jpg', width: 120, height: 120),
                 const SizedBox(height: 16),
-                Text('NOMBU Beauty',
-                    style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.pink.shade800)),
+                Text('NOMBU Beauty', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
               ],
             ),
           ),
@@ -167,50 +155,31 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NOMBU Beauty',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.pink.shade400,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-          ),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16),
           itemBuilder: (context, index) {
             final category = categories[index];
             return InkWell(
               onTap: () {
                 if (category['name'] == 'Admin Dashboard') {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => AdminDashboard()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
                 } else {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) =>
-                              ServiceScreen(category: category['name'])));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
                 }
               },
               child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(color: Colors.pink.shade100, blurRadius: 5)
-                    ]),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(category['icon'], size: 40, color: Colors.pink),
-                    const SizedBox(height: 8),
-                    Text(category['name'],
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 5)]),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Icon(category['icon'], size: 40, color: Colors.pink),
+                  const SizedBox(height: 8),
+                  Text(category['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                ]),
               ),
             );
           },
@@ -230,38 +199,21 @@ class ServiceScreen extends StatefulWidget {
 
 class _ServiceScreenState extends State<ServiceScreen> {
   final Map<String, List<Map<String, dynamic>>> services = {
-    'Hair Services': [
-      {'name': 'Basic instal', 'price': 200},
-      {'name': 'Instal + styling', 'price': 280},
-      {'name': 'Sew-in instal', 'price': 300}
-    ],
-    'Hair Laundry': [
-      {'name': 'Wig wash', 'price': 150},
-      {'name': 'Plugging', 'price': 80}
-    ],
-    'Makeup': [
-      {'name': 'Natural look', 'price': 300},
-      {'name': 'Soft glam', 'price': 400}
-    ],
+    'Hair Services': [{'name': 'Basic instal', 'price': 200}, {'name': 'Instal + styling', 'price': 280}, {'name': 'Sew-in instal', 'price': 300}],
+    'Hair Laundry': [{'name': 'Wig wash', 'price': 150}, {'name': 'Plugging', 'price': 80}],
+    'Makeup': [{'name': 'Natural look', 'price': 300}, {'name': 'Soft glam', 'price': 400}],
   };
 
-  String? selectedService,
-      selectedProvince,
-      selectedLocation,
-      clientName,
-      phoneNumber;
+  String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
   int? selectedPrice;
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
 
-  final String stylistWhatsapp = '27672412217';
+  final String stylistWhatsapp = '27672412217'; 
 
   void triggerWhatsApp() {
-    if (selectedService == null ||
-        clientName == null ||
-        phoneNumber == null ||
-        selectedProvince == null ||
-        selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please fill all fields!')));
+    if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields!')));
       return;
     }
 
@@ -272,9 +224,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
         'Location: $selectedLocation, $selectedProvince\n'
         'Price: R${selectedPrice ?? 0}';
 
-    final String webUrl =
-        "https://api.whatsapp.com/send?phone=$stylistWhatsapp&text=${Uri.encodeComponent(message)}";
-
+    // THE FIX: Use api.whatsapp.com and direct JavaScript open
+    final String webUrl = "https://api.whatsapp.com/send?phone=$stylistWhatsapp&text=${Uri.encodeComponent(message)}";
+    
     if (kIsWeb) {
       js.context.callMethod('open', [webUrl, '_blank']);
     } else {
@@ -296,59 +248,39 @@ class _ServiceScreenState extends State<ServiceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: Text(widget.category), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-                decoration: const InputDecoration(labelText: 'Your Name'),
-                onChanged: (val) => clientName = val),
-            const SizedBox(height: 10),
-            TextField(
-                decoration:
-                    const InputDecoration(labelText: 'WhatsApp Number'),
-                onChanged: (val) => phoneNumber = val),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: 'Province'),
-              items: ['Pretoria', 'Limpopo']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (val) => setState(() => selectedProvince = val),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-                decoration: const InputDecoration(labelText: 'City/Suburb'),
-                onChanged: (val) => selectedLocation = val),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: 'Service'),
-              items: services[widget.category]!
-                  .map((e) => DropdownMenuItem(
-                      value: e['name'] as String,
-                      child: Text("${e['name']} (R${e['price']})")))
-                  .toList(),
-              onChanged: (val) {
-                setState(() {
-                  selectedService = val;
-                  selectedPrice = services[widget.category]!.firstWhere(
-                      (element) => element['name'] == val)['price'] as int;
-                });
-              },
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  minimumSize: const Size(double.infinity, 50)),
-              onPressed: triggerWhatsApp,
-              child: const Text('Send via WhatsApp',
-                  style: TextStyle(color: Colors.white)),
-            )
-          ],
-        ),
+        child: Column(children: [
+          TextField(decoration: const InputDecoration(labelText: 'Your Name'), onChanged: (val) => clientName = val),
+          const SizedBox(height: 10),
+          TextField(decoration: const InputDecoration(labelText: 'WhatsApp Number'), onChanged: (val) => phoneNumber = val),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: 'Province'),
+            items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+            onChanged: (val) => setState(() => selectedProvince = val),
+          ),
+          const SizedBox(height: 10),
+          TextField(decoration: const InputDecoration(labelText: 'City/Suburb'), onChanged: (val) => selectedLocation = val),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: 'Service'),
+            items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
+            onChanged: (val) {
+              setState(() {
+                selectedService = val;
+                selectedPrice = services[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
+              });
+            },
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 50)),
+            onPressed: triggerWhatsApp,
+            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white)),
+          )
+        ]),
       ),
     );
   }
@@ -368,51 +300,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     if (!_auth) {
       return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                    controller: _pass,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Password')),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () {
-                      if (_pass.text == '2478') setState(() => _auth = true);
-                    },
-                    child: const Text('Login'))
-              ],
-            ),
-          ),
-        ),
+        body: Center(child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
+            ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
+          ]),
+        )),
       );
     }
     return Scaffold(
-      appBar: AppBar(
-          title: const Text('Admin Dashboard'),
-          backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('Admin'), backgroundColor: Colors.pink.shade400),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('bookings')
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return const Center(child: CircularProgressIndicator());
-          return ListView(
-              children: snapshot.data!.docs.map((doc) {
-            return ListTile(
-              title: Text(doc['clientName']),
-              subtitle: Text("${doc['service']} - ${doc['status']}"),
-              trailing: IconButton(
-                  icon: const Icon(Icons.check, color: Colors.green),
-                  onPressed: () =>
-                      doc.reference.update({'status': 'Approved'})),
-            );
-          }).toList());
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          return ListView(children: snapshot.data!.docs.map((doc) => ListTile(
+            title: Text(doc['clientName']),
+            subtitle: Text("${doc['service']} - ${doc['status']}"),
+            trailing: IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
+          )).toList());
         },
       ),
     );
