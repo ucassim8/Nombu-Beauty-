@@ -260,7 +260,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
     if (picked != null) {
       setState(() {
         selectedTime = picked;
-        // Strict Enforcement: Before 8 AM or after 6 PM (18:00)
         isAfterHours = (picked.hour < 8 || picked.hour >= 18);
       });
     }
@@ -297,6 +296,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'clientName': clientName,
       'phoneNumber': clientPhone,
       'service': selectedService,
+      'category': widget.category,
       'location': '$selectedLocation, $selectedProvince',
       'date': formattedDate,
       'time': formattedTime,
@@ -316,7 +316,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
         child: Column(children: [
           TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), onChanged: (val) => clientName = val),
           const SizedBox(height: 10),
-          // FIX: CORRECTLY ASSIGNING CLIENTPHONE
           TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), keyboardType: TextInputType.phone, onChanged: (val) => clientPhone = val),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
@@ -369,7 +368,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD -------------------------
+// ------------------------- ADMIN DASHBOARD (EDITABLE DATE/TIME) -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -384,37 +383,49 @@ class _AdminDashboardState extends State<AdminDashboard> {
     TextEditingController serviceCtrl = TextEditingController(text: data['service']);
     TextEditingController priceCtrl = TextEditingController(text: data['price'].toString());
     TextEditingController locCtrl = TextEditingController(text: data['location']);
+    TextEditingController dateCtrl = TextEditingController(text: data['date']);
+    TextEditingController timeCtrl = TextEditingController(text: data['time']);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Edit & Approve"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: serviceCtrl, decoration: const InputDecoration(labelText: "Service")),
-            TextField(controller: priceCtrl, decoration: const InputDecoration(labelText: "Price (R)"), keyboardType: TextInputType.number),
-            TextField(controller: locCtrl, decoration: const InputDecoration(labelText: "Location")),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: serviceCtrl, decoration: const InputDecoration(labelText: "Service")),
+              TextField(controller: priceCtrl, decoration: const InputDecoration(labelText: "Price (R)"), keyboardType: TextInputType.number),
+              TextField(controller: locCtrl, decoration: const InputDecoration(labelText: "Location")),
+              TextField(controller: dateCtrl, decoration: const InputDecoration(labelText: "Date")),
+              TextField(controller: timeCtrl, decoration: const InputDecoration(labelText: "Time")),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
           ElevatedButton(
             onPressed: () {
-              doc.reference.update({'service': serviceCtrl.text, 'price': int.parse(priceCtrl.text), 'location': locCtrl.text, 'status': 'Approved'});
+              doc.reference.update({
+                'service': serviceCtrl.text, 
+                'price': int.parse(priceCtrl.text), 
+                'location': locCtrl.text,
+                'date': dateCtrl.text,
+                'time': timeCtrl.text,
+                'status': 'Approved'
+              });
               
               String msg = "Hello ${data['clientName']} 🌸,\n\n"
                   "Your booking for ${serviceCtrl.text} at NOMBU Beauty has been Approved!\n\n"
                   "Booking Details:\n"
                   "📍 Location: ${locCtrl.text}\n"
-                  "📅 Date: ${data['date']} at ${data['time']}\n"
+                  "📅 Date: ${dateCtrl.text} at ${timeCtrl.text}\n"
                   "💰 Total Price: R${priceCtrl.text}\n\n"
                   "To secure your slot, please pay a non-refundable deposit of R100.\n\n"
                   "Banking Details:\n"
                   "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
                   "Please send proof of payment. We can't wait to see you! 💗";
 
-              // FIX: OPENING WHATSAPP FOR ADMIN
               String phone = data['phoneNumber'] ?? "";
               final String url = "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(msg)}";
               
