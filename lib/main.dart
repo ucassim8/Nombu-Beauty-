@@ -204,7 +204,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ------------------------- SERVICE SCREEN (FORCED AFTER HOURS) -------------------------
+// ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -260,12 +260,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
     if (picked != null) {
       setState(() {
         selectedTime = picked;
-        // Logic: Force After Hours if hour is before 8 AM or from 6 PM (18:00) onwards
-        if (picked.hour < 8 || picked.hour >= 18) {
-          isAfterHours = true;
-        } else {
-          isAfterHours = false;
-        }
+        // Enforce After Hours: Before 8 AM or from 6 PM (18:00) onwards
+        isAfterHours = (picked.hour < 8 || picked.hour >= 18);
       });
     }
   }
@@ -282,15 +278,18 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String formattedTime = selectedTime!.format(context);
 
     String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'Booking Request:\n'
+        'I\'d like to request a booking.\n\n'
         'Name: $clientName\n'
         'Phone: $clientPhone\n'
         'Service: $selectedService\n'
         'Location: $selectedLocation\n'
-        'Date: $formattedDate at $formattedTime\n'
-        '${isAfterHours ? "⚠️ After Hours Slot: Yes (R100 fee applied)\n" : ""}'
-        'Estimated Price: R$finalPrice\n\n'
-        'I will send my reference photo below. Thank you.';
+        'Date: $formattedDate\n'
+        'Time: $formattedTime\n'
+        '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
+        '\nEstimated Price: R$finalPrice\n'
+        'Final price to be confirmed by stylist.\n\n'
+        'I will send my reference photo below.\n\n'
+        'Thank you.';
 
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
@@ -350,10 +349,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
           const SizedBox(height: 15),
           SwitchListTile(
             title: const Text("After Hours (R100 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
-            subtitle: Text(isAfterHours ? "Automatically applied for your selected time." : "Slots before 8AM or after 6PM"),
+            subtitle: Text(isAfterHours ? "Applied based on time selection." : "Slots before 8AM or after 6PM"),
             value: isAfterHours,
             activeColor: Colors.pink,
-            onChanged: null, // Forces users to accept auto-logic based on time picker
+            onChanged: null, // Logic is enforced by Time Picker
           ),
           const SizedBox(height: 15),
           Row(children: [
@@ -373,7 +372,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD (EDIT & APPROVE) -------------------------
+// ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -392,7 +391,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Edit & Approve Booking"),
+        title: const Text("Edit & Approve"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -415,18 +414,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   "💰 Total Price: R${priceCtrl.text}\n\n"
                   "To secure your slot, please pay a non-refundable deposit of R100.\n\n"
                   "Banking Details:\n"
-                  "Bank: Capitec\n"
-                  "Name: Mrs K Siwela\n"
-                  "Account: 1867785194\n"
-                  "Type: Savings\n\n"
+                  "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
                   "Please send proof of payment. We can't wait to see you! 💗";
 
-              final String url = "https://api.whatsapp.com/send?phone=${data['phoneNumber'] ?? ""}&text=${Uri.encodeComponent(msg)}";
+              String phone = data['phoneNumber'] ?? "";
+              final String url = "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(msg)}";
+              
               if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
               else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+              
               Navigator.pop(context);
             },
-            child: const Text("Confirm & Send WhatsApp"),
+            child: const Text("Approve & WhatsApp"),
           ),
         ],
       ),
