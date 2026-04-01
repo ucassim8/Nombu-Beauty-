@@ -1,10 +1,11 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart'; 
 import 'firebase_options.dart'; 
 
-// Conditional import for Web JS calls
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 
@@ -288,7 +289,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     'Limpopo': ['Polokwane'],
   };
 
-  final String whatsappNumber = '27672412217'; // Cleaned international format
+  final String whatsappNumber = '27672412217'; 
 
   bool get requiresFullBooking =>
       (widget.category == 'Hair Services' || widget.category == 'Makeup');
@@ -349,7 +350,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
       price: selectedPrice ?? 0,
     );
 
-    // 1. Save to Firebase first to ensure we don't lose the data
     await FirebaseFirestore.instance.collection('bookings').add({
       'service': booking.service,
       'category': booking.category,
@@ -360,22 +360,17 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'phoneNumber': booking.phoneNumber,
       'location': booking.location,
       'price': booking.price,
-      'status': 'Pending', // Explicit string for reliable filtering
+      'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // 2. Open WhatsApp
     try {
       await sendWhatsAppRequest(booking);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Redirecting to WhatsApp...')),
+        const SnackBar(content: Text('Opening WhatsApp...')),
       );
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Booking request sent successfully!')),
-    );
   }
 
   Future<void> sendWhatsAppRequest(BookingRequest booking) async {
@@ -527,7 +522,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Stream Error: Please check Firebase Indexes'));
+            return Center(child: Text('Error loading bookings: ${snapshot.error}'));
           }
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
@@ -562,7 +557,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<void> requestPayment(DocumentSnapshot booking) async {
     await FirebaseFirestore.instance.collection('bookings').doc(booking.id).update({'status': 'Approved'});
 
-    // Fix: Clean phone number for WhatsApp URL
     String rawPhone = booking['phoneNumber'];
     String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
     if (cleanPhone.startsWith('0')) {
@@ -602,4 +596,3 @@ class BookingRequest {
   final int price;
   BookingRequest({required this.service, required this.category, required this.date, required this.time, required this.afterHours, required this.clientName, required this.phoneNumber, required this.location, required this.price});
 }
-
