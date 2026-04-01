@@ -9,9 +9,12 @@ import 'firebase_options.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 
+// ------------------------- MAIN -------------------------
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(NombuBeautyApp());
 }
 
@@ -62,7 +65,7 @@ Late Policy
 * If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.
 
 Refund & Satisfaction Policy
-* No refunds on services.
+* No refunds on services. 
 
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
 @NOMBU BEAUTY
@@ -81,7 +84,7 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               child: const Text('Accept & Continue', style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -161,16 +164,16 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         backgroundColor: Colors.pink.shade400,
-        elevation: 4,
+        elevation: 5,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, 
-            mainAxisSpacing: 20, 
-            crossAxisSpacing: 20,
+            mainAxisSpacing: 16, 
+            crossAxisSpacing: 16,
             childAspectRatio: 0.9,
           ),
           itemBuilder: (context, index) {
@@ -190,23 +193,23 @@ class HomeScreen extends StatelessWidget {
                     begin: Alignment.topLeft, 
                     end: Alignment.bottomRight
                   ),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.pink.shade200.withOpacity(0.3), 
-                      blurRadius: 10, 
-                      offset: const Offset(0, 5)
+                      color: Colors.pink.shade200.withOpacity(0.4), 
+                      blurRadius: 8, 
+                      offset: const Offset(0, 4)
                     )
                   ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
-                    const SizedBox(height: 12),
+                    Icon(category['icon'], size: 45, color: Colors.pink.shade800),
+                    const SizedBox(height: 10),
                     Text(category['name'], 
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900, fontSize: 15)),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
                   ],
                 ),
               ),
@@ -254,21 +257,49 @@ class _ServiceScreenState extends State<ServiceScreen> {
     'Limpopo': ['Polokwane'],
   };
 
-  String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
-  int? selectedPrice;
+  String? selectedService, selectedProvince, selectedLocation, clientName;
+  int? basePrice;
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+  bool isAfterHours = false;
+
+  int get finalPrice => (basePrice ?? 0) + (isAfterHours ? 50 : 0);
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2027),
+    );
+    if (picked != null) setState(() => selectedDate = picked);
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (picked != null) setState(() => selectedTime = picked);
+  }
 
   void triggerWhatsApp() {
-    if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all selections!')));
+    if (selectedService == null || clientName == null || selectedProvince == null || 
+        selectedLocation == null || selectedDate == null || selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
       return;
     }
 
+    String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
+    String formattedTime = selectedTime!.format(context);
+
     String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'Booking Request:\n'
+        'I\'d like to request a booking.\n\n'
         'Name: $clientName\n'
         'Service: $selectedService\n'
-        'Location: $selectedLocation, $selectedProvince\n'
-        'Price: R${selectedPrice ?? 0}';
+        'Category: ${widget.category}\n'
+        'Location: $selectedLocation\n'
+        'Date: $formattedDate\n'
+        'Time: $formattedTime\n'
+        '${isAfterHours ? "After Hours: Yes (Late fee applied)\n" : ""}'
+        '\nEstimated Price: R$finalPrice\n'
+        'Final price to be confirmed by stylist.\n\n'
+        'I will send my reference photo below.\n\n'
+        'Thank you.';
 
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
@@ -281,9 +312,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'service': selectedService,
-      'phoneNumber': phoneNumber,
+      'category': widget.category,
       'location': '$selectedLocation, $selectedProvince',
-      'price': selectedPrice,
+      'date': formattedDate,
+      'time': formattedTime,
+      'afterHours': isAfterHours,
+      'price': finalPrice,
       'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
@@ -299,11 +333,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
           TextField(
             decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
             onChanged: (val) => clientName = val
-          ),
-          const SizedBox(height: 15),
-          TextField(
-            decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-            onChanged: (val) => phoneNumber = val
           ),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
@@ -327,16 +356,39 @@ class _ServiceScreenState extends State<ServiceScreen> {
             onChanged: (val) {
               setState(() {
                 selectedService = val;
-                selectedPrice = servicesList[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
+                basePrice = servicesList[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
               });
             },
           ),
-          const SizedBox(height: 35),
+          const SizedBox(height: 15),
+          SwitchListTile(
+            title: const Text("After Hours Booking (R50 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
+            value: isAfterHours,
+            activeColor: Colors.pink,
+            onChanged: (val) => setState(() => isAfterHours = val),
+          ),
+          const SizedBox(height: 15),
+          Row(children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.calendar_today, color: Colors.pink),
+                label: Text(selectedDate == null ? "Select Date" : "${selectedDate!.day}/${selectedDate!.month}"),
+                onPressed: () => _selectDate(context),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.access_time, color: Colors.pink),
+                label: Text(selectedTime == null ? "Select Time" : selectedTime!.format(context)),
+                onPressed: () => _selectTime(context),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 30),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pink.shade400, 
-              minimumSize: const Size(double.infinity, 60), 
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
+              backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
             ),
             onPressed: triggerWhatsApp,
             child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
@@ -365,7 +417,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
         body: Center(child: Padding(
           padding: const EdgeInsets.all(30.0),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Enter Admin Password', border: OutlineInputBorder())),
+            const Icon(Icons.lock_outline, size: 60, color: Colors.pink),
+            const SizedBox(height: 20),
+            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(150, 50)),
@@ -377,29 +431,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('Bookings Manager'), backgroundColor: Colors.pink.shade400),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          return ListView(children: snapshot.data!.docs.map((doc) => Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            elevation: 3,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: ListTile(
-              title: Text(doc['clientName'], style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text("${doc['service']} - ${doc['status']}\nAt: ${doc['location']}"),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
-                  IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => doc.reference.update({'status': 'Declined'})),
-                ],
+          if (snapshot.data!.docs.isEmpty) return const Center(child: Text('No bookings found.'));
+          return ListView(children: snapshot.data!.docs.map((doc) {
+            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              child: ListTile(
+                title: Text(data['clientName'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text("${data['service']}\n${data['location']}\n${data['date']} at ${data['time']}\nStatus: ${data['status']}"),
+                isThreeLine: true,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(icon: const Icon(Icons.check_circle, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
+                    IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => doc.reference.delete()),
+                  ],
+                ),
               ),
-            ),
-          )).toList());
+            );
+          }).toList());
         },
       ),
     );
   }
 }
+
