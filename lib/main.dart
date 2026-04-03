@@ -428,9 +428,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
                   "Please send proof of payment. We can't wait to see you! 💗";
 
-              String phone = data['phoneNumber'] ?? "";
-              final String url = "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(msg)}";
+              // 3. ADD THE CLEANER LOGIC HERE
+              String rawPhone = data['phoneNumber'] ?? "";
+              String cleanPhone = rawPhone.replaceAll(RegExp(r'\D'), ''); 
               
+              if (cleanPhone.startsWith('0')) {
+                cleanPhone = '27' + cleanPhone.substring(1); 
+              } else if (!cleanPhone.startsWith('27')) {
+                cleanPhone = '27' + cleanPhone; 
+              }
+
+              // 4. Use the NEW 'cleanPhone' in the URL
+              final String url = "https://api.whatsapp.com/send?phone=$cleanPhone&text=${Uri.encodeComponent(msg)}";
               if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
               else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
               
