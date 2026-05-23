@@ -58,7 +58,7 @@ Cancellation & Rescheduling
 * Cancellations made within 24 hours will result in a forfeited deposit.
 
 Late Policy
-* Clients arriving more than an hour late may need to reschedule and the deposit will be forfeited.
+* Clients arriving more than 15 minutes late may need to reschedule and the deposit will be forfeited.
 * If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.
 * After hours (before 8 AM or after 6 PM) incur a R100 fee.
 
