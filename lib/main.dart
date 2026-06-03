@@ -635,11 +635,89 @@ class _AdminDashboardState extends State<AdminDashboard> {
               } else if (cleanPhone.startsWith('0')) {
                 cleanPhone = '27' + cleanPhone.substring(1);
               } else if (!cleanPhone.startsWith('27')) {
+// ------------------------- ADMIN DASHBOARD (PART 1) -------------------------
+class AdminDashboard extends StatefulWidget {
+  @override
+  _AdminDashboardState createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  bool _auth = false;
+  final TextEditingController _pass = TextEditingController();
+
+  // Helper to parse "DD/MM/YYYY" string into a real DateTime for sorting
+  DateTime _parseBookingDate(String dateStr) {
+    try {
+      List<String> parts = dateStr.split('/');
+      if (parts.length == 3) {
+        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (e) {
+      print("Error parsing date: $dateStr");
+    }
+    return DateTime(2099); // Fallback to bottom if parsing fails
+  }
+
+  void _showEditDialog(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    TextEditingController serviceCtrl = TextEditingController(text: data['service']);
+    TextEditingController priceCtrl = TextEditingController(text: data['price'].toString());
+    TextEditingController locCtrl = TextEditingController(text: data['location']);
+    TextEditingController dateCtrl = TextEditingController(text: data['date']);
+    TextEditingController timeCtrl = TextEditingController(text: data['time']);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Edit & Approve"),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: serviceCtrl, decoration: const InputDecoration(labelText: "Service")),
+              TextField(controller: priceCtrl, decoration: const InputDecoration(labelText: "Price (R)"), keyboardType: TextInputType.number),
+              TextField(controller: locCtrl, decoration: const InputDecoration(labelText: "Location")),
+              TextField(controller: dateCtrl, decoration: const InputDecoration(labelText: "Date")),
+              TextField(controller: timeCtrl, decoration: const InputDecoration(labelText: "Time")),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              doc.reference.update({
+                'service': serviceCtrl.text, 
+                'price': int.parse(priceCtrl.text), 
+                'location': locCtrl.text,
+                'date': dateCtrl.text,
+                'time': timeCtrl.text,
+                'status': 'Approved'
+              });
+              
+              String msg = "Hello ${data['clientName']} 🌸,\n\n"
+                  "Your booking for ${serviceCtrl.text} at NOMBU Beauty has been Approved!\n\n"
+                  "Booking Details:\n"
+                  "📍 Location: ${locCtrl.text}\n"
+                  "📅 Date: ${dateCtrl.text} at ${timeCtrl.text}\n"
+                  "💰 Total Price: R${priceCtrl.text}\n\n"
+                  "To secure your slot, please pay a non-refundable deposit of R100.\n\n"
+                  "Banking Details:\n"
+                  "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
+                  "Please send proof of payment. We can't wait to see you! 💗";
+
+              String rawPhone = data['phoneNumber'] ?? "";
+              String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
+
+              if (cleanPhone.startsWith('270')) {
+                cleanPhone = '27' + cleanPhone.substring(3);
+              } else if (cleanPhone.startsWith('0')) {
+                cleanPhone = '27' + cleanPhone.substring(1);
+              } else if (!cleanPhone.startsWith('27')) {
                 cleanPhone = '27' + cleanPhone;
               }
 
               final String url = "https://wa.me/$cleanPhone?text=${Uri.encodeComponent(msg)}";
-              print("DEBUG: Final Phone Number is: $cleanPhone");
               
               if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
               else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -670,29 +748,227 @@ class _AdminDashboardState extends State<AdminDashboard> {
         )),
       );
     }
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bookings Manager'), backgroundColor: Colors.pink.shade400),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          return ListView(children: snapshot.data!.docs.map((doc) {
-            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              elevation: 4, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: ListTile(
-                title: Text(data['clientName'] ?? 'No Name', style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text("${data['service']}\n${data['location']}\n${data['date']} at ${data['time']}\nStatus: ${data['status']}"),
-                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                  IconButton(icon: const Icon(Icons.check_circle, color: Colors.green), onPressed: () => _showEditDialog(doc)),
-                  IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => doc.reference.delete()),
-                ]),
-              ),
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Bookings Manager'),
+          backgroundColor: Colors.pink.shade400,
+          bottom: const TabBar(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            tabs: [
+              Tab(icon: Icon(Icons.calendar_today), text: "Active Bookings"),
+              Tab(icon: Icon(Icons.history), text: "History"),
+            ],
+          ),
+        ),
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+            
+            return TabBarView(
+              children: [
+                _buildBookingList(snapshot.data!.docs, false),
+                _buildBookingList(snapshot.data!.docs, true),
+              ],
             );
-          }).toList());
-        },
+          },
+        ),
+      ),
+    );
+  }  // ------------------------- ADMIN DASHBOARD (PART 2) -------------------------
+  Widget _buildBookingList(List<DocumentSnapshot> docs, bool isHistory) {
+    // 1. Handle the Active Bookings Tab
+    if (!isHistory) {
+      List<DocumentSnapshot> activeList = docs.where((doc) {
+        String status = (doc.data() as Map<String, dynamic>)['status'] ?? 'Pending';
+        return status == 'Pending' || status == 'Approved';
+      }).toList();
+
+      // Custom Sorting Logic for Active bookings (Pending at top, Approved by date next)
+      activeList.sort((a, b) {
+        Map<String, dynamic> dataA = a.data() as Map<String, dynamic>;
+        Map<String, dynamic> dataB = b.data() as Map<String, dynamic>;
+
+        String statusA = dataA['status'] ?? 'Pending';
+        String statusB = dataB['status'] ?? 'Pending';
+
+        if (statusA == 'Pending' && statusB != 'Pending') return -1;
+        if (statusB == 'Pending' && statusA != 'Pending') return 1;
+
+        if (statusA == 'Pending' && statusB == 'Pending') {
+          Timestamp tA = dataA['timestamp'] ?? Timestamp.now();
+          Timestamp tB = dataB['timestamp'] ?? Timestamp.now();
+          return tB.compareTo(tA);
+        }
+
+        DateTime dateA = _parseBookingDate(dataA['date'] ?? "");
+        DateTime dateB = _parseBookingDate(dataB['date'] ?? "");
+        return dateA.compareTo(dateB);
+      });
+
+      if (activeList.isEmpty) {
+        return Center(
+          child: Text('No active client bookings!', style: TextStyle(color: Colors.pink.shade900, fontSize: 16)),
+        );
+      }
+
+      return ListView.builder(
+        itemCount: activeList.length,
+        itemBuilder: (context, index) => _buildBookingCard(activeList[index], false),
+      );
+    }
+
+    // 2. Handle the History Tab (Separate Completed and Cancelled)
+    List<DocumentSnapshot> completedList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Completed')).toList();
+    List<DocumentSnapshot> cancelledList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Cancelled')).toList();
+
+    // Sort history records by newest submission timestamp first so recent history is on top
+    var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
+      Timestamp tA = (a.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
+      Timestamp tB = (b.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
+      return tB.compareTo(tA);
+    };
+    completedList.sort(historySort);
+    cancelledList.sort(historySort);
+
+    if (completedList.isEmpty && cancelledList.isEmpty) {
+      return Center(
+        child: Text('No history matches found.', style: TextStyle(color: Colors.pink.shade900, fontSize: 16)),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      children: [
+        // --- COMPLETED SECTION ---
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle_outline, color: Colors.green),
+              const SizedBox(width: 8),
+              Text("Completed Appointments (${completedList.length})", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green)),
+            ],
+          ),
+        ),
+        if (completedList.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text("No completed appointments yet.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
+          )
+        else
+          ...completedList.map((doc) => _buildBookingCard(doc, true)),
+
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Divider(thickness: 1.5),
+        ),
+
+        // --- CANCELLED SECTION ---
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.cancel_outlined, color: Colors.orange),
+              const SizedBox(width: 8),
+              Text("Cancelled Appointments (${cancelledList.length})", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange)),
+            ],
+          ),
+        ),
+        if (cancelledList.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text("No cancelled appointments yet.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
+          )
+        else
+          ...cancelledList.map((doc) => _buildBookingCard(doc, true)),
+      ],
+    );
+  }
+
+  // Extracted card widget builder to keep layouts identical and code concise
+  Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    String status = data['status'] ?? 'Pending';
+
+    Color badgeColor;
+    Color textColor;
+    if (status == 'Pending') {
+      badgeColor = Colors.orange.shade100;
+      textColor = Colors.orange.shade800;
+    } else if (status == 'Approved') {
+      badgeColor = Colors.blue.shade100;
+      textColor = Colors.blue.shade800;
+    } else if (status == 'Completed') {
+      badgeColor = Colors.green.shade100;
+      textColor = Colors.green.shade800;
+    } else {
+      badgeColor = Colors.red.shade100;
+      textColor = Colors.red.shade800;
+    }
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: ListTile(
+        title: Row(
+          children: [
+            Expanded(child: Text(data['clientName'] ?? 'No Name', style: const TextStyle(fontWeight: FontWeight.bold))),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
+              child: Text(status, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textColor)),
+            ),
+          ],
+        ),
+        subtitle: Text("${data['service']}\n📍 ${data['location']}\n📅 ${data['date']} at ${data['time']}"),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isHistory) ...[
+              // 1. Edit Details Button
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.blue),
+                tooltip: 'Edit Details',
+                onPressed: () => _showEditDialog(doc),
+              ),
+              // 2. Approve Booking Button (Launches WhatsApp Dialog)
+              if (status == 'Pending')
+                IconButton(
+                  icon: const Icon(Icons.check_circle, color: Colors.green),
+                  tooltip: 'Approve & WhatsApp',
+                  onPressed: () => _showEditDialog(doc),
+                ),
+              // 3. Complete Appointment Button (Moves to History)
+              if (status == 'Approved')
+                IconButton(
+                  icon: const Icon(Icons.done_all, color: Colors.purple),
+                  tooltip: 'Mark as Completed',
+                  onPressed: () => doc.reference.update({'status': 'Completed'}),
+                ),
+              // 4. Cancel Appointment Button (Moves to History)
+              IconButton(
+                icon: const Icon(Icons.cancel, color: Colors.orange),
+                tooltip: 'Cancel Appointment',
+                onPressed: () => doc.reference.update({'status': 'Cancelled'}),
+              ),
+            ],
+            // Permanent Delete Button (Available everywhere)
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Delete Permanently',
+              onPressed: () => doc.reference.delete(),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
+} // Ends the final _AdminDashboardState class bracket
+
