@@ -151,8 +151,8 @@ class HomeScreen extends StatelessWidget {
   ];
 
   // Social Media Links Layout
-  final String instagramUrl = https:"//www.instagram.com/nombu.beauty?igsh=MzRlODBiNWFlZA==";
-  final String tiktokUrl = https:"//www.tiktok.com/@nombu.beauty?_r=1&_t=ZS-96uL017nPM7";
+  final String instagramUrl = "https://www.instagram.com/nombu.beauty?igsh=MzRlODBiNWFlZA==";
+  final String tiktokUrl = "https://www.tiktok.com/@nombu.beauty?_r=1&_t=ZS-96uL017nPM7";
 
   void _launchSocial(String url) async {
     if (kIsWeb) {
