@@ -850,51 +850,69 @@ class _AdminDashboardState extends State<AdminDashboard> {
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: ListTile(
-        title: Row(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        // TITLE: Expanded area for names so they never get squished or cut off
+        title: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
           children: [
-            Expanded(child: Text(data['clientName'] ?? 'No Name', style: const TextStyle(fontWeight: FontWeight.bold))),
+            Text(
+              data['clientName'] ?? 'No Name', 
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
-              child: Text(status, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textColor)),
+              child: Text(
+                status, 
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
+              ),
             ),
           ],
         ),
-        subtitle: Text("${data['service']}\n📍 ${data['location']}\n📅 ${data['date']} at ${data['time']}"),
+        subtitle: Padding(
+          padding: const EdgeInsets.top(6.0),
+          child: Text(
+            "${data['service'] ?? 'null'}\n📍 ${data['location'] ?? 'null'}\n📅 ${data['date'] ?? 'null'} at ${data['time'] ?? 'null'}",
+            style: TextStyle(height: 1.3, color: Colors.grey.shade800),
+          ),
+        ),
+        // TRAILING: Cleaned up action buttons to save horizontal space
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!isHistory) ...[
               // 1. Edit Details Button
               IconButton(
-                icon: const Icon(Icons.edit, color: Colors.blue),
+                icon: const Icon(Icons.edit, color: Colors.blue, size: 22),
                 tooltip: 'Edit Details',
                 onPressed: () => _showEditDialog(doc),
               ),
               // 2. Approve Booking Button (Launches WhatsApp Dialog)
               if (status == 'Pending')
                 IconButton(
-                  icon: const Icon(Icons.check_circle, color: Colors.green),
+                  icon: const Icon(Icons.check_circle, color: Colors.green, size: 22),
                   tooltip: 'Approve & WhatsApp',
                   onPressed: () => _showEditDialog(doc),
                 ),
               // 3. Complete Appointment Button (Moves to History)
               if (status == 'Approved')
                 IconButton(
-                  icon: const Icon(Icons.done_all, color: Colors.purple),
+                  icon: const Icon(Icons.done_all, color: Colors.purple, size: 22),
                   tooltip: 'Mark as Completed',
                   onPressed: () => doc.reference.update({'status': 'Completed'}),
                 ),
               // 4. Cancel Appointment Button (Moves to History)
               IconButton(
-                icon: const Icon(Icons.cancel, color: Colors.orange),
+                icon: const Icon(Icons.cancel, color: Colors.orange, size: 22),
                 tooltip: 'Cancel Appointment',
                 onPressed: () => doc.reference.update({'status': 'Cancelled'}),
               ),
             ],
             // Permanent Delete Button (Available everywhere)
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: const Icon(Icons.delete, color: Colors.red, size: 22),
               tooltip: 'Delete Permanently',
               onPressed: () => doc.reference.delete(),
             ),
@@ -903,5 +921,3 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
     );
   }
-} // Ends the final _AdminDashboardState class bracket
-
