@@ -568,73 +568,7 @@ class _BasketScreenState extends State<BasketScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD -------------------------
-class AdminDashboard extends StatefulWidget {
-  @override
-  _AdminDashboardState createState() => _AdminDashboardState();
-}
-
-class _AdminDashboardState extends State<AdminDashboard> {
-  bool _auth = false;
-  final TextEditingController _pass = TextEditingController();
-
-  void _showEditDialog(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    TextEditingController serviceCtrl = TextEditingController(text: data['service']);
-    TextEditingController priceCtrl = TextEditingController(text: data['price'].toString());
-    TextEditingController locCtrl = TextEditingController(text: data['location']);
-    TextEditingController dateCtrl = TextEditingController(text: data['date']);
-    TextEditingController timeCtrl = TextEditingController(text: data['time']);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Edit & Approve"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: serviceCtrl, decoration: const InputDecoration(labelText: "Service")),
-              TextField(controller: priceCtrl, decoration: const InputDecoration(labelText: "Price (R)"), keyboardType: TextInputType.number),
-              TextField(controller: locCtrl, decoration: const InputDecoration(labelText: "Location")),
-              TextField(controller: dateCtrl, decoration: const InputDecoration(labelText: "Date")),
-              TextField(controller: timeCtrl, decoration: const InputDecoration(labelText: "Time")),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-          ElevatedButton(
-            onPressed: () {
-              doc.reference.update({
-                'service': serviceCtrl.text, 
-                'price': int.parse(priceCtrl.text), 
-                'location': locCtrl.text,
-                'date': dateCtrl.text,
-                'time': timeCtrl.text,
-                'status': 'Approved'
-              });
-              
-              String msg = "Hello ${data['clientName']} 🌸,\n\n"
-                  "Your booking for ${serviceCtrl.text} at NOMBU Beauty has been Approved!\n\n"
-                  "Booking Details:\n"
-                  "📍 Location: ${locCtrl.text}\n"
-                  "📅 Date: ${dateCtrl.text} at ${timeCtrl.text}\n"
-                  "💰 Total Price: R${priceCtrl.text}\n\n"
-                  "To secure your slot, please pay a non-refundable deposit of R100.\n\n"
-                  "Banking Details:\n"
-                  "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
-                  "Please send proof of payment. We can't wait to see you! 💗";
-
-              // FORCE-FIX NUMBER CLEANER (Preserved completely)
-              String rawPhone = data['phoneNumber'] ?? "";
-              String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
-
-              if (cleanPhone.startsWith('270')) {
-                cleanPhone = '27' + cleanPhone.substring(3);
-              } else if (cleanPhone.startsWith('0')) {
-                cleanPhone = '27' + cleanPhone.substring(1);
-              } else if (!cleanPhone.startsWith('27')) {
+/
 // ------------------------- ADMIN DASHBOARD (PART 1) -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
