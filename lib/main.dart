@@ -15,7 +15,15 @@ void main() async {
   runApp(NombuBeautyApp());
 }
 
-class NombuBeautyApp extends StatelessWidget {
+class NombuBeautyApp extends StatefulWidget {
+  @override
+  State<NombuBeautyApp> createState() => _NombuBeautyAppState();
+}
+
+class _NombuBeautyAppState extends State<NombuBeautyApp> {
+  // Global Basket State shared across the app
+  final List<Map<String, dynamic>> basketItems = [];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,13 +34,16 @@ class NombuBeautyApp extends StatelessWidget {
         fontFamily: 'Poppins',
       ),
       debugShowCheckedModeBanner: false,
-      home: BookingPoliciesScreen(),
+      home: BookingPoliciesScreen(basketItems: basketItems),
     );
   }
 }
 
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> basketItems;
+  BookingPoliciesScreen({required this.basketItems});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,7 +86,7 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (_) => SplashScreen())),
+                  context, MaterialPageRoute(builder: (_) => SplashScreen(basketItems: basketItems))),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pink.shade400,
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
@@ -92,6 +103,9 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
 
 // ------------------------- SPLASH SCREEN -------------------------
 class SplashScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> basketItems;
+  SplashScreen({required this.basketItems});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -107,7 +121,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen(basketItems: widget.basketItems)));
     });
   }
 
@@ -142,7 +156,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 }
 
 // ------------------------- HOME SCREEN -------------------------
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> basketItems;
+  HomeScreen({required this.basketItems});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
     {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
@@ -150,7 +172,6 @@ class HomeScreen extends StatelessWidget {
     {'name': 'Admin Dashboard', 'icon': Icons.admin_panel_settings},
   ];
 
-  // Social Media Links Layout
   final String instagramUrl = "https://www.instagram.com/nombu.beauty?igsh=MzRlODBiNWFlZA==";
   final String tiktokUrl = "https://www.tiktok.com/@nombu.beauty?_r=1&_t=ZS-96uL017nPM7";
 
@@ -178,6 +199,39 @@ class HomeScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.pink.shade400,
         elevation: 5,
+        actions: [
+          // Shopping Basket icon button in AppBar
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_basket, color: Colors.white, size: 28),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => BasketScreen(basketItems: widget.basketItems)),
+                  ).then((_) => setState(() {}));
+                },
+              ),
+              if (widget.basketItems.isNotEmpty)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                    child: Text(
+                      '${widget.basketItems.length}',
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      textAlign: Alignment.center,
+                    ),
+                  ),
+                )
+            ],
+          ),
+          const SizedBox(width: 10),
+        ],
       ),
       body: Column(
         children: [
@@ -196,7 +250,10 @@ class HomeScreen extends StatelessWidget {
                       if (category['name'] == 'Admin Dashboard') {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
                       } else {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'], basketItems: widget.basketItems)),
+                        ).then((_) => setState(() {}));
                       }
                     },
                     child: Container(
@@ -231,7 +288,6 @@ class HomeScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade700, fontSize: 15),
                 ),
                 const SizedBox(width: 10),
-                // Instagram Shortcut Button
                 IconButton(
                   icon: const Icon(Icons.camera_alt_outlined, size: 32),
                   color: Colors.pink.shade800,
@@ -239,7 +295,6 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () => _launchSocial(instagramUrl),
                 ),
                 const SizedBox(width: 15),
-                // TikTok Shortcut Button
                 IconButton(
                   icon: const Icon(Icons.music_note_outlined, size: 32),
                   color: Colors.pink.shade800,
@@ -255,11 +310,11 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-
 // ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
-  ServiceScreen({required this.category});
+  final List<Map<String, dynamic>> basketItems;
+  ServiceScreen({required this.category, required this.basketItems});
   @override
   _ServiceScreenState createState() => _ServiceScreenState();
 }
@@ -287,18 +342,86 @@ class _ServiceScreenState extends State<ServiceScreen> {
     ],
   };
 
+  @override
+  Widget build(BuildContext context) {
+    final services = servicesList[widget.category] ?? [];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.category), 
+        backgroundColor: Colors.pink.shade400,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_basket, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => BasketScreen(basketItems: widget.basketItems)),
+              ).then((_) => setState(() {}));
+            },
+          )
+        ],
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: services.length,
+        itemBuilder: (context, index) {
+          final service = services[index];
+          final isInBasket = widget.basketItems.any((item) => item['name'] == service['name']);
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            elevation: 3,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: ListTile(
+              title: Text(service['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('R${service['price']}', style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold)),
+              trailing: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isInBasket ? Colors.grey : Colors.pink.shade400,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (isInBasket) {
+                      widget.basketItems.removeWhere((item) => item['name'] == service['name']);
+                    } else {
+                      widget.basketItems.add(service);
+                    }
+                  });
+                },
+                child: Text(isInBasket ? 'Remove' : 'Add to Basket', style: const TextStyle(color: Colors.white)),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ------------------------- BASKET / CHECKOUT SCREEN -------------------------
+class BasketScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> basketItems;
+  BasketScreen({required this.basketItems});
+
+  @override
+  _BasketScreenState createState() => _BasketScreenState();
+}
+
+class _BasketScreenState extends State<BasketScreen> {
   final Map<String, List<String>> provinceLocations = {
     'Pretoria': ['Montana', 'Hammanskraal'],
     'Limpopo': ['Polokwane'],
   };
 
-  String? selectedService, selectedProvince, selectedLocation, clientName, clientPhone;
-  int? basePrice;
+  String? selectedProvince, selectedLocation, clientName, clientPhone;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   bool isAfterHours = false;
 
-  int get finalPrice => (basePrice ?? 0) + (isAfterHours ? 100 : 0);
+  int get baseTotalPrice => widget.basketItems.fold(0, (sum, item) => sum + (item['price'] as int));
+  int get finalPrice => baseTotalPrice + (isAfterHours ? 100 : 0);
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -312,16 +435,18 @@ class _ServiceScreenState extends State<ServiceScreen> {
     if (picked != null) {
       setState(() {
         selectedTime = picked;
-        // Forced After Hours Logic
         isAfterHours = (picked.hour < 8 || picked.hour >= 18);
       });
     }
   }
 
   void triggerWhatsApp() {
-    if (selectedService == null || clientName == null || clientPhone == null ||
-        selectedProvince == null || selectedLocation == null || 
-        selectedDate == null || selectedTime == null) {
+    if (widget.basketItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your basket is empty!')));
+      return;
+    }
+    if (clientName == null || clientPhone == null || selectedProvince == null || 
+        selectedLocation == null || selectedDate == null || selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
       return;
     }
@@ -329,17 +454,20 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
     String formattedTime = selectedTime!.format(context);
 
+    // Grouping selected items neatly for WhatsApp output layout
+    String servicesText = widget.basketItems.map((item) => "- ${item['name']} (R${item['price']})").join("\n");
+    String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
+
     String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'I\'d like to request a booking:\n\n\n'
+        'I\'d like to request a booking for the following basket:\n\n'
+        '$servicesText\n\n'
         'Name: $clientName\n'
         'Phone: $clientPhone\n'
-        'Service: $selectedService\n'
         'Location: $selectedLocation\n'
         'Date: $formattedDate at $formattedTime\n'
         '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
-        'Estimated Price: R$finalPrice\n\n'
+        'Estimated Total Price: R$finalPrice\n\n'
         'Final price to be confirmed by stylist.\n\n'
-        
         'I will send my reference photo below. Thank you.';
 
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
@@ -350,7 +478,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'phoneNumber': clientPhone,
-      'service': selectedService,
+      'service': servicesSummary, // Comma-joined text handles current Admin list views smoothly
       'location': '$selectedLocation, $selectedProvince',
       'date': formattedDate,
       'time': formattedTime,
@@ -359,15 +487,44 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
+
+    widget.basketItems.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('My Basket Summary'), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(children: [
+          if (widget.basketItems.isEmpty)
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('Your basket is empty. Go add some styling services! 🌸', style: TextStyle(color: Colors.pink.shade900)),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.basketItems.length,
+              itemBuilder: (context, idx) {
+                final item = widget.basketItems[idx];
+                return ListTile(
+                  title: Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                  trailing: Text('R${item['price']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  leading: IconButton(
+                    icon: const Icon(Icons.remove_circle, color: Colors.red),
+                    onPressed: () => setState(() => widget.basketItems.removeAt(idx)),
+                  ),
+                );
+              },
+            ),
+          const Divider(thickness: 2),
+          const SizedBox(height: 10),
           TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), onChanged: (val) => clientName = val),
           const SizedBox(height: 10),
           TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), keyboardType: TextInputType.phone, onChanged: (val) => clientPhone = val),
@@ -386,17 +543,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
               onChanged: (val) => setState(() => selectedLocation = val),
             ),
           const SizedBox(height: 15),
-          DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Select Service', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-            items: servicesList[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
-            onChanged: (val) {
-              setState(() {
-                selectedService = val;
-                basePrice = servicesList[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
-              });
-            },
-          ),
-          const SizedBox(height: 15),
           SwitchListTile(
             title: const Text("After Hours (R100 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
             subtitle: Text(isAfterHours ? "Applied based on time selection." : "Slots before 8AM or after 6PM"),
@@ -414,7 +560,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
             onPressed: triggerWhatsApp,
-            child: Text('Book Now (R$finalPrice)', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text('Book Basket (R$finalPrice)', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           )
         ]),
       ),
@@ -480,27 +626,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
                   "Please send proof of payment. We can't wait to see you! 💗";
 
-              // 3. FORCE-FIX NUMBER CLEANER
-String rawPhone = data['phoneNumber'] ?? "";
+              // FORCE-FIX NUMBER CLEANER (Preserved completely)
+              String rawPhone = data['phoneNumber'] ?? "";
+              String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
 
-// Remove EVERYTHING except digits (removes +, spaces, dots, etc.)
-String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
+              if (cleanPhone.startsWith('270')) {
+                cleanPhone = '27' + cleanPhone.substring(3);
+              } else if (cleanPhone.startsWith('0')) {
+                cleanPhone = '27' + cleanPhone.substring(1);
+              } else if (!cleanPhone.startsWith('27')) {
+                cleanPhone = '27' + cleanPhone;
+              }
 
-if (cleanPhone.startsWith('270')) {
-  // Fixes cases where people type 27073... (removes the extra 0)
-  cleanPhone = '27' + cleanPhone.substring(3);
-} else if (cleanPhone.startsWith('0')) {
-  // Fixes 073... into 2773...
-  cleanPhone = '27' + cleanPhone.substring(1);
-} else if (!cleanPhone.startsWith('27')) {
-  // If they just typed 73..., add 27
-  cleanPhone = '27' + cleanPhone;
-}
-
-// 4. Use the wa.me format (it is much more reliable for country codes)
-final String url = "https://wa.me/$cleanPhone?text=${Uri.encodeComponent(msg)}";
-
-print("DEBUG: Final Phone Number is: $cleanPhone"); // This helps you see the result
+              final String url = "https://wa.me/$cleanPhone?text=${Uri.encodeComponent(msg)}";
+              print("DEBUG: Final Phone Number is: $cleanPhone");
+              
               if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
               else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
               
@@ -556,3 +696,5 @@ print("DEBUG: Final Phone Number is: $cleanPhone"); // This helps you see the re
     );
   }
 }
+
+```
