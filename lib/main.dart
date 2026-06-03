@@ -825,6 +825,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   // Extracted card widget builder to keep layouts identical and code concise
+    // Extracted card widget builder to keep layouts identical and code concise
   Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     String status = data['status'] ?? 'Pending';
@@ -872,7 +873,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ],
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.top(6.0),
+          // FIXED: Swapped out the incorrect constructor for the proper Flutter syntax
+          padding: const EdgeInsets.only(top: 6.0),
           child: Text(
             "${data['service'] ?? 'null'}\n📍 ${data['location'] ?? 'null'}\n📅 ${data['date'] ?? 'null'} at ${data['time'] ?? 'null'}",
             style: TextStyle(height: 1.3, color: Colors.grey.shade800),
@@ -921,3 +923,4 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
     );
   }
+} // <--- MAKE SURE THIS EXPLICITLY CLOSES THE _AdminDashboardState CLASS AS THE LAST LINE
