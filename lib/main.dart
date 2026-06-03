@@ -150,6 +150,21 @@ class HomeScreen extends StatelessWidget {
     {'name': 'Admin Dashboard', 'icon': Icons.admin_panel_settings},
   ];
 
+  // Social Media Links Layout
+  final String instagramUrl = https:"//www.instagram.com/nombu.beauty?igsh=MzRlODBiNWFlZA==";
+  final String tiktokUrl = https:"//www.tiktok.com/@nombu.beauty?_r=1&_t=ZS-96uL017nPM7";
+
+  void _launchSocial(String url) async {
+    if (kIsWeb) {
+      js.context.callMethod('open', [url, '_blank']);
+    } else {
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,45 +179,82 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.pink.shade400,
         elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          itemCount: categories.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 0.9,
-          ),
-          itemBuilder: (context, index) {
-            final category = categories[index];
-            return GestureDetector(
-              onTap: () {
-                if (category['name'] == 'Admin Dashboard') {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
-                } else {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.pink.shade50], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GridView.builder(
+                itemCount: categories.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 0.9,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(category['icon'], size: 45, color: Colors.pink.shade800),
-                    const SizedBox(height: 10),
-                    Text(category['name'], textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
-                  ],
-                ),
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  return GestureDetector(
+                    onTap: () {
+                      if (category['name'] == 'Admin Dashboard') {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
+                      } else {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.pink.shade50], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(category['icon'], size: 45, color: Colors.pink.shade800),
+                          const SizedBox(height: 10),
+                          Text(category['name'], textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
+            ),
+          ),
+          
+          // ----------------- SOCIAL MEDIA LINKS SECTIONS -----------------
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24.0, top: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Follow Our Pages: ",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade700, fontSize: 15),
+                ),
+                const SizedBox(width: 10),
+                // Instagram Shortcut Button
+                IconButton(
+                  icon: const Icon(Icons.camera_alt_outlined, size: 32),
+                  color: Colors.pink.shade800,
+                  tooltip: 'Instagram',
+                  onPressed: () => _launchSocial(instagramUrl),
+                ),
+                const SizedBox(width: 15),
+                // TikTok Shortcut Button
+                IconButton(
+                  icon: const Icon(Icons.music_note_outlined, size: 32),
+                  color: Colors.pink.shade800,
+                  tooltip: 'TikTok',
+                  onPressed: () => _launchSocial(tiktokUrl),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
 
 // ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
