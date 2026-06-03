@@ -224,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Text(
                       '${widget.basketItems.length}',
                       style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      textAlign: Alignment.center,
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 )
@@ -478,7 +478,7 @@ class _BasketScreenState extends State<BasketScreen> {
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'phoneNumber': clientPhone,
-      'service': servicesSummary, // Comma-joined text handles current Admin list views smoothly
+      'service': servicesSummary, 
       'location': '$selectedLocation, $selectedProvince',
       'date': formattedDate,
       'time': formattedTime,
@@ -696,5 +696,3 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
-
-```
