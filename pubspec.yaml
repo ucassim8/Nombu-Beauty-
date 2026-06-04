@@ -10,14 +10,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^6.2.0  # <--- Add this line here
+  google_fonts: ^6.3.0  # <--- Add this line here
   
   # The specific versions you sent
-  image_picker: ^1.0.7
-  url_launcher: ^6.2.5
-  firebase_core: ^2.20.0
+  image_picker: ^1.1.2
+  url_launcher: ^6.3.1
+  firebase_core: ^2.32.0
   cloud_firestore: ^4.17.5
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
