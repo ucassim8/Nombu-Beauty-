@@ -198,11 +198,12 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 16),
             Text(
               'Nombu Beauty',
-              style: GoogleFonts.cinzel( // A gorgeous, luxury royal serif font
+              style: GoogleFonts.playfairDisplay( // A gorgeous, luxury royal serif font
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
                 color: Colors.white,
-                letterSpacing: 2.0, // Spaces out the letters for a high-end look
+                fontstyle: Fontstyle.italic,
+                letterSpacing: 1.0, // Spaces out the letters for a high-end look
                 shadows: [
                   Shadow(
                     color: Colors.black.withOpacity(0.15),
