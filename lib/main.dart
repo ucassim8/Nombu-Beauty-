@@ -202,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
                 color: Colors.white,
-                fontstyle: Fontstyle.italic,
+                fontStyle: FontStyle.italic,
                 letterSpacing: 1.0, // Spaces out the letters for a high-end look
                 shadows: [
                   Shadow(
