@@ -10,7 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  google_fonts: ^6.2.0  # <--- Add this line here
+  
   # The specific versions you sent
   image_picker: ^1.0.7
   url_launcher: ^6.2.5
