@@ -194,7 +194,12 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
+             // --- AUTOMATIC IMAGE CLIPPER ---
+            ClipOval(
+            child: Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
+             fit: BoxFit.cover,
+           ),   
+          ),
             const SizedBox(width: 16),
             Text(
               'Nombu Beauty',
