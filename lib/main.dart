@@ -713,7 +713,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
     );
-  }       // ------------------------- ADMIN DASHBOARD (PART 2 - REVENUE FIX) -------------------------
+  }         // ------------------------- ADMIN DASHBOARD (PART 2 - MONTHLY REVENUE) -------------------------
   Widget _buildBookingList(List<DocumentSnapshot> docs, bool isHistory) {
     // 1. Handle the Active Bookings Tab
     if (!isHistory) {
@@ -760,17 +760,37 @@ class _AdminDashboardState extends State<AdminDashboard> {
     List<DocumentSnapshot> completedList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Completed')).toList();
     List<DocumentSnapshot> cancelledList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Cancelled')).toList();
 
-    // Calculate Total Revenue from Completed Appointments
-    int totalEarnings = completedList.fold(0, (sum, doc) {
+    // Map to calculate monthly revenue grouping -> {"May 2026": 4500, "June 2026": 1200}
+    Map<String, int> monthlyEarnings = {};
+    List<String> monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    for (var doc in completedList) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      
+      // Parse price safely
       var priceVal = data['price'];
       int price = 0;
       if (priceVal is int) price = priceVal;
       else if (priceVal is String) price = int.tryParse(priceVal) ?? 0;
-      return sum + price;
-    });
 
-    // Sort history records by newest submission timestamp first so recent history is on top
+      // Extract Month and Year from the date string "DD/MM/YYYY"
+      String dateStr = data['date'] ?? "";
+      List<String> parts = dateStr.split('/');
+      String groupKey = "Unknown Month";
+      
+      if (parts.length == 3) {
+        int monthIdx = int.tryParse(parts[1]) ?? 0;
+        String year = parts[2];
+        if (monthIdx >= 1 && monthIdx <= 12) {
+          groupKey = "${monthNames[monthIdx]} $year";
+        }
+      }
+
+      // Add to group total
+      monthlyEarnings[groupKey] = (monthlyEarnings[groupKey] ?? 0) + price;
+    }
+
+    // Sort history records by newest submission timestamp first
     var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
       Timestamp tA = (a.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
       Timestamp tB = (b.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
@@ -788,36 +808,43 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
-        // --- TOTAL REVENUE SUMMARY CARD ---
+        // --- MONTHLY REVENUE EXPANSION PANEL ---
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           color: Colors.green.shade50,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: BorderSide(color: Colors.green.shade200)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.green.shade100,
-                  child: const Icon(Icons.payments, color: Colors.green),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Total Revenue",
-                      style: TextStyle(fontSize: 14, color: Colors.green.shade900, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "R$totalEarnings",
-                      style: TextStyle(fontSize: 24, color: Colors.green.shade900, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ],
+          child: ExpansionTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.green.shade100,
+              child: const Icon(Icons.analytics, color: Colors.green),
             ),
+            title: Text(
+              "Monthly Revenue Breakdown",
+              style: TextStyle(fontSize: 15, color: Colors.green.shade900, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              "Tap to view earnings by month",
+              style: TextStyle(fontSize: 12, color: Colors.green.shade700),
+            ),
+            children: monthlyEarnings.isEmpty 
+              ? [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text("No revenue data recorded yet."),
+                  )
+                ]
+              : monthlyEarnings.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(entry.key, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.grey.shade800)),
+                        Text("R${entry.value}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade800)),
+                      ],
+                    ),
+                  );
+                }).toList(),
           ),
         ),
         
@@ -960,5 +987,3 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
-         
-    
