@@ -230,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
+          ),
             const SizedBox(width: 16),
             Text(
               'Nombu Beauty',
