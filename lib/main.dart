@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: AppBar(
+                  appBar: AppBar(
         title: Row(
           children: [
             // 1. YOUR NEW TAPPABLE LOGO
@@ -219,27 +219,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               },
-                        // --- FORCED SQUARE CLIPPER ---
-           child: ClipOval(
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: Image.asset(
-                  'assets/Logonombu.jpg', 
-                  fit: BoxFit.cover, // Forces the image to expand and crop out the corners
+              // --- FORCED SQUARE CLIPPER ---
+              child: ClipOval(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Image.asset(
+                    'assets/Logonombu.jpg', 
+                    fit: BoxFit.cover, // Forces the image to expand and crop out the corners
+                  ),
                 ),
               ),
-            ),
-          ),
-            const SizedBox(width: 16),
+            ), // <-- Closes GestureDetector
+            
+            const SizedBox(width: 16), // Spacing between logo and text
+            
             Text(
               'Nombu Beauty',
-              style: GoogleFonts.playfairDisplay( // A gorgeous, luxury royal serif font
+              style: GoogleFonts.playfairDisplay(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
                 color: Colors.white,
                 fontStyle: FontStyle.italic,
-                letterSpacing: 1.0, // Spaces out the letters for a high-end look
+                letterSpacing: 1.0,
                 shadows: [
                   Shadow(
                     color: Colors.black.withOpacity(0.15),
@@ -249,11 +251,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-          ],
-        ),
-
+          ], // <-- Closes children: [
+        ), // <-- Closes title: Row(
         backgroundColor: Colors.pink.shade400,
         elevation: 5,
+
         actions: [
           // Shopping Basket icon button in AppBar
           Stack(
