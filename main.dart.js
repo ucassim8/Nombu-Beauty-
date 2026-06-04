@@ -89761,7 +89761,7 @@ $0(){return this.a.xh("https://www.tiktok.com/@nombu.beauty?_r=1&_t=ZS-96uL017nP
 $S:0}
 A.qR.prototype={
 a6(){var s=t.N,r=t.z,q=t.H7
-return new A.Xk(A.au(["Hair Services",A.b([A.au(["name","Basic instal","price",200],s,r),A.au(["name","Instal + styling","price",280],s,r),A.au(["name","Sew-in instal","price",300],s,r),A.au(["name","Instal + curling","price",400],s,r),A.au(["name","Frontal ponytail","price",350],s,r)],q),"Hair Laundry",A.b([A.au(["name","Wig wash","price",150],s,r),A.au(["name","Plugging","price",80],s,r),A.au(["name","Wig customisation (tint)","price",180],s,r),A.au(["name","Bleaching + plugging","price",220],s,r)],q),"Makeup",A.b([A.au(["name","Natural look","price",300],s,r),A.au(["name","Soft glam","price",400],s,r),A.au(["name","Soft glam (lashes)","price",450],s,r),A.au(["name","Full glam (lashes)","price",550],s,r)],q)],s,t.b5))}}
+return new A.Xk(A.au(["Hair Services",A.b([A.au(["name","Basic install","price",200],s,r),A.au(["name","Install + styling","price",280],s,r),A.au(["name","Sew-in install","price",300],s,r),A.au(["name","Install + curling","price",400],s,r),A.au(["name","Frontal ponytail","price",350],s,r)],q),"Hair Laundry",A.b([A.au(["name","Wig wash","price",150],s,r),A.au(["name","Plucking","price",80],s,r),A.au(["name","Wig customisation (tint)","price",180],s,r),A.au(["name","Bleaching + plucking","price",220],s,r)],q),"Makeup",A.b([A.au(["name","Natural look","price",300],s,r),A.au(["name","Soft glam","price",400],s,r),A.au(["name","Soft glam (lashes)","price",450],s,r),A.au(["name","Full glam (lashes)","price",550],s,r)],q)],s,t.b5))}}
 A.Xk.prototype={
 I(a){var s,r=this,q=null,p=r.d.h(0,r.a.c)
 if(p==null)p=A.b([],t.H7)
@@ -89854,7 +89854,7 @@ q=e.f
 l=e.z?"After Hours: Yes (R100 fee applied)\n":""
 k=e.gGg()
 j=e.z?100:0
-j=A.xe(B.oG,"Hello NOMBU Beauty \ud83c\udf38\n\nI'd like to request a booking for the following basket:\n\n"+n+"\n\nName: "+A.l(s)+"\nPhone: "+A.l(p)+"\nLocation: "+A.l(q)+"\nDate: "+r+" at "+o+"\n"+l+"Estimated Total Price: R"+(k+j)+"\n\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below. Thank you.",B.ac,!1)
+j=A.xe(B.oG,"Hello NOMBU Beauty \ud83c\udf38\n\nI'd like to request a booking for the following basket:\n\n"+n+"\n\nName: "+A.l(s)+"\nPhone: "+A.l(p)+"\nLocation: "+A.l(q)+"\nDate: "+r+" at "+o+"\n"+l+"Estimated Total Price: R"+(k+j)+"\n\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below if needed. Thank you.",B.ac,!1)
 $.awV().tx("open",["https://api.whatsapp.com/send?phone=27672412217&text="+j,"_blank"])
 j=$.dG
 i=(j==null?$.dG=$.jK():j).j5("[DEFAULT]")
