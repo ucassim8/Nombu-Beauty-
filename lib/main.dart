@@ -191,15 +191,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+            appBar: AppBar(
         title: Row(
           children: [
-             // --- AUTOMATIC IMAGE CLIPPER ---
+            // --- AUTOMATIC IMAGE CLIPPER ---
             ClipOval(
-            child: Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
-             fit: BoxFit.cover,
-           ),   
-          ),
+              child: Image.asset(
+                'assets/Logonombu.jpg', 
+                width: 40, 
+                height: 40,
+                fit: BoxFit.cover, // Placed inside Image.asset where it belongs
+              ),
+            ),   
             const SizedBox(width: 16),
             Text(
               'Nombu Beauty',
@@ -220,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+
         backgroundColor: Colors.pink.shade400,
         elevation: 5,
         actions: [
