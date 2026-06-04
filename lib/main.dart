@@ -713,7 +713,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
     );
-  }  // ------------------------- ADMIN DASHBOARD (PART 2) -------------------------
+  }       // ------------------------- ADMIN DASHBOARD (PART 2 - REVENUE FIX) -------------------------
   Widget _buildBookingList(List<DocumentSnapshot> docs, bool isHistory) {
     // 1. Handle the Active Bookings Tab
     if (!isHistory) {
@@ -760,6 +760,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
     List<DocumentSnapshot> completedList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Completed')).toList();
     List<DocumentSnapshot> cancelledList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Cancelled')).toList();
 
+    // Calculate Total Revenue from Completed Appointments
+    int totalEarnings = completedList.fold(0, (sum, doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      var priceVal = data['price'];
+      int price = 0;
+      if (priceVal is int) price = priceVal;
+      else if (priceVal is String) price = int.tryParse(priceVal) ?? 0;
+      return sum + price;
+    });
+
     // Sort history records by newest submission timestamp first so recent history is on top
     var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
       Timestamp tA = (a.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
@@ -778,6 +788,41 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
+        // --- TOTAL REVENUE SUMMARY CARD ---
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          color: Colors.green.shade50,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: BorderSide(color: Colors.green.shade200)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.green.shade100,
+                  child: const Icon(Icons.payments, color: Colors.green),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Total Revenue",
+                      style: TextStyle(fontSize: 14, color: Colors.green.shade900, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "R$totalEarnings",
+                      style: TextStyle(fontSize: 24, color: Colors.green.shade900, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 8),
+
         // --- COMPLETED SECTION ---
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -825,7 +870,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   // Extracted card widget builder to keep layouts identical and code concise
-    // Extracted card widget builder to keep layouts identical and code concise
   Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     String status = data['status'] ?? 'Pending';
@@ -852,7 +896,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        // TITLE: Expanded area for names so they never get squished or cut off
         title: Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 8,
@@ -873,46 +916,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ],
         ),
         subtitle: Padding(
-          // FIXED: Swapped out the incorrect constructor for the proper Flutter syntax
           padding: const EdgeInsets.only(top: 6.0),
           child: Text(
             "${data['service'] ?? 'null'}\n📍 ${data['location'] ?? 'null'}\n📅 ${data['date'] ?? 'null'} at ${data['time'] ?? 'null'}",
             style: TextStyle(height: 1.3, color: Colors.grey.shade800),
           ),
         ),
-        // TRAILING: Cleaned up action buttons to save horizontal space
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!isHistory) ...[
-              // 1. Edit Details Button
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.blue, size: 22),
                 tooltip: 'Edit Details',
                 onPressed: () => _showEditDialog(doc),
               ),
-              // 2. Approve Booking Button (Launches WhatsApp Dialog)
               if (status == 'Pending')
                 IconButton(
                   icon: const Icon(Icons.check_circle, color: Colors.green, size: 22),
                   tooltip: 'Approve & WhatsApp',
                   onPressed: () => _showEditDialog(doc),
                 ),
-              // 3. Complete Appointment Button (Moves to History)
               if (status == 'Approved')
                 IconButton(
                   icon: const Icon(Icons.done_all, color: Colors.purple, size: 22),
                   tooltip: 'Mark as Completed',
                   onPressed: () => doc.reference.update({'status': 'Completed'}),
                 ),
-              // 4. Cancel Appointment Button (Moves to History)
               IconButton(
                 icon: const Icon(Icons.cancel, color: Colors.orange, size: 22),
                 tooltip: 'Cancel Appointment',
                 onPressed: () => doc.reference.update({'status': 'Cancelled'}),
               ),
             ],
-            // Permanent Delete Button (Available everywhere)
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red, size: 22),
               tooltip: 'Delete Permanently',
@@ -923,4 +959,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
     );
   }
-} // <--- MAKE SURE THIS EXPLICITLY CLOSES THE _AdminDashboardState CLASS AS THE LAST LINE
+}
+         
+    
