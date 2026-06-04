@@ -379,17 +379,17 @@ class ServiceScreen extends StatefulWidget {
 class _ServiceScreenState extends State<ServiceScreen> {
   final Map<String, List<Map<String, dynamic>>> servicesList = {
     'Hair Services': [
-      {'name': 'Basic instal', 'price': 200},
-      {'name': 'Instal + styling', 'price': 280},
-      {'name': 'Sew-in instal', 'price': 300},
-      {'name': 'Instal + curling', 'price': 400},
+      {'name': 'Basic install', 'price': 200},
+      {'name': 'Install + styling', 'price': 280},
+      {'name': 'Sew-in install', 'price': 300},
+      {'name': 'Install + curling', 'price': 400},
       {'name': 'Frontal ponytail', 'price': 350},
     ],
     'Hair Laundry': [
       {'name': 'Wig wash', 'price': 150},
-      {'name': 'Plugging', 'price': 80},
+      {'name': 'Plucking', 'price': 80},
       {'name': 'Wig customisation (tint)', 'price': 180},
-      {'name': 'Bleaching + plugging', 'price': 220},
+      {'name': 'Bleaching + plucking', 'price': 220},
     ],
     'Makeup': [
       {'name': 'Natural look', 'price': 300},
@@ -525,7 +525,7 @@ class _BasketScreenState extends State<BasketScreen> {
         '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
         'Estimated Total Price: R$finalPrice\n\n'
         'Final price to be confirmed by stylist.\n\n'
-        'I will send my reference photo below. Thank you.';
+        'I will send my reference photo below if needed. Thank you.';
 
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
