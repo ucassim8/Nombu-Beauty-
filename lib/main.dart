@@ -193,8 +193,23 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           children: [
             Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
-            const SizedBox(width: 12),
-            const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(width: 16),
+            Text(
+              'Nombu Beauty',
+              style: GoogleFonts.cinzel( // A gorgeous, luxury royal serif font
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Colors.white,
+                letterSpacing: 2.0, // Spaces out the letters for a high-end look
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withOpacity(0.15),
+                    offset: const Offset(1, 2),
+                    blurRadius: 3,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
         backgroundColor: Colors.pink.shade400,
