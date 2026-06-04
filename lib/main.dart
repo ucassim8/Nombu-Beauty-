@@ -194,8 +194,33 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
         title: Row(
           children: [
+            // 1. YOUR NEW TAPPABLE LOGO
+            GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    child: Container(
+                      width: 280,
+                      height: 280,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(4), // Creates a clean outer border line
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/Logonombu.jpg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
                         // --- FORCED SQUARE CLIPPER ---
-            ClipOval(
+           child: ClipOval(
               child: SizedBox(
                 width: 40,
                 height: 40,
