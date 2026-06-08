@@ -40,7 +40,61 @@ class _NombuBeautyAppState extends State<NombuBeautyApp> {
     );
   }
 }
+// ------------------------- SPINNING LOGO COMPONENT -------------------------
+class SpinningLogo extends StatefulWidget {
+  final Widget child;
+  const SpinningLogo({super.key, required this.child});
 
+  @override
+  State<SpinningLogo> createState() => _SpinningLogoState();
+}
+
+class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    // 6 * pi gives exactly 3 full 360-degree rotations before resting
+    _animation = Tween<double>(begin: 0.0, end: 6 * math.pi).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.decelerate),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _spinCoin() {
+    _controller.forward(from: 0.0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _spinCoin,
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001) // Provides a slight 3D angle perspective depth
+              ..rotateY(_animation.value),
+            child: widget.child,
+          );
+        },
+      ),
+    );
+  }
+}
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
   final List<Map<String, dynamic>> basketItems;
