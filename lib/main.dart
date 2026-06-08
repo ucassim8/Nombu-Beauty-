@@ -54,6 +54,8 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   late AnimationController _controller;
   late Animation<double> _spinAnimation;
   late Animation<double> _scaleAnimation;
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
 
   @override
   void initState() {
@@ -64,6 +66,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       vsync: this,
     );
 
+    // Smooth coin spin rotation
     _spinAnimation = Tween<double>(begin: 0.0, end: 6.0 * math.pi).animate(
       CurvedAnimation(
         parent: _controller,
@@ -71,68 +74,101 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       ),
     );
 
+    // Explicit scale transformation path
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 1.0, end: 4.5), 
-        weight: 25.0, 
+        weight: 20.0, 
       ),
       TweenSequenceItem(
         tween: ConstantTween<double>(4.5), 
-        weight: 50.0, 
+        weight: 60.0, 
       ),
       TweenSequenceItem(
         tween: Tween<double>(begin: 4.5, end: 1.0), 
-        weight: 25.0, 
+        weight: 20.0, 
       ),
     ]).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+
+    // Automatically clean up the global overlay when the animation cycle completes
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _removeOverlay();
+      }
+    });
+  }
+
+  void _showOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Stack(
+        children: [
+          // A completely transparent full-screen barrier to intercept taps while animating
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {},
+              behavior: HitTestBehavior.opaque,
+              child: const SizedBox.expand(),
+            ),
+          ),
+          // Centers the animated logo perfectly on screen globally
+          Center(
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                final transformMatrix = Matrix4.identity()
+                  ..setEntry(3, 2, 0.002) // Strict 3D canvas perspective entry
+                  ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
+                  ..rotateY(_spinAnimation.value);
+
+                return Transform(
+                  alignment: Alignment.center,
+                  transform: transformMatrix,
+                  child: widget.child,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+    _controller.forward(from: 0.0);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   @override
   void dispose() {
+    _removeOverlay();
     _controller.dispose();
     super.dispose();
   }
 
-  void _startSpinningCycle() {
-    if (!_controller.isAnimating) {
-      _controller.forward(from: 0.0);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _startSpinningCycle,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          // Setting an explicit transform matrix
-          final transformMatrix = Matrix4.identity()
-            ..setEntry(3, 2, 0.002) // Increased perspective depth for web visibility
-            ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
-            ..rotateY(_spinAnimation.value);
-
-          return Transform(
-            alignment: Alignment.center,
-            transform: transformMatrix,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.transparent, // Forces canvas backing layer on web browsers
-              ),
-              child: widget.child,
-            ),
-          );
-        },
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: _showOverlay,
+        behavior: HitTestBehavior.opaque,
+        // Keep a placeholder or normal size instance static in the AppBar while it spins globally
+        child: Opacity(
+          opacity: (_controller.isAnimating) ? 0.0 : 1.0,
+          child: widget.child,
+        ),
       ),
     );
   }
 }
+
 
 
 // ------------------------- BOOKING POLICIES -------------------------
