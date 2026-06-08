@@ -50,47 +50,64 @@ class SpinningLogo extends StatefulWidget {
   State<SpinningLogo> createState() => _SpinningLogoState();
 }
 
-class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+class _SpinningLogoState extends State<SpinningLogo> with TickerProviderStateMixin {
+  late AnimationController _spinController;
+  late Animation<double> _spinAnimation;
+  
+  // Track hover/click enlargement state
+  bool _isEnlarged = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+    _spinController = AnimationController(
+      duration: const Duration(milliseconds: 1500), // Clean duration for the flip
       vsync: this,
     );
     
-    // Explicitly using 6.0 instead of 6 ensures Dart knows this is a double
-    // Using the direct library value to prevent any namespace scope issues
-    _animation = Tween<double>(begin: 0.0, end: 6.0 * math.pi).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.decelerate),
+    _spinAnimation = Tween<double>(begin: 0.0, end: 4.0 * math.pi).animate(
+      CurvedAnimation(parent: _spinController, curve: Curves.easeInOut),
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _spinController.dispose();
     super.dispose();
   }
 
-  void _spinCoin() {
-    _controller.forward(from: 0.0);
+  void _handleTap() {
+    setState(() {
+      // Toggle or trigger your enlargement state here
+      _isEnlarged = !_isEnlarged; 
+    });
+
+    // Run the 3D spin animation simultaneously
+    if (!_spinController.isAnimating) {
+      _spinController.forward(from: 0.0);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Determine your enlargement scale factor
+    final double scaleFactor = _isEnlarged ? 1.4 : 1.0; 
+
     return GestureDetector(
-      onTap: _spinCoin,
+      onTap: _handleTap,
+      behavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
-        animation: _animation,
+        animation: _spinAnimation,
         builder: (context, child) {
+          // COMBINE BOTH: Scale (Enlarge) and RotateY (Spin) into one Matrix
+          final transformMatrix = Matrix4.identity()
+            ..setEntry(3, 2, 0.002) // 3D Perspective depth
+            ..scale(scaleFactor, scaleFactor, 1.0) // Keeps your enlargement effect
+            ..rotateY(_spinAnimation.value); // Adds the flip dynamic
+
           return Transform(
             alignment: Alignment.center,
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001) // Provides a slight 3D angle perspective depth
-              ..rotateY(_animation.value),
+            transform: transformMatrix,
             child: widget.child,
           );
         },
@@ -98,6 +115,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     );
   }
 }
+
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
   final List<Map<String, dynamic>> basketItems;
