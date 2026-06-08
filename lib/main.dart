@@ -50,71 +50,88 @@ class SpinningLogo extends StatefulWidget {
   State<SpinningLogo> createState() => _SpinningLogoState();
 }
 
-class _SpinningLogoState extends State<SpinningLogo> with TickerProviderStateMixin {
-  late AnimationController _spinController;
+class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
   late Animation<double> _spinAnimation;
-  
-  // Track hover/click enlargement state
-  bool _isEnlarged = false;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _spinController = AnimationController(
-      duration: const Duration(milliseconds: 1500), // Clean duration for the flip
+    
+    // Total animation time for the entire expand, spin, and shrink cycle
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 2000), 
       vsync: this,
     );
-    
-    _spinAnimation = Tween<double>(begin: 0.0, end: 4.0 * math.pi).animate(
-      CurvedAnimation(parent: _spinController, curve: Curves.easeInOut),
+
+    // 1. SPIN ANIMATION: Spins continuously throughout the animation window
+    _spinAnimation = Tween<double>(begin: 0.0, end: 6.0 * math.pi).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 1.0, curve: Curves.easeInOut),
+      ),
+    );
+
+    // 2. SCALE ANIMATION: Uses an animation sequence to grow, hold, and shrink back down
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 4.5), // Enlarges significantly to be highly visible
+        weight: 20.0, // First 20% of the duration
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(4.5), // Holds the large size while spinning
+        weight: 60.0, // Middle 60% of the duration
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 4.5, end: 1.0), // Returns cleanly to normal AppBar size
+        weight: 20.0, // Final 20% of the duration
+      ),
+    ]).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.decelerate),
     );
   }
 
   @override
   void dispose() {
-    _spinController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
-  void _handleTap() {
-    setState(() {
-      // Toggle or trigger your enlargement state here
-      _isEnlarged = !_isEnlarged; 
-    });
-
-    // Run the 3D spin animation simultaneously
-    if (!_spinController.isAnimating) {
-      _spinController.forward(from: 0.0);
+  void _startSpinningCycle() {
+    if (!_controller.isAnimating) {
+      _controller.forward(from: 0.0);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Determine your enlargement scale factor
-    final double scaleFactor = _isEnlarged ? 1.4 : 1.0; 
-
     return GestureDetector(
-      onTap: _handleTap,
+      onTap: _startSpinningCycle,
       behavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
-        animation: _spinAnimation,
+        animation: _controller,
         builder: (context, child) {
-          // COMBINE BOTH: Scale (Enlarge) and RotateY (Spin) into one Matrix
           final transformMatrix = Matrix4.identity()
-            ..setEntry(3, 2, 0.002) // 3D Perspective depth
-            ..scale(scaleFactor, scaleFactor, 1.0) // Keeps your enlargement effect
-            ..rotateY(_spinAnimation.value); // Adds the flip dynamic
+            ..setEntry(3, 2, 0.0015) // Clean 3D perspective depth layer
+            ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
+            ..rotateY(_spinAnimation.value);
 
           return Transform(
             alignment: Alignment.center,
             transform: transformMatrix,
-            child: widget.child,
+            // Keeps the logo rendering above other AppBar elements when it scales outward
+            child: Material(
+              type: MaterialType.transparency,
+              child: widget.child,
+            ),
           );
         },
       ),
     );
   }
 }
+
 
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
