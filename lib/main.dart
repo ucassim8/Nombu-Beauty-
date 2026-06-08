@@ -60,8 +60,10 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    // 6 * pi gives exactly 3 full 360-degree rotations before resting
-    _animation = Tween<double>(begin: 0.0, end: 6 * math.pi).animate(
+    
+    // Explicitly using 6.0 instead of 6 ensures Dart knows this is a double
+    // Using the direct library value to prevent any namespace scope issues
+    _animation = Tween<double>(begin: 0.0, end: 6.0 * math.pi).animate(
       CurvedAnimation(parent: _controller, curve: Curves.decelerate),
     );
   }
