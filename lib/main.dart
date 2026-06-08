@@ -59,13 +59,11 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   void initState() {
     super.initState();
     
-    // Total animation time for the entire expand, spin, and shrink cycle
     _controller = AnimationController(
       duration: const Duration(milliseconds: 2000), 
       vsync: this,
     );
 
-    // 1. SPIN ANIMATION: Spins continuously throughout the animation window
     _spinAnimation = Tween<double>(begin: 0.0, end: 6.0 * math.pi).animate(
       CurvedAnimation(
         parent: _controller,
@@ -73,22 +71,21 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       ),
     );
 
-    // 2. SCALE ANIMATION: Uses an animation sequence to grow, hold, and shrink back down
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 4.5), // Enlarges significantly to be highly visible
-        weight: 20.0, // First 20% of the duration
+        tween: Tween<double>(begin: 1.0, end: 4.5), 
+        weight: 25.0, 
       ),
       TweenSequenceItem(
-        tween: ConstantTween<double>(4.5), // Holds the large size while spinning
-        weight: 60.0, // Middle 60% of the duration
+        tween: ConstantTween<double>(4.5), 
+        weight: 50.0, 
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 4.5, end: 1.0), // Returns cleanly to normal AppBar size
-        weight: 20.0, // Final 20% of the duration
+        tween: Tween<double>(begin: 4.5, end: 1.0), 
+        weight: 25.0, 
       ),
     ]).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.decelerate),
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
 
@@ -112,17 +109,22 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
+          // Setting an explicit transform matrix
           final transformMatrix = Matrix4.identity()
-            ..setEntry(3, 2, 0.0015) // Clean 3D perspective depth layer
+            ..setEntry(3, 2, 0.002) // Increased perspective depth for web visibility
             ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
             ..rotateY(_spinAnimation.value);
 
           return Transform(
             alignment: Alignment.center,
             transform: transformMatrix,
-            // Keeps the logo rendering above other AppBar elements when it scales outward
-            child: Material(
-              type: MaterialType.transparency,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent, // Forces canvas backing layer on web browsers
+              ),
               child: widget.child,
             ),
           );
