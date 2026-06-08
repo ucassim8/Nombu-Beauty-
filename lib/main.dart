@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:math' as math; // Fixed: Explicitly imported math library
 
 
 // ignore: avoid_web_libraries_in_flutter
