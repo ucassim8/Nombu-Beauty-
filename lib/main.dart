@@ -847,24 +847,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.pink.shade400,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    ),
-                    child: const Text("Let's Get To Work! 💕"),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
-  }
+
 
   void _showEditDialog(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -1221,47 +1204,236 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           ],
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6.0),
-          child: Text(
-            "${data['service'] ?? 'null'}\n📍 ${data['location'] ?? 'null'}\n📅 ${data['date'] ?? 'null'} at ${data['time'] ?? 'null'}",
-            style: TextStyle(height: 1.3, color: Colors.grey.shade800),
+class AdminDashboard extends StatefulWidget {
+  const AdminDashboard({super.key});
+
+  @override
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  bool _auth = false;
+  final TextEditingController _pass = TextEditingController();
+
+  // Curated list of unique quotes signed by Hubby, Motivation, or Boss Babe Energy
+  final List<Map<String, String>> premiumQuotes = [
+    {"q": "You are doing amazing things today, my love! Let's conquer this dashboard.", "a": "Hubby"},
+    {"q": "Just a reminder that you're the hardest worker I know, and I'm so proud of you.", "a": "Hubby"},
+    {"q": "Take a deep breath, you've got this beautiful! 🌸", "a": "Hubby"},
+    {"q": "Sending you a million kisses before you start your admin tasks. 💋", "a": "Hubby"},
+    {"q": "My favorite entrepreneur. Go shine today! 👑", "a": "Hubby"},
+    {"q": "The best way to predict the future is to create it. Time to build the empire!", "a": "Motivation"},
+    {"q": "You are entirely up to you. Believe in your talent and your grind.", "a": "Motivation"},
+    {"q": "Behind every successful business is a woman who simply refused to give up.", "a": "Boss Babe Energy ✨"},
+    {"q": "Quality is never an accident; it is always the result of intelligent effort.", "a": "Business Mindset"},
+    {"q": "You are prettier than all the makeup and wigs in the world. Now let's handle business!", "a": "Hubby"},
+    {"q": "Invest in your dreams. Grind now. Shine forever. 💎", "a": "Motivation"},
+    {"q": "Success doesn't just find you. You have to go out and get it.", "a": "Motivation"},
+    {"q": "Never doubt your capacity to build something magnificent here.", "a": "Reminder"},
+    {"q": "Your passion, dedication, and beautiful heart make you unstoppable.", "a": "Hubby"},
+    {"q": "Great things are done by a series of small things brought together.", "a": "Vincent van Gogh"},
+    {"q": "Make today so awesome that yesterday gets jealous. 🌟", "a": "Motivation"},
+    {"q": "I love watching you grow your business and chase your dreams.", "a": "Hubby"},
+    {"q": "Focus on your goals, blur out the noise. You're built for this.", "a": "Reminder"},
+    {"q": "Consistency is what transforms average into excellence.", "a": "Business Mindset"},
+    {"q": "If anyone can turn a vision into reality, it's absolutely you.", "a": "Hubby"},
+    {"q": "Dream big, work hard, stay focused, and surround yourself with good people.", "a": "Motivation"},
+    {"q": "Your work is going to fill a large part of your life, love what you build.", "a": "Steve Jobs"},
+    {"q": "I'm always in your corner, cheering you on through every step of this journey.", "a": "Hubby"},
+    {"q": "Action is the foundational key to all success.", "a": "Pablo Picasso"},
+    {"q": "Go dominate the day, gorgeous. I believe in you completely! ❤️", "a": "Hubby"}
+  ];
+
+  DateTime _parseBookingDate(String dateStr) {
+    try {
+      List<String> parts = dateStr.split('/');
+      if (parts.length == 3) {
+        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (e) {
+      print("Error parsing date: $dateStr");
+    }
+    return DateTime(2099); 
+  }
+
+  // Instantly pulls randomly from our local premium quote vault
+  void _fetchAndShowQuote() {
+    final random = math.Random();
+    final selected = premiumQuotes[random.nextInt(premiumQuotes.length)];
+    String finalQuote = selected["q"]!;
+    String author = selected["a"]!;
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: true, 
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            elevation: 16,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [Colors.pink.shade50, Colors.white],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.favorite, color: Colors.pink.shade400, size: 45),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Hey Beautiful! ✨",
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.pink.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    '"$finalQuote"',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.lato(
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey.shade800,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "- $author",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.pink.shade300,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink.shade400,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                    child: const Text("Let's Get To Work! 💕"),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_auth) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Admin Login'), 
+          backgroundColor: Colors.pink.shade400,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, 
+              children: [
+                const Icon(Icons.lock_outline, size: 60, color: Colors.pink),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _pass, 
+                  obscureText: true, 
+                  decoration: const InputDecoration(
+                    labelText: 'Password', 
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400), 
+                  onPressed: () { 
+                    if (_pass.text == '2478') {
+                      setState(() {
+                        _auth = true;
+                      });
+                      // Triggers the pop-up immediately after the frame finishes changing views
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _fetchAndShowQuote();
+                      });
+                    } 
+                  }, 
+                  child: const Text('Login', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
           ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!isHistory) ...[
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.blue, size: 22),
-                tooltip: 'Edit Details',
-                onPressed: () => _showEditDialog(doc),
-              ),
-              if (status == 'Pending')
-                IconButton(
-                  icon: const Icon(Icons.check_circle, color: Colors.green, size: 22),
-                  tooltip: 'Approve & WhatsApp',
-                  onPressed: () => _showEditDialog(doc),
+      );
+    }
+
+    // This pulls from your real Firestore stream once logged in successfully
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        backgroundColor: Colors.pink.shade400,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              setState(() {
+                _auth = false;
+                _pass.clear();
+              });
+            },
+          )
+        ],
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          var docs = snapshot.data!.docs;
+          
+          // Sorts the reservations smoothly by date
+          docs.sort((a, b) {
+            var dateA = _parseBookingDate(a['date'] ?? '');
+            var dateB = _parseBookingDate(b['date'] ?? '');
+            return dateA.compareTo(dateB);
+          });
+
+          if (docs.isEmpty) {
+            return const Center(child: Text('No active appointments found.'));
+          }
+
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              var data = docs[index].data() as Map<String, dynamic>;
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  title: Text(data['name'] ?? 'No Name', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text("${data['service'] ?? 'No Service'} \nDate: ${data['date'] ?? ''} at ${data['time'] ?? ''}"),
+                  trailing: Text(data['status'] ?? 'Pending', style: TextStyle(color: Colors.pink.shade300, fontWeight: FontWeight.bold)),
+                  isThreeLine: true,
                 ),
-              if (status == 'Approved')
-                IconButton(
-                  icon: const Icon(Icons.done_all, color: Colors.purple, size: 22),
-                  tooltip: 'Mark as Completed',
-                  onPressed: () => doc.reference.update({'status': 'Completed'}),
-                ),
-              IconButton(
-                icon: const Icon(Icons.cancel, color: Colors.orange, size: 22),
-                tooltip: 'Cancel Appointment',
-                onPressed: () => doc.reference.update({'status': 'Cancelled'}),
-              ),
-            ],
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red, size: 22),
-              tooltip: 'Delete Permanently',
-              onPressed: () => doc.reference.delete(),
-            ),
-          ],
-        ),
+              );
+            },
+          );
+        },
       ),
     );
   }
