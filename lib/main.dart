@@ -1,5 +1,3 @@
-Here is your complete, updated main.dart code file. The password login block has been fully refactored to seamlessly load and overlay the motivational/romantic quotes right after she enters the password 2478 and logs in.
-```dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
