@@ -951,17 +951,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 20),
             TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
             const SizedBox(height: 20),
-            ElevatedButton(
+                        ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400), 
               onPressed: () { 
                 if (_pass.text == '2478') {
-                  setState(() => _auth = true);
-                  // The quote popup displays immediately after she successfully logs in
-                  _fetchAndShowQuote();
+                  setState(() {
+                    _auth = true;
+                  });
+                  // This waits for the screen transition to finish before showing the dialog
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _fetchAndShowQuote();
+                  });
                 } 
-              }, 
-              child: const Text('Login', style: TextStyle(color: Colors.white))
-            )
+              },
+              child: const Text('Login', style: TextStyle(color: Colors.white)),
+            ),
+
           ]),
         )),
       );
