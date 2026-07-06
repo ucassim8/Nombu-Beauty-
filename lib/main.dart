@@ -1,3 +1,5 @@
+Here is your complete, updated main.dart code file. The password login block has been fully refactored to seamlessly load and overlay the motivational/romantic quotes right after she enters the password 2478 and logs in.
+```dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,8 +8,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:math' as math; // Fixed: Explicitly imported math library
-
+import 'dart:math' as math; 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
@@ -24,7 +27,6 @@ class NombuBeautyApp extends StatefulWidget {
 }
 
 class _NombuBeautyAppState extends State<NombuBeautyApp> {
-  // Global Basket State shared across the app
   final List<Map<String, dynamic>> basketItems = [];
 
   @override
@@ -41,6 +43,7 @@ class _NombuBeautyAppState extends State<NombuBeautyApp> {
     );
   }
 }
+
 // ------------------------- SPINNING LOGO COMPONENT -------------------------
 class SpinningLogo extends StatefulWidget {
   final Widget child;
@@ -66,7 +69,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       vsync: this,
     );
 
-    // Smooth coin spin rotation
     _spinAnimation = Tween<double>(begin: 0.0, end: 6.0 * math.pi).animate(
       CurvedAnimation(
         parent: _controller,
@@ -74,7 +76,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       ),
     );
 
-    // Explicit scale transformation path
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 1.0, end: 4.5), 
@@ -92,7 +93,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // Automatically clean up the global overlay when the animation cycle completes
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _removeOverlay();
@@ -106,7 +106,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
-          // A completely transparent full-screen barrier to intercept taps while animating
           Positioned.fill(
             child: GestureDetector(
               onTap: () {},
@@ -114,13 +113,12 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
               child: const SizedBox.expand(),
             ),
           ),
-          // Centers the animated logo perfectly on screen globally
           Center(
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
                 final transformMatrix = Matrix4.identity()
-                  ..setEntry(3, 2, 0.002) // Strict 3D canvas perspective entry
+                  ..setEntry(3, 2, 0.002) 
                   ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
                   ..rotateY(_spinAnimation.value);
 
@@ -159,7 +157,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       child: GestureDetector(
         onTap: _showOverlay,
         behavior: HitTestBehavior.opaque,
-        // Keep a placeholder or normal size instance static in the AppBar while it spins globally
         child: Opacity(
           opacity: (_controller.isAnimating) ? 0.0 : 1.0,
           child: widget.child,
@@ -168,8 +165,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     );
   }
 }
-
-
 
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
@@ -321,10 +316,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-                  appBar: AppBar(
+      appBar: AppBar(
         title: Row(
           children: [
-            // 1. YOUR NEW TAPPABLE LOGO
             GestureDetector(
               onTap: () {
                 showDialog(
@@ -338,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      padding: const EdgeInsets.all(4), // Creates a clean outer border line
+                      padding: const EdgeInsets.all(4), 
                       child: ClipOval(
                         child: Image.asset(
                           'assets/Logonombu.jpg',
@@ -349,20 +343,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               },
-              // --- FORCED SQUARE CLIPPER ---
               child: ClipOval(
                 child: SizedBox(
                   width: 40,
                   height: 40,
                   child: Image.asset(
                     'assets/Logonombu.jpg', 
-                    fit: BoxFit.cover, // Forces the image to expand and crop out the corners
+                    fit: BoxFit.cover, 
                   ),
                 ),
               ),
-            ), // <-- Closes GestureDetector
+            ), 
             
-            const SizedBox(width: 16), // Spacing between logo and text
+            const SizedBox(width: 16), 
             
             Text(
               'Nombu Beauty',
@@ -381,13 +374,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-          ], // <-- Closes children: [
-        ), // <-- Closes title: Row(
+          ], 
+        ), 
         backgroundColor: Colors.pink.shade400,
         elevation: 5,
-
         actions: [
-          // Shopping Basket icon button in AppBar
           Stack(
             alignment: Alignment.center,
             children: [
@@ -463,8 +454,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          
-          // ----------------- SOCIAL MEDIA LINKS SECTIONS -----------------
           Padding(
             padding: const EdgeInsets.only(bottom: 24.0, top: 8.0),
             child: Row(
@@ -641,7 +630,6 @@ class _BasketScreenState extends State<BasketScreen> {
     String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
     String formattedTime = selectedTime!.format(context);
 
-    // Grouping selected items neatly for WhatsApp output layout
     String servicesText = widget.basketItems.map((item) => "- ${item['name']} (R${item['price']})").join("\n");
     String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
 
@@ -755,7 +743,7 @@ class _BasketScreenState extends State<BasketScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD (PART 1) -------------------------
+// ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -765,7 +753,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
-  // Helper to parse "DD/MM/YYYY" string into a real DateTime for sorting
+  // Backup motivational and romantic quotes
+  final List<String> backupQuotes = [
+    "You are doing amazing things today, my love! Let's conquer this dashboard. 💖",
+    "Just a reminder that you're the hardest worker I know, and I'm so proud of you. ✨",
+    "Take a deep breath, you've got this beautiful! 🌸",
+    "Sending you a million kisses before you start your admin tasks. 💋",
+    "My favorite entrepreneur. Go shine today! 👑",
+  ];
+
   DateTime _parseBookingDate(String dateStr) {
     try {
       List<String> parts = dateStr.split('/');
@@ -775,7 +771,101 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } catch (e) {
       print("Error parsing date: $dateStr");
     }
-    return DateTime(2099); // Fallback to bottom if parsing fails
+    return DateTime(2099); 
+  }
+
+  // Fetches and opens the surprise quote dialog layout
+  Future<void> _fetchAndShowQuote() async {
+    String finalQuote = "";
+    String author = "Your Biggest Fan 😉";
+
+    try {
+      final response = await http.get(Uri.parse('https://zenquotes.io/api/random')).timeout(
+        const Duration(seconds: 4),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        finalQuote = data[0]['q'];
+        author = data[0]['a'];
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      final random = math.Random();
+      finalQuote = backupQuotes[random.nextInt(backupQuotes.length)];
+      author = "Me";
+    }
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: true, 
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            elevation: 16,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [Colors.pink.shade50, Colors.white],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.favorite, color: Colors.pink.shade400, size: 45),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Hey Beautiful! ✨",
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.pink.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    '"$finalQuote"',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.lato(
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey.shade800,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "- $author",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.pink.shade300,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink.shade400,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                    child: const Text("Let's Get To Work! 💕"),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
   void _showEditDialog(DocumentSnapshot doc) {
@@ -863,7 +953,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 20),
             TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
             const SizedBox(height: 20),
-            ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400), onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login', style: TextStyle(color: Colors.white)))
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400), 
+              onPressed: () { 
+                if (_pass.text == '2478') {
+                  setState(() => _auth = true);
+                  // The quote popup displays immediately after she successfully logs in
+                  _fetchAndShowQuote();
+                } 
+              }, 
+              child: const Text('Login', style: TextStyle(color: Colors.white))
+            )
           ]),
         )),
       );
@@ -900,16 +1000,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
     );
-  }         // ------------------------- ADMIN DASHBOARD (PART 2 - MONTHLY REVENUE) -------------------------
+  }         
+
   Widget _buildBookingList(List<DocumentSnapshot> docs, bool isHistory) {
-    // 1. Handle the Active Bookings Tab
     if (!isHistory) {
       List<DocumentSnapshot> activeList = docs.where((doc) {
         String status = (doc.data() as Map<String, dynamic>)['status'] ?? 'Pending';
         return status == 'Pending' || status == 'Approved';
       }).toList();
 
-      // Custom Sorting Logic for Active bookings (Pending at top, Approved by date next)
       activeList.sort((a, b) {
         Map<String, dynamic> dataA = a.data() as Map<String, dynamic>;
         Map<String, dynamic> dataB = b.data() as Map<String, dynamic>;
@@ -943,24 +1042,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
       );
     }
 
-    // 2. Handle the History Tab (Separate Completed and Cancelled)
     List<DocumentSnapshot> completedList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Completed')).toList();
     List<DocumentSnapshot> cancelledList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Cancelled')).toList();
 
-    // Map to calculate monthly revenue grouping -> {"May 2026": 4500, "June 2026": 1200}
     Map<String, int> monthlyEarnings = {};
     List<String> monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     for (var doc in completedList) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       
-      // Parse price safely
       var priceVal = data['price'];
       int price = 0;
       if (priceVal is int) price = priceVal;
       else if (priceVal is String) price = int.tryParse(priceVal) ?? 0;
 
-      // Extract Month and Year from the date string "DD/MM/YYYY"
       String dateStr = data['date'] ?? "";
       List<String> parts = dateStr.split('/');
       String groupKey = "Unknown Month";
@@ -973,11 +1068,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
         }
       }
 
-      // Add to group total
       monthlyEarnings[groupKey] = (monthlyEarnings[groupKey] ?? 0) + price;
     }
 
-    // Sort history records by newest submission timestamp first
     var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
       Timestamp tA = (a.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
       Timestamp tB = (b.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
@@ -995,7 +1088,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
-        // --- MONTHLY REVENUE EXPANSION PANEL ---
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           color: Colors.green.shade50,
@@ -1037,7 +1129,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
         
         const SizedBox(height: 8),
 
-        // --- COMPLETED SECTION ---
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
@@ -1061,7 +1152,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           child: Divider(thickness: 1.5),
         ),
 
-        // --- CANCELLED SECTION ---
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
@@ -1083,7 +1173,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  // Extracted card widget builder to keep layouts identical and code concise
   Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     String status = data['status'] ?? 'Pending';
@@ -1174,3 +1263,5 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
+
+```
