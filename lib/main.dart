@@ -454,26 +454,43 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 24.0, top: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Follow Our Pages: ",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade700, fontSize: 15),
+                  "Follow Our Pages:",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    color: Colors.pink.shade700, 
+                    fontSize: 15,
+                  ),
                 ),
-                const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(Icons.camera_alt_outlined, size: 32),
-                  color: Colors.pink.shade800,
-                  tooltip: 'Instagram',
-                  onPressed: () => _launchSocial(instagramUrl),
-                ),
-                const SizedBox(width: 15),
-                IconButton(
-                  icon: const Icon(Icons.music_note_outlined, size: 32),
-                  color: Colors.pink.shade800,
-                  tooltip: 'TikTok',
-                  onPressed: () => _launchSocial(tiktokUrl),
+                const SizedBox(height: 4), // Small gap between the text and the icons below it
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt_outlined, size: 28), // Adjusted down slightly to look premium
+                      color: Colors.pink.shade800,
+                      tooltip: 'Instagram',
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      constraints: const BoxConstraints(),
+                      onPressed: () => _launchSocial(instagramUrl),
+                    ),
+                    const SizedBox(width: 16), // Perfectly uniform gap between just the two icons
+                    Transform.translate(
+                      offset: const Offset(0, -1.5), // Fixed! Nudges the music note up to perfectly align with the camera square
+                      child: IconButton(
+                        icon: const Icon(Icons.music_note, size: 30), // Solid music note fills the visual weight better
+                        color: Colors.pink.shade800,
+                        tooltip: 'TikTok',
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => _launchSocial(tiktokUrl),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -483,6 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
 
 // ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
