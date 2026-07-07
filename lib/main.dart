@@ -345,33 +345,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+                  appBar: AppBar(
         title: Row(
           children: [
-            GestureDetector(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: Colors.transparent,
-                    child: Container(
-                      width: 280,
-                      height: 280,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      padding: const EdgeInsets.all(4), 
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/Logonombu.jpg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+            // 1. Your fully active animated spinning logo
+            SpinningLogo(
               child: ClipOval(
                 child: SizedBox(
                   width: 40,
@@ -382,9 +360,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-            ), 
+            ),
             
-            const SizedBox(width: 16), 
+            // 2. Clear spacing to push the next title item over
+            const SizedBox(width: 16),
+
             
             Text(
               'Nombu Beauty',
