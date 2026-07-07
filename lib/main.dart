@@ -59,7 +59,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   final LayerLink _layerLink = LayerLink();
   bool _isOverlayActive = false;
 
-    @override
+  @override
   void initState() {
     super.initState();
     
@@ -68,11 +68,10 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       vsync: this,
     );
 
-    // Bypasses CurvedAnimation/Interval bugs on Web by mapping directly to the timeline
     _spinAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 0.0, end: 8.0 * math.pi).chain(CurveTween(curve: Curves.easeOutCubic)),
-        weight: 100.0, // Spins smoothly across the entire 100% duration of the controller
+        weight: 100.0, 
       ),
     ]).animate(_controller);
 
@@ -83,23 +82,14 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       ),
       TweenSequenceItem(
         tween: ConstantTween<double>(4.5), 
-        weight: 65.0, 
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 4.5, end: 1.0).chain(CurveTween(curve: Curves.easeIn)), 
-        weight: 20.0, 
+        weight: 85.0, // Kept it big at 4.5 scale instead of shrinking back automatically
       ),
     ]).animate(_controller);
 
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _removeOverlay();
-      }
-    });
+    // REMOVED: The status listener that was forcing it to close instantly at the end
   }
 
-
-          void _showOverlay() {
+  void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -109,23 +99,22 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
+          // Background dismisser: Tapping anywhere outside the logo now closes it smoothly
           Positioned.fill(
             child: GestureDetector(
-              onTap: () {},
+              onTap: _reverseAndRemoveOverlay, 
               behavior: HitTestBehavior.opaque,
-              child: Container(color: Colors.transparent),
+              child: Container(color: Colors.black.withOpacity(0.15)), // Slight dim effect
             ),
           ),
           Center(
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                // 1. Create the 3D up/down flipping matrix
                 final matrix = Matrix4.identity()
-                  ..setEntry(3, 2, 0.002) // Adds 3D depth perspective so it looks realistic
-                  ..rotateX(_spinAnimation.value); // Flips it forward / up-and-down
+                  ..setEntry(3, 2, 0.002) 
+                  ..rotateX(_spinAnimation.value); 
 
-                // 2. Wrap it with the scale transformation layer
                 return Transform.scale(
                   scale: _scaleAnimation.value,
                   alignment: Alignment.center,
@@ -134,14 +123,17 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                     alignment: Alignment.center,
                     child: Material(
                       color: Colors.transparent,
-                      child: SizedBox(
-                        width: 70,  
-                        height: 70,
-                        key: ValueKey(_spinAnimation.value), // Bypasses web image caching
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/Logonombu.jpg',
-                            fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: _reverseAndRemoveOverlay, // Tapping the logo itself also closes it
+                        child: SizedBox(
+                          width: 70,  
+                          height: 70,
+                          key: ValueKey(_spinAnimation.value), 
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/Logonombu.jpg',
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -159,10 +151,10 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     _controller.forward(from: 0.0);
   }
 
-
-
-
-  void _removeOverlay() {
+  // Shrinks it back down cleanly before stripping the overlay entry out entirely
+  void _reverseAndRemoveOverlay() async {
+    if (_overlayEntry == null) return;
+    await _controller.reverse(); 
     _overlayEntry?.remove();
     _overlayEntry = null;
     _controller.reset();
@@ -175,7 +167,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
 
   @override
   void dispose() {
-    _removeOverlay();
+    _overlayEntry?.remove();
     _controller.dispose();
     super.dispose();
   }
@@ -195,6 +187,8 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     );
   }
 }
+
+
 
     
 
