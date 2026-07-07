@@ -1191,7 +1191,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
+    Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     String status = data['status'] ?? 'Pending';
 
@@ -1213,35 +1213,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 3,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
-          runSpacing: 4,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              data['clientName'] ?? 'No Name', 
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            // Row for Name and Status Badge
+            Row(
+              children: [
+                Text(
+                  data['clientName'] ?? 'No Name', 
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    status, 
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
+                  ),
+                ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
-              child: Text(
-                status, 
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
-              ),
-            ),
-          ],
-        ),
-                    // Layout splitting Details on the Left and Icons on the Right
+            const SizedBox(height: 8),
+            
+            // Layout splitting Details on the Left and Icons on the Right
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Booking Details
+                // Booking Details (Left side)
                 Expanded(
                   child: Text(
                     "${data['service'] ?? 'No Service'}\n"
@@ -1252,7 +1256,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 ),
                 
-                // Icon row starts right here!
+                // Icon row (Right side)
                 if (!isHistory)
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1265,20 +1269,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         onPressed: () => _showEditDialog(doc),
                       ),
                       
-                      // 2. Green Single Tick -> Swaps to Purple Double Tick after approval
+                      // 2. Dynamic Ticks (Green single for pending -> Purple double for approved)
                       if (status == 'Pending')
                         IconButton(
                           icon: const Icon(Icons.check_circle, color: Colors.green),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           constraints: const BoxConstraints(),
-                          onPressed: () => _showEditDialog(doc), // Opens Edit & Approve Dialog
+                          onPressed: () => _showEditDialog(doc),
                         )
                       else if (status == 'Approved')
                         IconButton(
                           icon: const Icon(Icons.done_all, color: Colors.purple),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           constraints: const BoxConstraints(),
-                          onPressed: () => doc.reference.update({'status': 'Completed'}), // Marks Completed
+                          onPressed: () => doc.reference.update({'status': 'Completed'}),
                         ),
 
                       // 3. Orange Cancel Circle
@@ -1304,3 +1308,4 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
     );
+  }
