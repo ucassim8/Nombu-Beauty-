@@ -98,8 +98,12 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     });
   }
 
-  void _showOverlay() {
+    void _showOverlay() {
     if (_overlayEntry != null) return;
+
+    setState(() {
+      _isOverlayActive = true;
+    });
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
@@ -115,15 +119,27 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
+                // Apply perspective depth, scale, and clean Y-rotation
                 final transformMatrix = Matrix4.identity()
-                  ..setEntry(3, 2, 0.002) 
+                  ..setEntry(3, 2, 0.002) // Perspective depth field
                   ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
-                  ..rotateY(_spinAnimation.value);
+                  ..rotateY(_spinAnimation.value); // The Y-Axis rotation matrix
 
                 return Transform(
                   alignment: Alignment.center,
                   transform: transformMatrix,
-                  child: widget.child,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Opacity(
+                      opacity: 1.0,
+                      // FORCE a clean layout boundary constraint on the logo asset
+                      child: SizedBox(
+                        width: 80,  // Forces a standard square frame baseline 
+                        height: 80, // to prevent the 3D matrix from flattening it
+                        child: Center(child: widget.child),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
@@ -131,6 +147,11 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
         ],
       ),
     );
+
+    Overlay.of(context).insert(_overlayEntry!);
+    _controller.forward(from: 0.0);
+  }
+
 
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
