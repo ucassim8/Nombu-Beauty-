@@ -57,39 +57,38 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   late Animation<double> _scaleAnimation;
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
+  bool _isOverlayActive = false;
 
   @override
   void initState() {
     super.initState();
     
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 2000), 
+      duration: const Duration(milliseconds: 2500), 
       vsync: this,
     );
 
-    _spinAnimation = Tween<double>(begin: 0.0, end: 6.0 * math.pi).animate(
+    _spinAnimation = Tween<double>(begin: 0.0, end: 8.0 * math.pi).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 1.0, curve: Curves.easeInOut),
+        curve: const Interval(0.0, 1.0, curve: Curves.easeOutCubic),
       ),
     );
 
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 4.5), 
-        weight: 20.0, 
+        tween: Tween<double>(begin: 1.0, end: 4.5).chain(CurveTween(curve: Curves.easeOut)), 
+        weight: 15.0, 
       ),
       TweenSequenceItem(
         tween: ConstantTween<double>(4.5), 
-        weight: 60.0, 
+        weight: 65.0, 
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 4.5, end: 1.0), 
+        tween: Tween<double>(begin: 4.5, end: 1.0).chain(CurveTween(curve: Curves.easeIn)), 
         weight: 20.0, 
       ),
-    ]).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    ]).animate(_controller);
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -98,7 +97,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     });
   }
 
-    void _showOverlay() {
+  void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -119,11 +118,10 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                // Apply perspective depth, scale, and clean Y-rotation
                 final transformMatrix = Matrix4.identity()
-                  ..setEntry(3, 2, 0.002) // Perspective depth field
+                  ..setEntry(3, 2, 0.002) 
                   ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
-                  ..rotateY(_spinAnimation.value); // The Y-Axis rotation matrix
+                  ..rotateY(_spinAnimation.value); 
 
                 return Transform(
                   alignment: Alignment.center,
@@ -132,10 +130,9 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                     color: Colors.transparent,
                     child: Opacity(
                       opacity: 1.0,
-                      // FORCE a clean layout boundary constraint on the logo asset
                       child: SizedBox(
-                        width: 80,  // Forces a standard square frame baseline 
-                        height: 80, // to prevent the 3D matrix from flattening it
+                        width: 80,  
+                        height: 80, 
                         child: Center(child: widget.child),
                       ),
                     ),
@@ -152,14 +149,15 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     _controller.forward(from: 0.0);
   }
 
-
-    Overlay.of(context).insert(_overlayEntry!);
-    _controller.forward(from: 0.0);
-  }
-
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
+    _controller.reset();
+    if (mounted) {
+      setState(() {
+        _isOverlayActive = false;
+      });
+    }
   }
 
   @override
@@ -177,13 +175,16 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
         onTap: _showOverlay,
         behavior: HitTestBehavior.opaque,
         child: Opacity(
-          opacity: (_controller.isAnimating) ? 0.0 : 1.0,
+          opacity: _isOverlayActive ? 0.0 : 1.0,
           child: widget.child,
         ),
       ),
     );
   }
 }
+
+    
+
 
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
