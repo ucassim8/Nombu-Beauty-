@@ -1236,37 +1236,71 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           ],
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            "${data['service'] ?? 'No Service'}\n"
-            "📍 ${data['location'] ?? 'No Location'}\n"
-            "📅 Date: ${data['date'] ?? ''} at ${data['time'] ?? ''}\n"
-            "💰 Price: R${data['price'] ?? 0}",
-            style: const TextStyle(height: 1.4),
-          ),
-        ),
-        trailing: isHistory 
-          ? null 
-          : Row(
-              mainAxisSize: MainAxisSize.min,
+                    // Layout splitting Details on the Left and Icons on the Right
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.edit_note, color: Colors.blue),
-                  onPressed: () => _showEditDialog(doc),
-                ),
-                if (status == 'Approved')
-                  IconButton(
-                    icon: const Icon(Icons.check_circle, color: Colors.green),
-                    onPressed: () => doc.reference.update({'status': 'Completed'}),
+                // Booking Details
+                Expanded(
+                  child: Text(
+                    "${data['service'] ?? 'No Service'}\n"
+                    "📍 ${data['location'] ?? 'No Location'}\n"
+                    "📅 ${data['date'] ?? ''} at ${data['time'] ?? ''}\n"
+                    "💰 Price: R${data['price'] ?? 0}",
+                    style: TextStyle(height: 1.4, color: Colors.grey.shade800, fontSize: 14),
                   ),
-                IconButton(
-                  icon: const Icon(Icons.cancel, color: Colors.red),
-                  onPressed: () => doc.reference.update({'status': 'Cancelled'}),
                 ),
+                
+                // Icon row starts right here!
+                if (!isHistory)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 1. Blue Edit Pen
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => _showEditDialog(doc),
+                      ),
+                      
+                      // 2. Green Single Tick -> Swaps to Purple Double Tick after approval
+                      if (status == 'Pending')
+                        IconButton(
+                          icon: const Icon(Icons.check_circle, color: Colors.green),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          constraints: const BoxConstraints(),
+                          onPressed: () => _showEditDialog(doc), // Opens Edit & Approve Dialog
+                        )
+                      else if (status == 'Approved')
+                        IconButton(
+                          icon: const Icon(Icons.done_all, color: Colors.purple),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          constraints: const BoxConstraints(),
+                          onPressed: () => doc.reference.update({'status': 'Completed'}), // Marks Completed
+                        ),
+
+                      // 3. Orange Cancel Circle
+                      IconButton(
+                        icon: const Icon(Icons.cancel, color: Colors.orange),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => doc.reference.update({'status': 'Cancelled'}),
+                      ),
+                      
+                      // 4. Red Delete Trash Bin
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => doc.reference.delete(),
+                      ),
+                    ],
+                  ),
               ],
             ),
+          ],
+        ),
       ),
     );
-  }
-}
