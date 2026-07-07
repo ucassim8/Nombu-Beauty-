@@ -121,7 +121,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                 final transformMatrix = Matrix4.identity()
                   ..setEntry(3, 2, 0.002) 
                   ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
-                  ..rotateY(_spinAnimation.value); 
+                  ..rotateZ(_spinAnimation.value); 
 
                 return Transform(
                   alignment: Alignment.center,
