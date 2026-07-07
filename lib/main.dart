@@ -99,7 +99,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   }
 
 
-      void _showOverlay() {
+        void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -120,22 +120,23 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                // 1. First, handle the clean scaling adjustment
                 return Transform.scale(
                   scale: _scaleAnimation.value,
                   alignment: Alignment.center,
-                  // 2. Nest a native rotation layer right inside it
                   child: Transform.rotate(
-                    angle: _spinAnimation.value, // Handles the 4 complete turns cleanly
+                    angle: _spinAnimation.value,
                     alignment: Alignment.center,
                     child: Material(
                       color: Colors.transparent,
                       child: SizedBox(
-                        width: 70,  // Matches your header bar profile dimensions
+                        width: 70,  
                         height: 70,
+                        // The Secret Sauce: ValueKey forces Flutter Web to completely 
+                        // redraw the frame on every single micro-tick of the animation
+                        key: ValueKey(_spinAnimation.value),
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/Logonombu.jpg', // Double check this matches your exact path string!
+                            'assets/Logonombu.jpg', // Double check this matches your path!
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -153,6 +154,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
   }
+
 
 
 
