@@ -99,7 +99,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   }
 
 
-        void _showOverlay() {
+          void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -120,23 +120,27 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
+                // 1. Create the 3D up/down flipping matrix
+                final matrix = Matrix4.identity()
+                  ..setEntry(3, 2, 0.002) // Adds 3D depth perspective so it looks realistic
+                  ..rotateX(_spinAnimation.value); // Flips it forward / up-and-down
+
+                // 2. Wrap it with the scale transformation layer
                 return Transform.scale(
                   scale: _scaleAnimation.value,
                   alignment: Alignment.center,
-                  child: Transform.rotate(
-                    angle: _spinAnimation.value,
+                  child: Transform(
+                    transform: matrix,
                     alignment: Alignment.center,
                     child: Material(
                       color: Colors.transparent,
                       child: SizedBox(
                         width: 70,  
                         height: 70,
-                        // The Secret Sauce: ValueKey forces Flutter Web to completely 
-                        // redraw the frame on every single micro-tick of the animation
-                        key: ValueKey(_spinAnimation.value),
+                        key: ValueKey(_spinAnimation.value), // Bypasses web image caching
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/Logonombu.jpg', // Double check this matches your path!
+                            'assets/Logonombu.jpg',
                             fit: BoxFit.cover,
                           ),
                         ),
