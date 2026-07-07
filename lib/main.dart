@@ -59,7 +59,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   final LayerLink _layerLink = LayerLink();
   bool _isOverlayActive = false;
 
-  @override
+    @override
   void initState() {
     super.initState();
     
@@ -68,12 +68,13 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       vsync: this,
     );
 
-    _spinAnimation = Tween<double>(begin: 0.0, end: 8.0 * math.pi).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 1.0, curve: Curves.easeOutCubic),
+    // Bypasses CurvedAnimation/Interval bugs on Web by mapping directly to the timeline
+    _spinAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 8.0 * math.pi).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 100.0, // Spins smoothly across the entire 100% duration of the controller
       ),
-    );
+    ]).animate(_controller);
 
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
@@ -96,6 +97,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       }
     });
   }
+
 
       void _showOverlay() {
     if (_overlayEntry != null) return;
