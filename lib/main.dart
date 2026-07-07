@@ -97,7 +97,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     });
   }
 
-    void _showOverlay() {
+      void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -118,24 +118,24 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                // Generates a bulletproof 2D/3D flat matrix wheel rotation
-                final transformMatrix = Matrix4.identity()
-                  ..setEntry(3, 2, 0.002)
-                  ..scale(_scaleAnimation.value, _scaleAnimation.value, 1.0)
-                  ..rotateZ(_spinAnimation.value); // Absolute clean Z rotation axis
-
-                return Transform(
+                // 1. First, handle the clean scaling adjustment
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
                   alignment: Alignment.center,
-                  transform: transformMatrix,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: SizedBox(
-                      width: 70,  // Rigid canvas frame matching your top bar size
-                      height: 70,
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/Logonombu.jpg', // Explicitly calls the asset path to force redraws
-                          fit: BoxFit.cover,
+                  // 2. Nest a native rotation layer right inside it
+                  child: Transform.rotate(
+                    angle: _spinAnimation.value, // Handles the 4 complete turns cleanly
+                    alignment: Alignment.center,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: SizedBox(
+                        width: 70,  // Matches your header bar profile dimensions
+                        height: 70,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/Logonombu.jpg', // Double check this matches your exact path string!
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
@@ -151,6 +151,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
   }
+
 
 
   void _removeOverlay() {
