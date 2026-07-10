@@ -89,7 +89,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     // REMOVED: The status listener that was forcing it to close instantly at the end
   }
 
-     void _showOverlay() {
+       void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -115,50 +115,55 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                   ..rotateX(_spinAnimation.value); 
 
                 return Transform.scale(
-  scale: _scaleAnimation.value,
-  alignment: Alignment.center,
-  child: Transform(
-    transform: matrix,
-    alignment: Alignment.center,
-    child: Material(
-      color: Colors.transparent,
-      child: GestureDetector(
-        onTap: _reverseAndRemoveOverlay,
-        child: Container(
-          width: 90,  // 1. Made the container box wider than the image to prevent edge clipping
-          height: 90, // 1. Made the container box taller
-          alignment: Alignment.center, // Centers the image inside the larger shadow box
-          key: ValueKey(_spinAnimation.value),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFE8B4B8).withOpacity(0.7), 
-                blurRadius: 20, 
-                spreadRadius: 8, 
-              ),
-            ],
-          ),
-          child: SizedBox(
-            width: 70,  // 2. The image stays perfectly at 70x70
-            height: 70,
-            child: ClipOval(
-              child: Image.asset(
-                'assets/Logonombu.jpg',
-                fit: BoxFit.cover,
-              ),
+                  scale: _scaleAnimation.value,
+                  alignment: Alignment.center,
+                  child: Transform(
+                    transform: matrix,
+                    alignment: Alignment.center,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: GestureDetector(
+                        onTap: _reverseAndRemoveOverlay,
+                        child: Container(
+                          width: 90,  
+                          height: 90, 
+                          alignment: Alignment.center, 
+                          key: ValueKey(_spinAnimation.value),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFE8B4B8).withOpacity(0.7), 
+                                blurRadius: 20, 
+                                spreadRadius: 8, 
+                              ),
+                            ],
+                          ),
+                          child: SizedBox(
+                            width: 70,  
+                            height: 70,
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/Logonombu.jpg',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-        ),
+        ],
       ),
-    ),
-  ),
-);
-
+    ); // <-- THIS paren/semicolon was left floating open!
 
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
-  } // Closes _showOverlay method cleanly!
+  }
 
 
 
