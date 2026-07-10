@@ -133,7 +133,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFE8B4B8).withOpacity(0.7), 
+                                color: const Color(0xFFE8B4B8).withOpacity(1.0), 
                                 blurRadius: 20, 
                                 spreadRadius: 8, 
                               ),
