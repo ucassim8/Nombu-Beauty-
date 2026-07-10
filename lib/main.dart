@@ -149,6 +149,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                         ),
                       ),
                     ),
+                  );
 
 
     Overlay.of(context).insert(_overlayEntry!);
@@ -195,8 +196,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
 
 
 
-    
-
+  
 
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
