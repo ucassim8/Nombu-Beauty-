@@ -89,7 +89,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     // REMOVED: The status listener that was forcing it to close instantly at the end
   }
 
-   void _showOverlay() {
+     void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -120,11 +120,10 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                   child: Transform(
                     transform: matrix,
                     alignment: Alignment.center,
-                                        child: Material(
+                    child: Material(
                       color: Colors.transparent,
                       child: GestureDetector(
                         onTap: _reverseAndRemoveOverlay,
-                        // 1. OUTER CONTAINER: Holds the shadow baseline safely outside the clip zone
                         child: Container(
                           width: 70,  
                           height: 70,
@@ -139,7 +138,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                               ),
                             ],
                           ),
-                          // 2. INNER LAYER: Clips ONLY the image asset so the shadow survives!
                           child: ClipOval(
                             child: Image.asset(
                               'assets/Logonombu.jpg',
@@ -149,12 +147,19 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                         ),
                       ),
                     ),
-                  );
-
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ); // Closes OverlayEntry cleanly!
 
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
-  }
+  } // Closes _showOverlay method cleanly!
+
 
 
   // Shrinks it back down cleanly before stripping the overlay entry out entirely
