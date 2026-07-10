@@ -120,26 +120,26 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                   child: Transform(
                     transform: matrix,
                     alignment: Alignment.center,
-                    child: Material(
+                                        child: Material(
                       color: Colors.transparent,
                       child: GestureDetector(
                         onTap: _reverseAndRemoveOverlay,
+                        // 1. OUTER CONTAINER: Holds the shadow baseline safely outside the clip zone
                         child: Container(
                           width: 70,  
                           height: 70,
                           key: ValueKey(_spinAnimation.value),
-                          // Injecting the soft ambient glow effect
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                // A soft rose/gold tint that matches the beauty aesthetic perfectly
-                                color: const Color(0xFFE8B4B8).withOpacity(0.5), 
-                                blurRadius: 20, // Creates a smooth, feather-light spread
-                                spreadRadius: 4, // Ensures the glow peeks nicely past the image borders
+                                color: const Color(0xFFE8B4B8).withOpacity(0.6), 
+                                blurRadius: 25, 
+                                spreadRadius: 6, 
                               ),
                             ],
                           ),
+                          // 2. INNER LAYER: Clips ONLY the image asset so the shadow survives!
                           child: ClipOval(
                             child: Image.asset(
                               'assets/Logonombu.jpg',
@@ -149,14 +149,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+
 
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
