@@ -89,7 +89,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     // REMOVED: The status listener that was forcing it to close instantly at the end
   }
 
-  void _showOverlay() {
+   void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -99,12 +99,11 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
-          // Background dismisser: Tapping anywhere outside the logo now closes it smoothly
           Positioned.fill(
             child: GestureDetector(
-              onTap: _reverseAndRemoveOverlay, 
+              onTap: _reverseAndRemoveOverlay,
               behavior: HitTestBehavior.opaque,
-              child: Container(color: Colors.black.withOpacity(0.15)), // Slight dim effect
+              child: Container(color: Colors.transparent),
             ),
           ),
           Center(
@@ -124,11 +123,23 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                     child: Material(
                       color: Colors.transparent,
                       child: GestureDetector(
-                        onTap: _reverseAndRemoveOverlay, // Tapping the logo itself also closes it
-                        child: SizedBox(
+                        onTap: _reverseAndRemoveOverlay,
+                        child: Container(
                           width: 70,  
                           height: 70,
-                          key: ValueKey(_spinAnimation.value), 
+                          key: ValueKey(_spinAnimation.value),
+                          // Injecting the soft ambient glow effect
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                // A soft rose/gold tint that matches the beauty aesthetic perfectly
+                                color: const Color(0xFFE8B4B8).withOpacity(0.5), 
+                                blurRadius: 20, // Creates a smooth, feather-light spread
+                                spreadRadius: 4, // Ensures the glow peeks nicely past the image borders
+                              ),
+                            ],
+                          ),
                           child: ClipOval(
                             child: Image.asset(
                               'assets/Logonombu.jpg',
@@ -150,6 +161,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
   }
+
 
   // Shrinks it back down cleanly before stripping the overlay entry out entirely
   void _reverseAndRemoveOverlay() async {
