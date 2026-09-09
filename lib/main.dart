@@ -511,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ------------------------- SERVICE SCREEN (LIVE FIRESTORE STREAM) -------------------------
+// ------------------------- SERVICE SCREEN (LIVE FIRESTORE STREAM WITH FALLBACKS) -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   final List<Map<String, dynamic>> basketItems;
@@ -557,10 +557,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
           final allDocs = snapshot.data?.docs ?? [];
 
-          // Robust case-insensitive & trimmed category match
+          // Robust category match checking both 'category' and 'Category'
           final docs = allDocs.where((doc) {
             final data = doc.data() as Map<String, dynamic>;
-            final docCategory = (data['category'] ?? '').toString().trim().toLowerCase();
+            final rawCategory = data['category'] ?? data['Category'] ?? '';
+            final docCategory = rawCategory.toString().trim().toLowerCase();
             final targetCategory = widget.category.trim().toLowerCase();
             return docCategory == targetCategory;
           }).toList();
@@ -580,8 +581,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
             itemBuilder: (context, index) {
               final data = docs[index].data() as Map<String, dynamic>;
               
-              final String serviceName = data['name'] ?? '';
-              final int servicePrice = (data['price'] as num?)?.toInt() ?? 0;
+              // Checks lowercase, capitalized, and trailing space field names
+              final String serviceName = (data['name'] ?? data['Name'] ?? '').toString();
+              
+              final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+              final int servicePrice = (priceVal as num?)?.toInt() ?? 0;
 
               final serviceMap = {
                 'name': serviceName,
@@ -996,12 +1000,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final bool isEditing = doc != null;
     final Map<String, dynamic> data = isEditing ? (doc.data() as Map<String, dynamic>? ?? {}) : {};
 
-    TextEditingController nameCtrl = TextEditingController(text: data['name']?.toString() ?? '');
-    TextEditingController priceCtrl = TextEditingController(text: data['price']?.toString() ?? '');
+    // Safely pulls from name/Name, price/Price/Price , category/Category
+    final initialName = (data['name'] ?? data['Name'] ?? '').toString();
+    final initialPrice = (data['price'] ?? data['Price'] ?? data['Price '] ?? '').toString();
+    final initialCategory = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
+
+    TextEditingController nameCtrl = TextEditingController(text: initialName);
+    TextEditingController priceCtrl = TextEditingController(text: initialPrice);
 
     List<String> categories = ['Hair Services', 'Hair Laundry', 'Makeup'];
-    String rawCat = data['category']?.toString() ?? 'Hair Services';
-    String selectedCategory = categories.contains(rawCat) ? rawCat : categories.first;
+    String selectedCategory = categories.contains(initialCategory) ? initialCategory : categories.first;
 
     showDialog(
       context: context,
@@ -1043,18 +1051,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
               onPressed: () async {
                 int parsedPrice = int.tryParse(priceCtrl.text) ?? 0;
 
+                // Standardizes all fields to clean, lowercase keys
+                final updatedData = {
+                  'name': nameCtrl.text.trim(),
+                  'price': parsedPrice,
+                  'category': selectedCategory,
+                };
+
                 if (isEditing && doc != null) {
-                  await doc.reference.update({
-                    'name': nameCtrl.text.trim(),
-                    'price': parsedPrice,
-                    'category': selectedCategory,
-                  });
+                  await doc.reference.set(updatedData, SetOptions(merge: true));
                 } else {
-                  await FirebaseFirestore.instance.collection('services').add({
-                    'name': nameCtrl.text.trim(),
-                    'price': parsedPrice,
-                    'category': selectedCategory,
-                  });
+                  await FirebaseFirestore.instance.collection('services').add(updatedData);
                 }
 
                 if (context.mounted) Navigator.pop(context);
@@ -1089,16 +1096,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
               final doc = docs[index];
               final data = doc.data() as Map<String, dynamic>;
 
+              final serviceName = (data['name'] ?? data['Name'] ?? 'Unnamed Service').toString();
+              final rawCat = (data['category'] ?? data['Category'] ?? 'Uncategorized').toString();
+              final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: ListTile(
                   title: Text(
-                    data['name'] ?? '',
+                    serviceName,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    "${data['category']} • R${data['price']}",
+                    "$rawCat • R$priceVal",
                     style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
                   ),
                   trailing: Row(
