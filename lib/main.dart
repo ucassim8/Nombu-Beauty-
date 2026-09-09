@@ -557,7 +557,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
           final allDocs = snapshot.data?.docs ?? [];
 
-          // Robust category match checking both 'category' and 'Category'
           final docs = allDocs.where((doc) {
             final data = doc.data() as Map<String, dynamic>;
             final rawCategory = data['category'] ?? data['Category'] ?? '';
@@ -844,6 +843,60 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return DateTime(2099); 
   }
 
+  bool _isDateInPast(String dateStr) {
+    final bookingDate = _parseBookingDate(dateStr);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return bookingDate.isBefore(today);
+  }
+
+  Future<void> _checkOverdueBookingsAndNudge() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('bookings').get();
+      int overdueCount = 0;
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final status = data['status'] ?? 'Pending';
+        final dateStr = data['date'] ?? '';
+
+        if (status == 'Approved' && _isDateInPast(dateStr)) {
+          overdueCount++;
+        }
+      }
+
+      if (overdueCount > 0 && mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Row(
+              children: [
+                Icon(Icons.assignment_late, color: Colors.orange.shade700, size: 28),
+                const SizedBox(width: 10),
+                const Text("Pending Completion", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            content: Text(
+              "Hey beauty! 🌸 You have $overdueCount approved booking${overdueCount > 1 ? 's' : ''} from past dates that haven't been marked completed yet.\n\n"
+              "Please check the Active list and tap the double check mark (✔✔) for appointments that were finished so revenue updates!",
+              style: const TextStyle(fontSize: 14, height: 1.4),
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Got It! 💕", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print("Error checking overdue bookings: $e");
+    }
+  }
+
   void _fetchAndShowQuote() {
     final random = math.Random();
     final selected = premiumQuotes[random.nextInt(premiumQuotes.length)];
@@ -903,7 +956,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _checkOverdueBookingsAndNudge();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.pink.shade400,
                       foregroundColor: Colors.white,
@@ -1424,6 +1480,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     String status = data['status'] ?? 'Pending';
+    String dateStr = data['date'] ?? '';
+
+    bool isOverdue = !isHistory && status == 'Approved' && _isDateInPast(dateStr);
 
     Color badgeColor;
     Color textColor;
@@ -1431,8 +1490,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       badgeColor = Colors.orange.shade100;
       textColor = Colors.orange.shade800;
     } else if (status == 'Approved') {
-      badgeColor = Colors.blue.shade100;
-      textColor = Colors.blue.shade800;
+      badgeColor = isOverdue ? Colors.amber.shade100 : Colors.blue.shade100;
+      textColor = isOverdue ? Colors.amber.shade900 : Colors.blue.shade800;
     } else if (status == 'Completed') {
       badgeColor = Colors.green.shade100;
       textColor = Colors.green.shade800;
@@ -1443,8 +1502,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: isOverdue ? 4 : 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+        side: isOverdue
+            ? BorderSide(color: Colors.amber.shade700, width: 2)
+            : BorderSide.none,
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
@@ -1461,7 +1525,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
                   child: Text(
-                    status, 
+                    isOverdue ? "Needs Completion Check ⚠️" : status, 
                     style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
                   ),
                 ),
@@ -1503,7 +1567,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         )
                       else if (status == 'Approved')
                         IconButton(
-                          icon: const Icon(Icons.done_all, color: Colors.purple),
+                          icon: Icon(
+                            Icons.done_all, 
+                            color: isOverdue ? Colors.amber.shade800 : Colors.purple,
+                            size: isOverdue ? 28 : 24,
+                          ),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           constraints: const BoxConstraints(),
                           onPressed: () => doc.reference.update({'status': 'Completed'}),
