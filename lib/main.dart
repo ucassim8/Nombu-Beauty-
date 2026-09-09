@@ -511,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ------------------------- SERVICE SCREEN (DYNAMIC FIRESTORE STREAM) -------------------------
+// ------------------------- SERVICE SCREEN (LIVE FIRESTORE STREAM) -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   final List<Map<String, dynamic>> basketItems;
@@ -990,6 +990,136 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  void _showAddOrEditServiceDialog(DocumentSnapshot? doc) {
+    final bool isEditing = doc != null;
+    final data = isEditing ? (doc.data() as Map<String, dynamic>) : {};
+
+    TextEditingController nameCtrl = TextEditingController(text: data['name'] ?? '');
+    TextEditingController priceCtrl = TextEditingController(text: isEditing ? data['price'].toString() : '');
+    String selectedCategory = data['category'] ?? 'Hair Services';
+
+    List<String> categories = ['Hair Services', 'Hair Laundry', 'Makeup'];
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(isEditing ? "Edit Service" : "Add New Service"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(labelText: "Service Name"),
+              ),
+              TextField(
+                controller: priceCtrl,
+                decoration: const InputDecoration(labelText: "Price (R)"),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                decoration: const InputDecoration(labelText: "Category"),
+                items: categories
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setDialogState(() => selectedCategory = val);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+              onPressed: () async {
+                int parsedPrice = int.tryParse(priceCtrl.text) ?? 0;
+
+                if (isEditing) {
+                  await doc.reference.update({
+                    'name': nameCtrl.text,
+                    'price': parsedPrice,
+                    'category': selectedCategory,
+                  });
+                } else {
+                  await FirebaseFirestore.instance.collection('services').add({
+                    'name': nameCtrl.text,
+                    'price': parsedPrice,
+                    'category': selectedCategory,
+                  });
+                }
+
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: Text(isEditing ? "Update" : "Save", style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServicesManager() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('services').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+
+        final docs = snapshot.data!.docs;
+
+        return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: Colors.pink.shade400,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text("Add New Service", style: TextStyle(color: Colors.white)),
+            onPressed: () => _showAddOrEditServiceDialog(null),
+          ),
+          body: ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final doc = docs[index];
+              final data = doc.data() as Map<String, dynamic>;
+
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  title: Text(
+                    data['name'] ?? '',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    "${data['category']} • R${data['price']}",
+                    style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () => _showAddOrEditServiceDialog(doc),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => doc.reference.delete(),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_auth) {
@@ -1022,10 +1152,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Bookings Manager'),
+          title: const Text('Bookings & Menu Manager'),
           backgroundColor: Colors.pink.shade400,
           actions: [
             IconButton(
@@ -1043,23 +1173,30 @@ class _AdminDashboardState extends State<AdminDashboard> {
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: [
-              Tab(icon: Icon(Icons.calendar_today), text: "Active Bookings"),
+              Tab(icon: Icon(Icons.calendar_today), text: "Active"),
               Tab(icon: Icon(Icons.history), text: "History"),
+              Tab(icon: Icon(Icons.edit_note), text: "Services"),
             ],
           ),
         ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-            
-            return TabBarView(
-              children: [
-                _buildBookingList(snapshot.data!.docs, false),
-                _buildBookingList(snapshot.data!.docs, true),
-              ],
-            );
-          },
+        body: TabBarView(
+          children: [
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                return _buildBookingList(snapshot.data!.docs, false);
+              },
+            ),
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                return _buildBookingList(snapshot.data!.docs, true);
+              },
+            ),
+            _buildServicesManager(),
+          ],
         ),
       ),
     );
