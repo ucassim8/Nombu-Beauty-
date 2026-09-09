@@ -878,7 +878,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ],
             ),
             content: Text(
-              "Hey beauty! 🌸 You have $overdueCount approved booking${overdueCount > 1 ? 's' : ''} from past dates that haven't been marked completed yet.\n\n"
+              "Hey Baby 🌸 You have $overdueCount approved booking${overdueCount > 1 ? 's' : ''} from past dates that haven't been marked completed yet.\n\n"
               "Please check the Active list and tap the double check mark (✔✔) for appointments that were finished so revenue updates!",
               style: const TextStyle(fontSize: 14, height: 1.4),
             ),
