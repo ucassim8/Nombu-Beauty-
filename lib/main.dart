@@ -802,6 +802,7 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
+  int? _selectedRevenueYear;
 
   final List<Map<String, String>> premiumQuotes = [
     {"q": "You are doing amazing things today, my love! Let's conquer this dashboard.", "a": "Hubby"},
@@ -1349,7 +1350,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     List<DocumentSnapshot> completedList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Completed')).toList();
     List<DocumentSnapshot> cancelledList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Cancelled')).toList();
 
-    Map<String, int> monthlyEarnings = {};
+    // Group earnings by year and month
+    Map<int, Map<String, int>> earningsByYear = {};
     List<String> monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     for (var doc in completedList) {
@@ -1362,18 +1364,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
       String dateStr = data['date'] ?? "";
       List<String> parts = dateStr.split('/');
-      String groupKey = "Unknown Month";
       
       if (parts.length == 3) {
         int monthIdx = int.tryParse(parts[1]) ?? 0;
-        String year = parts[2];
+        int year = int.tryParse(parts[2]) ?? DateTime.now().year;
+
         if (monthIdx >= 1 && monthIdx <= 12) {
-          groupKey = "${monthNames[monthIdx]} $year";
+          earningsByYear.putIfAbsent(year, () => {});
+          String monthName = monthNames[monthIdx];
+          earningsByYear[year]![monthName] = (earningsByYear[year]![monthName] ?? 0) + price;
         }
       }
-
-      monthlyEarnings[groupKey] = (monthlyEarnings[groupKey] ?? 0) + price;
     }
+
+    List<int> availableYears = earningsByYear.keys.toList()..sort((a, b) => b.compareTo(a));
+    if (availableYears.isEmpty) availableYears.add(DateTime.now().year);
+
+    int activeYear = availableYears.contains(_selectedRevenueYear) ? _selectedRevenueYear! : availableYears.first;
+    Map<String, int> selectedYearEarnings = earningsByYear[activeYear] ?? {};
 
     var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
       Timestamp tA = (a.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
@@ -1392,42 +1400,116 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
+        // ------------------------- COMBINED REVENUE BREAKDOWN -------------------------
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           color: Colors.green.shade50,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: BorderSide(color: Colors.green.shade200)),
-          child: ExpansionTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.green.shade100,
-              child: const Icon(Icons.analytics, color: Colors.green),
-            ),
-            title: Text(
-              "Monthly Revenue Breakdown",
-              style: TextStyle(fontSize: 15, color: Colors.green.shade900, fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              "Tap to view earnings by month",
-              style: TextStyle(fontSize: 12, color: Colors.green.shade700),
-            ),
-            children: monthlyEarnings.isEmpty 
-              ? [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text("No revenue data recorded yet."),
-                  )
-                ]
-              : monthlyEarnings.entries.map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15), 
+            side: BorderSide(color: Colors.green.shade200)
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        Text(entry.key, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.grey.shade800)),
-                        Text("R${entry.value}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade800)),
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.green.shade100,
+                          child: const Icon(Icons.analytics, color: Colors.green, size: 20),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Monthly Revenue",
+                          style: TextStyle(fontSize: 15, color: Colors.green.shade900, fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
-                  );
-                }).toList(),
+                    
+                    // Year Selector Dropdown
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.green.shade300),
+                      ),
+                      child: DropdownButton<int>(
+                        value: activeYear,
+                        underline: const SizedBox(),
+                        isDense: true,
+                        icon: Icon(Icons.arrow_drop_down, color: Colors.green.shade800),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green.shade900, fontSize: 13),
+                        onChanged: (int? newYear) {
+                          if (newYear != null) {
+                            setState(() {
+                              _selectedRevenueYear = newYear;
+                            });
+                          }
+                        },
+                        items: availableYears.map((int year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text("$year"),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Horizontal Carousel Cards
+                selectedYearEarnings.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text("No revenue recorded for $activeYear.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
+                      )
+                    : SizedBox(
+                        height: 75,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: selectedYearEarnings.entries.length,
+                          itemBuilder: (context, idx) {
+                            final entry = selectedYearEarnings.entries.elementAt(idx);
+                            return Container(
+                              width: 110,
+                              margin: const EdgeInsets.only(right: 10),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.green.shade200),
+                                boxShadow: [
+                                  BoxShadow(color: Colors.green.shade100.withOpacity(0.5), blurRadius: 4, offset: const Offset(0, 2))
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    entry.key, 
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade700)
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "R${entry.value}", 
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade800)
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+              ],
+            ),
           ),
         ),
         
