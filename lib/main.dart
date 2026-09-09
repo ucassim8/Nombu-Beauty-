@@ -541,17 +541,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('services')
-            .where('category', isEqualTo: widget.category)
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('services').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text(
-                'Error loading services.',
-                style: TextStyle(color: Colors.pink.shade900),
-              ),
+              child: Text('Error loading services.', style: TextStyle(color: Colors.pink.shade900)),
             );
           }
 
@@ -561,7 +555,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
             );
           }
 
-          final docs = snapshot.data?.docs ?? [];
+          final allDocs = snapshot.data?.docs ?? [];
+
+          // Robust case-insensitive & trimmed category match
+          final docs = allDocs.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final docCategory = (data['category'] ?? '').toString().trim().toLowerCase();
+            final targetCategory = widget.category.trim().toLowerCase();
+            return docCategory == targetCategory;
+          }).toList();
 
           if (docs.isEmpty) {
             return Center(
@@ -992,13 +994,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   void _showAddOrEditServiceDialog(DocumentSnapshot? doc) {
     final bool isEditing = doc != null;
-    final data = isEditing ? (doc.data() as Map<String, dynamic>) : {};
+    final Map<String, dynamic> data = isEditing ? (doc.data() as Map<String, dynamic>? ?? {}) : {};
 
-    TextEditingController nameCtrl = TextEditingController(text: data['name'] ?? '');
-    TextEditingController priceCtrl = TextEditingController(text: isEditing ? data['price'].toString() : '');
-    String selectedCategory = data['category'] ?? 'Hair Services';
+    TextEditingController nameCtrl = TextEditingController(text: data['name']?.toString() ?? '');
+    TextEditingController priceCtrl = TextEditingController(text: data['price']?.toString() ?? '');
 
     List<String> categories = ['Hair Services', 'Hair Laundry', 'Makeup'];
+    String rawCat = data['category']?.toString() ?? 'Hair Services';
+    String selectedCategory = categories.contains(rawCat) ? rawCat : categories.first;
 
     showDialog(
       context: context,
@@ -1040,15 +1043,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
               onPressed: () async {
                 int parsedPrice = int.tryParse(priceCtrl.text) ?? 0;
 
-                if (isEditing) {
+                if (isEditing && doc != null) {
                   await doc.reference.update({
-                    'name': nameCtrl.text,
+                    'name': nameCtrl.text.trim(),
                     'price': parsedPrice,
                     'category': selectedCategory,
                   });
                 } else {
                   await FirebaseFirestore.instance.collection('services').add({
-                    'name': nameCtrl.text,
+                    'name': nameCtrl.text.trim(),
                     'price': parsedPrice,
                     'category': selectedCategory,
                   });
