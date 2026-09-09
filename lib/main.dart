@@ -82,14 +82,12 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
       ),
       TweenSequenceItem(
         tween: ConstantTween<double>(4.5), 
-        weight: 85.0, // Kept it big at 4.5 scale instead of shrinking back automatically
+        weight: 85.0,
       ),
     ]).animate(_controller);
-
-    // REMOVED: The status listener that was forcing it to close instantly at the end
   }
 
-       void _showOverlay() {
+  void _showOverlay() {
     if (_overlayEntry != null) return;
 
     setState(() {
@@ -159,15 +157,12 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
           ),
         ],
       ),
-    ); // <-- THIS paren/semicolon was left floating open!
+    );
 
     Overlay.of(context).insert(_overlayEntry!);
     _controller.forward(from: 0.0);
   }
 
-
-
-  // Shrinks it back down cleanly before stripping the overlay entry out entirely
   void _reverseAndRemoveOverlay() async {
     if (_overlayEntry == null) return;
     await _controller.reverse(); 
@@ -203,10 +198,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     );
   }
 }
-
-
-
-  
 
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
@@ -358,10 +349,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-                  appBar: AppBar(
+      appBar: AppBar(
         title: Row(
           children: [
-            // 1. Your fully active animated spinning logo
             SpinningLogo(
               child: ClipOval(
                 child: SizedBox(
@@ -374,11 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            
-            // 2. Clear spacing to push the next title item over
             const SizedBox(width: 16),
-
-            
             Text(
               'Nombu Beauty',
               style: GoogleFonts.playfairDisplay(
@@ -489,24 +475,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontSize: 15,
                   ),
                 ),
-                const SizedBox(height: 4), // Small gap between the text and the icons below it
+                const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.camera_alt_outlined, size: 28), // Adjusted down slightly to look premium
+                      icon: const Icon(Icons.camera_alt_outlined, size: 28),
                       color: Colors.pink.shade800,
                       tooltip: 'Instagram',
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       constraints: const BoxConstraints(),
                       onPressed: () => _launchSocial(instagramUrl),
                     ),
-                    const SizedBox(width: 16), // Perfectly uniform gap between just the two icons
+                    const SizedBox(width: 16),
                     Transform.translate(
-                      offset: const Offset(0, -1.5), // Fixed! Nudges the music note up to perfectly align with the camera square
+                      offset: const Offset(0, -1.5),
                       child: IconButton(
-                        icon: const Icon(Icons.music_note, size: 30), // Solid music note fills the visual weight better
+                        icon: const Icon(Icons.music_note, size: 30),
                         color: Colors.pink.shade800,
                         tooltip: 'TikTok',
                         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -525,43 +511,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-
-// ------------------------- SERVICE SCREEN -------------------------
+// ------------------------- SERVICE SCREEN (DYNAMIC FIRESTORE STREAM) -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   final List<Map<String, dynamic>> basketItems;
   ServiceScreen({required this.category, required this.basketItems});
+
   @override
   _ServiceScreenState createState() => _ServiceScreenState();
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-  final Map<String, List<Map<String, dynamic>>> servicesList = {
-    'Hair Services': [
-      {'name': 'Basic install', 'price': 200},
-      {'name': 'Install + styling', 'price': 280},
-      {'name': 'Sew-in install', 'price': 300},
-      {'name': 'Install + curling', 'price': 400},
-      {'name': 'Frontal ponytail', 'price': 350},
-    ],
-    'Hair Laundry': [
-      {'name': 'Wig wash', 'price': 150},
-      {'name': 'Plucking', 'price': 80},
-      {'name': 'Wig customisation (tint)', 'price': 180},
-      {'name': 'Bleaching + plucking', 'price': 220},
-    ],
-    'Makeup': [
-      {'name': 'Natural look', 'price': 300},
-      {'name': 'Soft glam', 'price': 400},
-      {'name': 'Soft glam (lashes)', 'price': 450},
-      {'name': 'Full glam (lashes)', 'price': 550},
-    ],
-  };
-
   @override
   Widget build(BuildContext context) {
-    final services = servicesList[widget.category] ?? [];
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.category), 
@@ -578,37 +540,80 @@ class _ServiceScreenState extends State<ServiceScreen> {
           )
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: services.length,
-        itemBuilder: (context, index) {
-          final service = services[index];
-          final isInBasket = widget.basketItems.any((item) => item['name'] == service['name']);
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            elevation: 3,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: ListTile(
-              title: Text(service['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('R${service['price']}', style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold)),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isInBasket ? Colors.grey : Colors.pink.shade400,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: () {
-                  setState(() {
-                    if (isInBasket) {
-                      widget.basketItems.removeWhere((item) => item['name'] == service['name']);
-                    } else {
-                      widget.basketItems.add(service);
-                    }
-                  });
-                },
-                child: Text(isInBasket ? 'Remove' : 'Add to Basket', style: const TextStyle(color: Colors.white)),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('services')
+            .where('category', isEqualTo: widget.category)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error loading services.',
+                style: TextStyle(color: Colors.pink.shade900),
               ),
-            ),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(color: Colors.pink.shade400),
+            );
+          }
+
+          final docs = snapshot.data?.docs ?? [];
+
+          if (docs.isEmpty) {
+            return Center(
+              child: Text(
+                'No services found in this category.',
+                style: TextStyle(color: Colors.pink.shade900, fontSize: 16),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final data = docs[index].data() as Map<String, dynamic>;
+              
+              final String serviceName = data['name'] ?? '';
+              final int servicePrice = (data['price'] as num?)?.toInt() ?? 0;
+
+              final serviceMap = {
+                'name': serviceName,
+                'price': servicePrice,
+              };
+
+              final isInBasket = widget.basketItems.any((item) => item['name'] == serviceName);
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 3,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                child: ListTile(
+                  title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('R$servicePrice', style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold)),
+                  trailing: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isInBasket ? Colors.grey : Colors.pink.shade400,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (isInBasket) {
+                          widget.basketItems.removeWhere((item) => item['name'] == serviceName);
+                        } else {
+                          widget.basketItems.add(serviceMap);
+                        }
+                      });
+                    },
+                    child: Text(isInBasket ? 'Remove' : 'Add to Basket', style: const TextStyle(color: Colors.white)),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -795,7 +800,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
-  // Curated list of unique quotes signed by Hubby, Motivation, or Boss Babe Energy
   final List<Map<String, String>> premiumQuotes = [
     {"q": "You are doing amazing things today, my love! Let's conquer this dashboard.", "a": "Hubby"},
     {"q": "Just a reminder that you're the hardest worker I know, and I'm so proud of you.", "a": "Hubby"},
@@ -836,7 +840,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return DateTime(2099); 
   }
 
-  // Instantly pulls randomly from our local premium quote vault
   void _fetchAndShowQuote() {
     final random = math.Random();
     final selected = premiumQuotes[random.nextInt(premiumQuotes.length)];
@@ -1233,7 +1236,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-    Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
+  Widget _buildBookingCard(DocumentSnapshot doc, bool isHistory) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     String status = data['status'] ?? 'Pending';
 
@@ -1262,7 +1265,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row for Name and Status Badge
             Row(
               children: [
                 Text(
@@ -1282,12 +1284,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             const SizedBox(height: 8),
             
-            // Layout splitting Details on the Left and Icons on the Right
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Booking Details (Left side)
                 Expanded(
                   child: Text(
                     "${data['service'] ?? 'No Service'}\n"
@@ -1298,12 +1298,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 ),
                 
-                // Icon row (Right side)
                 if (!isHistory)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // 1. Blue Edit Pen
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
                         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1311,7 +1309,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         onPressed: () => _showEditDialog(doc),
                       ),
                       
-                      // 2. Dynamic Ticks (Green single for pending -> Purple double for approved)
                       if (status == 'Pending')
                         IconButton(
                           icon: const Icon(Icons.check_circle, color: Colors.green),
@@ -1327,7 +1324,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           onPressed: () => doc.reference.update({'status': 'Completed'}),
                         ),
 
-                      // 3. Orange Cancel Circle
                       IconButton(
                         icon: const Icon(Icons.cancel, color: Colors.orange),
                         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1335,7 +1331,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         onPressed: () => doc.reference.update({'status': 'Cancelled'}),
                       ),
                       
-                      // 4. Red Delete Trash Bin
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         padding: const EdgeInsets.symmetric(horizontal: 4),
