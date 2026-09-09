@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package0:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
@@ -581,9 +581,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
             itemBuilder: (context, index) {
               final data = docs[index].data() as Map<String, dynamic>;
               
-              // Checks lowercase, capitalized, and trailing space field names
               final String serviceName = (data['name'] ?? data['Name'] ?? '').toString();
-              
               final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
               final int servicePrice = (priceVal as num?)?.toInt() ?? 0;
 
@@ -1000,7 +998,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final bool isEditing = doc != null;
     final Map<String, dynamic> data = isEditing ? (doc.data() as Map<String, dynamic>? ?? {}) : {};
 
-    // Safely pulls from name/Name, price/Price/Price , category/Category
     final initialName = (data['name'] ?? data['Name'] ?? '').toString();
     final initialPrice = (data['price'] ?? data['Price'] ?? data['Price '] ?? '').toString();
     final initialCategory = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
@@ -1051,7 +1048,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
               onPressed: () async {
                 int parsedPrice = int.tryParse(priceCtrl.text) ?? 0;
 
-                // Standardizes all fields to clean, lowercase keys
                 final updatedData = {
                   'name': nameCtrl.text.trim(),
                   'price': parsedPrice,
@@ -1074,6 +1070,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  // ------------------------- CATEGORIZED SERVICES MANAGER -------------------------
   Widget _buildServicesManager() {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('services').snapshots(),
@@ -1082,6 +1079,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
         final docs = snapshot.data!.docs;
 
+        final categoriesList = ['Hair Services', 'Hair Laundry', 'Makeup'];
+
+        Map<String, List<DocumentSnapshot>> groupedServices = {
+          for (var cat in categoriesList) cat: []
+        };
+
+        for (var doc in docs) {
+          final data = doc.data() as Map<String, dynamic>;
+          final rawCat = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
+
+          String matchedCategory = categoriesList.firstWhere(
+            (c) => c.toLowerCase() == rawCat.trim().toLowerCase(),
+            orElse: () => 'Hair Services',
+          );
+
+          groupedServices[matchedCategory]!.add(doc);
+        }
+
         return Scaffold(
           floatingActionButton: FloatingActionButton.extended(
             backgroundColor: Colors.pink.shade400,
@@ -1089,45 +1104,64 @@ class _AdminDashboardState extends State<AdminDashboard> {
             label: const Text("Add New Service", style: TextStyle(color: Colors.white)),
             onPressed: () => _showAddOrEditServiceDialog(null),
           ),
-          body: ListView.builder(
+          body: ListView(
             padding: const EdgeInsets.all(12),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final doc = docs[index];
-              final data = doc.data() as Map<String, dynamic>;
-
-              final serviceName = (data['name'] ?? data['Name'] ?? 'Unnamed Service').toString();
-              final rawCat = (data['category'] ?? data['Category'] ?? 'Uncategorized').toString();
-              final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+            children: categoriesList.map((categoryName) {
+              final categoryDocs = groupedServices[categoryName] ?? [];
 
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                elevation: 2,
+                child: ExpansionTile(
+                  initiallyExpanded: true,
                   title: Text(
-                    serviceName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    "$categoryName (${categoryDocs.length})",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.pink.shade800,
+                    ),
                   ),
-                  subtitle: Text(
-                    "$rawCat • R$priceVal",
-                    style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => _showAddOrEditServiceDialog(doc),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => doc.reference.delete(),
-                      ),
-                    ],
-                  ),
+                  children: categoryDocs.isEmpty
+                      ? [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              "No services under $categoryName yet.",
+                              style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                            ),
+                          )
+                        ]
+                      : categoryDocs.map((doc) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          final serviceName = (data['name'] ?? data['Name'] ?? 'Unnamed').toString();
+                          final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+
+                          return ListTile(
+                            title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                            subtitle: Text(
+                              "R$priceVal",
+                              style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _showAddOrEditServiceDialog(doc),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => doc.reference.delete(),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
                 ),
               );
-            },
+            }).toList(),
           ),
         );
       },
