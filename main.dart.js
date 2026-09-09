@@ -90937,7 +90937,7 @@ q.push(A.ei(c,B.c6,B.oI,c,new A.ak5(a),B.cx,c,c))
 b.push(A.cS(q,B.y,B.t,B.af,c))}return A.Km(new A.aR(B.H5,A.cc(A.b([h,B.lh,A.cS(b,B.aI,B.dW,B.G,c)],f),B.aI,B.t,B.G),c),c,l,B.H3,new A.c2(k,j))}}
 A.ako.prototype={
 $1(a){var s=null,r=A.ed(20),q=t.p,p=A.cS(A.b([A.ni(B.HW,B.nk,s,28),B.ld,B.XC],q),B.y,B.t,B.G,s),o=this.a.a,n=o>1?"s":""
-n=A.aS("Hey beauty! \ud83c\udf38 You have "+o+" approved booking"+n+" from past dates that haven't been marked completed yet.\n\nPlease check the Active list and tap the double check mark (\u2714\u2714) for appointments that were finished so revenue updates!",s,s,s,s,B.U1,s,s,s)
+n=A.aS("Hey Baby \ud83c\udf38 You have "+o+" approved booking"+n+" from past dates that haven't been marked completed yet.\n\nPlease check the Active list and tap the double check mark (\u2714\u2714) for appointments that were finished so revenue updates!",s,s,s,s,B.U1,s,s,s)
 return A.ay5(A.b([A.pv(B.Xp,new A.akn(a),A.tX(s,s,B.aH,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s))],q),n,new A.c2(r,B.k),p)},
 $S:212}
 A.akn.prototype={
